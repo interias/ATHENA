@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import datetime
+import json
 from typing import AsyncIterator
+from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from .config import Settings
 from .content import ContentLoader, M0_LESSON_ID, lesson_response
-from .database import Database
+from .database import AttemptConflictError, AttemptRecord, Database
 from .models import (
+    AttemptRequest,
+    AttemptResponse,
     ContentIssue,
     ContentManifest,
     ContentReport,
@@ -19,7 +24,11 @@ from .models import (
     LessonResponse,
     ReadinessCheck,
     ReadinessResponse,
+    SingleChoiceAnswer,
 )
+
+M0_ATTEMPT_QUESTION_ID = "q-ch01-01"
+CANONICAL_SINGLE_CHOICE = "canonical_single_choice"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -129,7 +138,93 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         manifest: ContentManifest = request.app.state.content_manifest
         return lesson_response(manifest)
 
+    @application.post(
+        "/v1/attempts",
+        response_model=AttemptResponse,
+        status_code=201,
+        responses={
+            404: {"description": "Aufgabe nicht gefunden"},
+            409: {"description": "Inhaltsversion oder Versuch-ID kollidiert"},
+            503: {"model": ReadinessResponse},
+        },
+    )
+    def create_attempt(
+        payload: AttemptRequest, request: Request
+    ) -> AttemptResponse | JSONResponse:
+        if payload.item_id != M0_ATTEMPT_QUESTION_ID:
+            raise HTTPException(status_code=404, detail="Aufgabe nicht gefunden.")
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+
+        database: Database = request.app.state.database
+        try:
+            stored = database.find_attempt(
+                attempt_id=str(payload.attempt_id),
+                item_id=payload.item_id,
+                content_version=payload.content_version,
+                answer=payload.answer.model_dump(),
+                confidence=payload.confidence,
+                mode=payload.mode,
+                assisted=payload.assisted,
+            )
+        except AttemptConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        if stored is not None:
+            return _attempt_response(stored)
+
+        manifest: ContentManifest = request.app.state.content_manifest
+        question = next(
+            item for item in manifest.questions if item.id == M0_ATTEMPT_QUESTION_ID
+        )
+        if payload.content_version != question.content_version:
+            raise HTTPException(
+                status_code=409, detail="Inhaltsversion stimmt nicht überein."
+            )
+        option_ids = {option.id for option in question.options or []}
+        if payload.answer.option_id not in option_ids:
+            raise HTTPException(status_code=422, detail="Antwortoption ist ungültig.")
+
+        is_correct = payload.answer.option_id == question.correct_option
+        feedback_by_option = question.feedback_by_option or {}
+        try:
+            stored = database.save_attempt(
+                attempt_id=str(payload.attempt_id),
+                item_id=payload.item_id,
+                content_version=payload.content_version,
+                answer=payload.answer.model_dump(),
+                confidence=payload.confidence,
+                mode=payload.mode,
+                assisted=payload.assisted,
+                objective_result="correct" if is_correct else "incorrect",
+                grading_source=CANONICAL_SINGLE_CHOICE,
+                feedback=feedback_by_option[payload.answer.option_id],
+            )
+        except AttemptConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+        return _attempt_response(stored)
+
     return application
+
+
+def _attempt_response(stored: AttemptRecord) -> AttemptResponse:
+    stored_answer = SingleChoiceAnswer.model_validate(
+        json.loads(stored.answer_json)
+    )
+    return AttemptResponse(
+        attempt_id=UUID(stored.id),
+        item_id=stored.item_id,
+        content_version=stored.content_version,
+        answer=stored_answer,
+        confidence=stored.confidence,
+        mode=stored.mode,
+        assisted=stored.assisted,
+        created_at=datetime.fromisoformat(stored.created_at),
+        objective_result=stored.objective_result,
+        grading_source=stored.grading_source,
+        feedback=stored.feedback,
+    )
 
 
 def _readiness(request: Request) -> ReadinessResponse:

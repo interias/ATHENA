@@ -845,7 +845,11 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
             "objective_ids": question.objective_ids,
             "source_ids": question.source_ids,
             "content_version": question.content_version,
-            "development_status": "in_development",
+            "development_status": (
+                "available"
+                if question.id == "q-ch01-01"
+                else "in_development"
+            ),
         }
         if question.kind == "single_choice":
             exercises.append(

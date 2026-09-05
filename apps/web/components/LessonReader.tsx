@@ -52,7 +52,23 @@ type Exercise = {
   objective_ids: string[];
   source_ids: string[];
   content_version: string;
-  development_status: "in_development";
+  development_status: "available" | "in_development";
+};
+
+type Confidence = "unsicher" | "mittel" | "sicher";
+
+type AttemptResponse = {
+  attempt_id: string;
+  item_id: string;
+  content_version: string;
+  answer: { option_id: string };
+  confidence: Confidence | null;
+  mode: "practice";
+  assisted: boolean;
+  created_at: string;
+  objective_result: "correct" | "incorrect";
+  grading_source: "canonical_single_choice";
+  feedback: string;
 };
 
 type LessonBlock =
@@ -286,6 +302,120 @@ function ExercisePreview({ exercise }: { exercise: Exercise }) {
   );
 }
 
+function SingleChoiceExercise({ exercise }: { exercise: Exercise }) {
+  const groupName = useId();
+  const firstInput = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const attemptId = useRef<string | null>(null);
+  const [selection, setSelection] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<Confidence | "">("");
+  const [result, setResult] = useState<AttemptResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function reviseAttempt(update: () => void) {
+    if (error) {
+      attemptId.current = null;
+      setError(null);
+    }
+    update();
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selection || submitting || result) return;
+    const stableAttemptId = attemptId.current ?? crypto.randomUUID();
+    attemptId.current = stableAttemptId;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attempt_id: stableAttemptId,
+          item_id: exercise.id,
+          content_version: exercise.content_version,
+          answer: { option_id: selection },
+          confidence: confidence || null,
+          mode: "practice",
+          assisted: false,
+        }),
+      });
+      if (!response.ok) throw new Error();
+      setResult((await response.json()) as AttemptResponse);
+      requestAnimationFrame(() => resultRef.current?.focus());
+    } catch {
+      setError("Der Speicherstatus konnte nicht bestätigt werden. Deine Auswahl bleibt erhalten: Sende sie unverändert erneut oder ändere sie für einen neuen Versuch.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function startNewAttempt() {
+    attemptId.current = null;
+    setSelection(null);
+    setConfidence("");
+    setResult(null);
+    setError(null);
+    requestAnimationFrame(() => firstInput.current?.focus());
+  }
+
+  return (
+    <section className="exercise-card" aria-labelledby={`${exercise.id}-title`}>
+      <p className="figure-number">Denkaufgabe · Fiktives Beispiel</p>
+      <h2 id={`${exercise.id}-title`}>{exercise.prompt}</h2>
+      <form onSubmit={submit}>
+        <fieldset className="exercise-options" disabled={submitting || Boolean(result)}>
+          <legend>Wähle eine Antwort.</legend>
+          {exercise.options?.map((option, index) => (
+            <label key={option.id}>
+              <input
+                ref={index === 0 ? firstInput : undefined}
+                type="radio"
+                name={groupName}
+                checked={selection === option.id}
+                onChange={() => reviseAttempt(() => setSelection(option.id))}
+              />
+              <span>{option.text}</span>
+            </label>
+          ))}
+        </fieldset>
+        <label className="confidence-control">
+          <span>Wie sicher bist du? <small>(optional)</small></span>
+          <select
+            value={confidence}
+            disabled={submitting || Boolean(result)}
+            onChange={(event) => {
+              const value = event.target.value as Confidence | "";
+              reviseAttempt(() => setConfidence(value));
+            }}
+          >
+            <option value="">Keine Angabe</option>
+            <option value="unsicher">Unsicher</option>
+            <option value="mittel">Mittel</option>
+            <option value="sicher">Sicher</option>
+          </select>
+        </label>
+        <div className="exercise-actions">
+          <button type="submit" className="primary-action" disabled={!selection || submitting || Boolean(result)}>
+            {submitting ? "Wird gespeichert …" : "Antwort speichern"}
+          </button>
+          {result && <button type="button" className="secondary-action" onClick={startNewAttempt}>Erneut versuchen</button>}
+        </div>
+      </form>
+      {error && <p className="attempt-error" role="alert">{error}</p>}
+      {result && (
+        <div className="attempt-feedback" role="status" tabIndex={-1} ref={resultRef}>
+          <strong>{result.objective_result === "correct" ? "Richtig eingeordnet" : "Schau auf die beiden Ebenen"}</strong>
+          <p>{result.feedback}</p>
+          <small>Versuch dauerhaft gespeichert{result.confidence ? ` · Zuversicht: ${result.confidence}` : ""}</small>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function SourcePanel({
   sources,
   onClose,
@@ -420,7 +550,10 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
             return interaction && figure ? <TwoRunsInteraction key={index} interaction={interaction} figure={figure} onOpenSources={openSources} /> : null;
           }
           const exercise = exercises.get(block.id);
-          return exercise ? <ExercisePreview key={index} exercise={exercise} /> : null;
+          if (!exercise) return null;
+          return exercise.id === "q-ch01-01" && exercise.kind === "single_choice"
+            ? <SingleChoiceExercise key={index} exercise={exercise} />
+            : <ExercisePreview key={index} exercise={exercise} />;
         })}
       </article>
       <footer className="lesson-footer">
