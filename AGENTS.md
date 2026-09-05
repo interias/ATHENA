@@ -34,3 +34,14 @@ Keine fremden MDX-Dateien ausführen. Markdown nur als Daten verarbeiten; Kompon
 Kleine, testbare Schritte. Tests tatsächlich ausführen und ausgeführte von nicht ausgeführten Prüfungen unterscheiden. Bei fehlendem Tool keine erfolgreiche Prüfung behaupten. Bei Unsicherheit eine begründete reversible Entscheidung dokumentieren, nicht das komplette Projekt blockieren.
 
 Bei Widersprüchen gilt: aktueller ausdrücklicher Nutzerauftrag > diese Umfangsregeln > freigegebener Meilenstein > Detaildokument. Widerspruch im Abschlussbericht benennen.
+
+## Commits und Pushes
+
+Beauftragte Arbeit eigenständig in kleine, logisch abgeschlossene und einzeln
+prüfbare Commits aufteilen. Vor jedem Commit den Diff prüfen und passende Checks
+ausführen; nur zugehörige Änderungen gezielt stagen. Aussagekräftige englische
+Commit-Nachrichten verwenden und jeden abgeschlossenen Commit zeitnah auf den
+zugehörigen Remote-Branch pushen. Dafür ist keine erneute Rückfrage nötig.
+Bestehende fremde Änderungen erhalten und nicht ungeprüft mitcommitten. Bei
+fehlgeschlagenen Checks oder Push-Konflikten die Ursache klären; keine Force-Pushes
+oder destruktiven Git-Operationen ohne ausdrücklichen Auftrag.
