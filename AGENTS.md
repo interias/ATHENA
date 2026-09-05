@@ -1,39 +1,57 @@
 # Arbeitsregeln für Codex
 
-## Auftrag
+## Einstieg und Umfang
 
-Baue ein persönliches Lernstudio, keinen Trainingsplan-Generator und keine SaaS-Lernplattform. Sprache der Oberfläche und Inhalte: Deutsch. Code-Identifier: Englisch. Neue, eigenständige Anwendung; bestehende Projekte nicht verändern.
+Vor Änderungen `README.md`, `CONTEXT.md` und `docs/specs/d0-design-lab.md` lesen;
+bei Architektur- oder Inhaltsentscheidungen die dort verlinkten ADRs hinzunehmen.
+Bei Arbeiten am Labor zusätzlich `Design/AGENTS.md` lesen.
 
-## Vor jedem Umsetzungsschritt lesen
+Das Design Lab (D0) bleibt in `Design/`; repositoryweite Dokumentationspflege ist
+beauftragt. Die Produktimplementierung M0 ist in GitHub-Issues #1–#7 geplant.
+Bei beauftragter Ticketabarbeitung gelten deren Umfang und Abhängigkeiten;
+Produktcode entsteht getrennt vom Labor gemäß der Produktarchitektur.
+M1–M3 und weitere Kapitel benötigen einen neuen ausdrücklichen Auftrag.
+Historische Startaufträge und der Produktbacklog erteilen keine zusätzliche Freigabe.
 
-`README.md`, `docs/10_IMPLEMENTATION_PLAN.md` und die Dokumente des ausdrücklich beauftragten Meilensteins. Für den ersten Auftrag gilt `START_CODEX.md`.
+Oberfläche, Inhalte und Antworten: Deutsch. Code-Identifier und Kommentare: Englisch.
+Ein persönliches Lernstudio bauen; keine automatische Trainingsplanung oder SaaS-Plattform.
 
-## Verbindlicher Umfang
+## Inhalte und Review
 
-Standardfreigabe ist ausschließlich **M0**. M1, M2 und M3 sind Spezifikation und Backlog, keine implizite Implementierungserlaubnis. Nach M0 Ergebnisse, Tests und offene Punkte berichten und anhalten. Keine weiteren Kapitel erzeugen.
+- Kanonische Lehrtexte und Quellenmarker erhalten; fachliche Änderungen als Diff
+  ausweisen. Schreibproben und Bildentwürfe getrennt führen.
+- Für neue oder überarbeitete Lerntexte, Skizzen, Zeichnungen und Bilder getrennte
+  Ersteller-/Schreiber- und Reviewer-Agenten einsetzen. Der Reviewer prüft Quellen,
+  Aussagen beziehungsweise sichtbare Strukturen, Verständlichkeit und Gestaltung.
+  Befunde dokumentieren, Korrekturen umsetzen und erneut prüfen lassen.
+- Agentenreview als solches kennzeichnen. Keine Quellen, DOIs, Studienzahlen,
+  Lizenzprüfungen oder Fachfreigaben erfinden. `editorial_approved` und Agentenreview
+  sind nicht `expert_reviewed`; letzteres nie selbst setzen.
+- Fiktive Beispiele sichtbar kennzeichnen. Modellgrafiken liefern keine persönlichen
+  Vorhersagen. Keine errechnete Trainingsbereitschaft, Verletzungswahrscheinlichkeit,
+  Ernährungstherapie oder persönliche Belastungsempfehlung.
+- Externe Lehrbücher, Bilder und PDFs nicht automatisch herunterladen, in Embeddings
+  umwandeln oder an Modelle senden; insbesondere `external_reference_only` erhalten.
 
-## Inhaltliche Regeln
+## Technik und Durchführung
 
-- Bestehende Lehrtexte und Quellenmarker erhalten. Fachliche Änderungen als nachvollziehbaren Diff ausweisen.
-- Keine erfundenen Quellen, DOIs, Studienzahlen, geprüften Lizenzen oder Fachfreigaben.
-- Keine automatisch errechnete Trainingsbereitschaft, Verletzungswahrscheinlichkeit, Ernährungstherapie oder persönliche Belastungsempfehlung.
-- Fiktive Beispiele sichtbar kennzeichnen. Aus Modellgrafiken keine Vorhersagen ableiten.
-- `editorial_approved` ist nicht gleich `expert_reviewed`. Die zweite Kennzeichnung nie selbst setzen.
-- Externe Lehrbücher, Bilder oder PDFs nicht automatisch herunterladen, in Embeddings umwandeln oder an ein LLM senden. Das gilt insbesondere für als `external_reference_only` markierte Quellen.
+Bestehende Änderungen erhalten; kleine, auftragsbezogene Schritte. Laufzeitdaten
+und Abhängigkeitsversionen aus Code und Lockfile lesen. Bei Versionsänderungen
+stabile kompatible Versionen anhand offizieller Quellen prüfen und fixieren.
+Keine `latest`-Container-Tags.
 
-## Technische Regeln
+Keine kostenpflichtigen Aufrufe oder Bildgenerierungen ohne gesonderten Auftrag.
+Secrets ausschließlich serverseitig; keine Passwörter, Session-Cookies oder OAuth-
+Token zweckentfremden. Fremdes Markdown nur als Daten verarbeiten, kein MDX ausführen.
+Keine Remote-Fonts, Tracker, Docker-Socket-Mounts oder öffentlichen Ports hinzufügen.
 
-Next.js mit TypeScript und App Router, FastAPI mit Pydantic, SQLite für den Einzelbenutzer, Docker Compose. Unterstützte stabile Versionen bei Implementierung aus offiziellen Dokumentationen prüfen, kompatibel wählen und mit Lockfiles fixieren. Keine erfundenen Versionsnummern und keine `latest`-Container-Tags.
+Tests tatsächlich ausführen; Ergebnisse und nicht geprüfte Grenzen unterscheiden.
+Bei Unsicherheit eine begründete reversible Entscheidung treffen. Nutzer hat die
+offenen Entscheidungen zur Dokumentationsbereinigung delegiert; keine erneute
+Klärungsrunde dafür eröffnen. Deployments benötigen einen gesonderten Auftrag.
 
-Secrets ausschließlich serverseitig. Keine ChatGPT-Passwörter, Session-Cookies oder OAuth-Token zweckentfremden. Die App braucht für M0/M1 keinen API-Key. Keine kostenpflichtigen Aufrufe oder Bildgenerierungen ohne separate Freigabe.
-
-Keine fremden MDX-Dateien ausführen. Markdown nur als Daten verarbeiten; Komponenten aus einer festen Allowlist. Keine Remote-Fonts, Tracking-Skripte, Docker-Socket-Mounts oder öffentliche Ports hinzufügen.
-
-## Arbeitsweise
-
-Kleine, testbare Schritte. Tests tatsächlich ausführen und ausgeführte von nicht ausgeführten Prüfungen unterscheiden. Bei fehlendem Tool keine erfolgreiche Prüfung behaupten. Bei Unsicherheit eine begründete reversible Entscheidung dokumentieren, nicht das komplette Projekt blockieren.
-
-Bei Widersprüchen gilt: aktueller ausdrücklicher Nutzerauftrag > diese Umfangsregeln > freigegebener Meilenstein > Detaildokument. Widerspruch im Abschlussbericht benennen.
+Bei Widersprüchen gilt: aktueller ausdrücklicher Nutzerauftrag > diese Regeln >
+aktuelle Spezifikation/ADRs > historische Detailplanung. Widersprüche im Bericht nennen.
 
 ## Commits und Pushes
 

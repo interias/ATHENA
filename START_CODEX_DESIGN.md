@@ -1,6 +1,9 @@
 # ATHENA — Codex-Startauftrag D0: Design Lab
 
-> Dies ist der aktuelle Nutzerauftrag. Lies ihn vollständig und setze ausschließlich D0 um. Er stellt eine eigenständige Designphase vor die im bisherigen Paket beschriebenen Meilensteine M0–M3. Noch keine Produktimplementierung beginnen.
+> Ursprünglicher D0-Auftrag, als Herkunft erhalten. Die konsolidierte aktuelle
+> [D0-Spezifikation](docs/specs/d0-design-lab.md) enthält auch die später bestätigten
+> Gestaltungs- und Reviewentscheidungen. Nachfolgende Dateivorgaben und Verbote
+> einzelner Explorationsschritte dokumentieren den damaligen Stand.
 
 ## 1. Ziel
 

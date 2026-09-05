@@ -1,10 +1,21 @@
 # 10 — Stufenweiser Bauplan
 
-## Reihenfolge
+## Status: M0-Tickets vorbereitet, M1–M3 im Backlog
+
+Das vorhandene Labor folgt der [D0-Spezifikation](specs/d0-design-lab.md).
+Für die eigentliche App wurden [M0-Tickets #1–#7](https://github.com/interias/ATHENA/issues/1)
+mit Abnahmekriterien und nativen Abhängigkeiten erstellt. Bei beauftragter
+Abarbeitung sind diese Tickets maßgeblich; die historische Aufteilung unten
+dient als Hintergrund. Die bestätigte lebhafte Marmorbibliothek wird übernommen.
+
+## Reihenfolge nach D0
 
 M0: Stil und erste Lernerfahrung → M1: vollständiges Pilotkapitel und Wiederholung → M2: Tutor → M3: weitere Kapitel einzeln.
 
-**Nur M0 ist durch den Erstauftrag freigegeben.** Weiterführende Spezifikationen dienen dazu, Sackgassen zu vermeiden, nicht dazu, alles sofort zu bauen. Keine Zeitschätzung für die Softwareentwicklung aus dieser Planung ableiten.
+Die Ticketplanung implementiert M0 noch nicht. M1–M3 benötigen weiterhin einen
+gesonderten Folgeauftrag. Weiterführende Spezifikationen dienen dazu, Sackgassen
+zu vermeiden, nicht dazu, alles sofort zu bauen. Keine Zeitschätzung für die
+Softwareentwicklung aus dieser Planung ableiten.
 
 ## M0 — Eine Lektion wirklich erleben
 

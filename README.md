@@ -1,51 +1,49 @@
-# Trainingswissen — das persönliche Sportwissenschaft-Lernstudio
+# ATHENA
 
-**Planungs- und Contentpaket für Stefan · Version 0.1 · 5. September 2026**
+Persönliches Lernstudio für Sportwissenschaft, Krafttraining, Ausdauer und Ernährung.
+Nutzbar ist das **Design Lab (D0)** mit der vollständigen Lektion 1
+„Gleiche Aufgabe, andere Reaktion“. Die Produktimplementierung M0 ist in
+[GitHub-Tickets](https://github.com/interias/ATHENA/issues/1) vorbereitet;
+M1–M3 bleiben Backlog.
 
-Ein eigenständiges, deutschsprachiges Lernprojekt zu Krafttraining, Ausdauer und Ernährung. Ziel ist belastbares Verständnis mit möglicher späterer Trainerqualifikation — nicht die automatische Optimierung deines Trainingsplans.
+## Start
 
-## Was dieses Paket enthält
+Mit Node.js 22 und npm aus diesem Repository:
 
-Eine recherchierte Lernarchitektur, einen roten Faden mit zwölf Kapiteln, vier ausgeschriebene Pilotlektionen, Aufgaben mit Musterantworten, Wiederholungsfragen, Bildbriefings, einen LLM-Tutor-Vertrag und umsetzbare Arbeitspakete für Next.js, FastAPI und Docker.
+```sh
+cd Design
+npm ci
+npm run dev
+```
 
-**Nicht enthalten:** eine bereits implementierte oder getestete Webanwendung, fertige Bilddateien, ein akkreditierter Lehrgang oder eine unabhängige sportwissenschaftliche Begutachtung. Die Bildbeschreibungen sind Produktionsvorlagen, keine bereits erzeugten Grafiken. Recherchegestützte Inhalte bleiben als Entwurf gekennzeichnet.
+Öffnen: **http://127.0.0.1:3100**. Unter Windows bei gesperrten PowerShell-Skripten
+`npm.cmd` verwenden. Weitere Start- und Testhinweise: [Design/README.md](Design/README.md).
 
-## Einstieg für dich
+## Orientierung
 
-1. Lies [den roten Faden](docs/03_CURRICULUM.md) und die [Pilot-Lesefassung](PILOT_LESEFASSUNG.md).
-2. Prüfe an Lektion 1 die gewünschte Texttiefe, Bilddichte und Tonalität. Nutze dafür [die Pilot-Auswertung](docs/11_PILOT_EVALUATION.md).
-3. Übernimm dieses gesamte Verzeichnis in ein leeres Git-Repository und starte Codex mit [START_CODEX.md](START_CODEX.md). Der erste Auftrag baut **nur M0**, nicht den ganzen Kurs.
-
-## Dokumentenkarte
-
-| Frage | Datei |
+| Gesucht | Maßgebliche Stelle |
 |---|---|
-| Was soll die Anwendung leisten? | [Produktbrief](docs/01_PRODUCT_BRIEF.md) |
-| Welche Forschung und welche Lizenzrichtung? | [Recherche und Einordnung](docs/02_RESEARCH_AND_LICENSE.md) |
-| Was lerne ich in welcher Reihenfolge? | [Curriculum](docs/03_CURRICULUM.md) |
-| Wie bleiben die Inhalte hängen? | [Didaktik und Wiederholung](docs/04_DIDACTICS_AND_REVIEW.md) |
-| Wie schreiben wir? | [Redaktionsstil](docs/05_EDITORIAL_STYLE.md) |
-| Wie sehen Seiten und Bilder aus? | [Visuelles System](docs/06_VISUAL_SYSTEM.md) |
-| Welche ATHENA-Designrichtungen testen wir? | [ATHENA-Stilrichtungen](docs/12_ATHENA_STYLE_DIRECTIONS.md) |
-| Wie wird lokal gebaut? | [Architektur](docs/07_TECH_ARCHITECTURE.md) |
-| Wie passen Content, Datenbank und API zusammen? | [Verträge](docs/08_CONTENT_AND_API_CONTRACT.md) |
-| Wie funktioniert der Tutor? | [LLM-Konzept](docs/09_LLM_TUTOR.md) |
-| Was wird zuerst implementiert? | [Umsetzungsplan](docs/10_IMPLEMENTATION_PLAN.md) |
-| Wann ist der Pilot gut genug? | [Auswertung](docs/11_PILOT_EVALUATION.md) |
-| Welche Quelle trägt welche Aussage? | [Quellen](research/SOURCES.md), [Aussagenzuordnung](research/CLAIM_MAP.md) |
-| Wo ist der eigentliche Lernstoff? | [Kapitel 1](content/ch01/00_CHAPTER.md) |
+| Begriffe | [CONTEXT.md](CONTEXT.md) |
+| Bestätigter Zielzustand und Abnahme | [D0-Spezifikation](docs/specs/d0-design-lab.md) |
+| Grundlegende Entscheidungen | [Lokales Design Lab](docs/adr/0001-local-design-lab.md), [kanonische Inhalte](docs/adr/0002-canonical-content.md), [Anatomie und Review](docs/adr/0003-anatomy-review.md) |
+| Agentenregeln | [AGENTS.md](AGENTS.md) |
+| Nächste App-Implementierung | [M0-Tickets #1–#7](https://github.com/interias/ATHENA/issues/1), [Produktarchitektur](docs/07_TECH_ARCHITECTURE.md) |
+| Labor bedienen | [Explorationsanleitung](Design/EXPLORATION_GUIDE.md) |
+| Ausgeführte Prüfungen und Grenzen | [Prüfbericht](Design/TEST_REPORT.md) |
+| Anatomische Prüfgrundlage | [Checkliste und Quellen](Design/ANATOMY_REVIEW.md) |
 
-## Entscheidungen in Version 0.1
+Die gewählte Arbeitsrichtung ist die **lebhafte Marmorbibliothek**. Ihre vollständige
+gestalterische und erzählerische Umsetzung steht noch aus; die Spezifikation trennt
+Ziel und vorhandenen Stand. Agentenreview ist keine unabhängige menschliche Fachfreigabe.
 
-- **Lernen vor Plattformbau:** Erst eine gute Lektion erleben, dann das Kapitel und erst danach den Tutor erweitern.
-- **Inhalte vor KI:** Lehrtext, Aufgaben und Quellen liegen versioniert im Repository. Der Tutor erklärt sie; er schreibt den Lehrplan nicht unkontrolliert um.
-- **Bilder mit Funktion:** Sechs fachliche Visualisierungen im vollständigen Pilot, davon zwei interaktiv. Eine zusätzliche Szenenillustration ist optional.
-- **Stil zuerst erkunden:** Für ATHENA sind zehn griechisch-römisch inspirierte Stilrichtungen als Explorationsraum dokumentiert. Erst Kapitel 1 testen, dann festlegen.
-- **Lokal ohne Pflicht-Cloud:** Lesen, Übungen und Fortschritt funktionieren nach Installation ohne externe Dienste. Cloud-LLM und Bildgenerierung sind optionale, gesondert aktivierte Vorgänge.
-- **Kein Scheindiplom:** Die App kann auf Theorie vorbereiten, ersetzt aber weder einen offiziellen Ausbildungsanbieter noch praktische Anleitung und Prüfung.
+## Bestand und Planung
 
-## Status und Quellengebrauch
-
-Quellenmarker wie `[S05]` verweisen auf das Quellenregister. Dort stehen URL, Publikationsjahr, geprüfter Zugriffsumfang und Verwendungsgrenzen. Die Recherche ist eine kuratierte Grundlage, **keine systematische Vollrecherche**. Spätere Fachkapitel benötigen ihre eigene Aktualisierung und Aussagenprüfung.
-
-Die kanonischen Lerntexte liegen ausschließlich in `content/ch01/01_LOAD.md` bis `04_OBSERVATION.md`. `PILOT_LESEFASSUNG.md` ist daraus abgeleitet und darf nicht separat weitergepflegt werden.
+- `Design/`: lokale Anwendung, Entwurfsdaten und Bilder, Tests.
+- `content/ch01/`: kanonische Pilottexte, Aufgaben und Visualbriefings.
+- `research/`: [Quellenregister](research/SOURCES.md) und [Aussagenzuordnung](research/CLAIM_MAP.md).
+- `docs/01_…12_…`: ursprüngliche Produkt-, Redaktions- und Stilplanung; spätere
+  Infrastruktur ist kein D0-Auftrag. [Meilensteinbacklog](docs/10_IMPLEMENTATION_PLAN.md).
+- `templates/`: Vorlagen für spätere Inhaltsarbeit.
+- [Pilot-Lesefassung](PILOT_LESEFASSUNG.md): abgeleitete Lesehilfe, nicht separat pflegen.
+- [Ursprünglicher D0-Auftrag](START_CODEX_DESIGN.md) und [früherer M0-Auftrag](START_CODEX.md):
+  historische Auftragsquellen; aktuelle Entscheidungen stehen in der Spezifikation.

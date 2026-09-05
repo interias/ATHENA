@@ -1,5 +1,10 @@
 # Erster Codex-Auftrag — nur M0
 
+> Historische Auftragsvorlage; der folgende Text ist keine Freigabe. Das vorhandene
+> Labor folgt der [D0-Spezifikation](docs/specs/d0-design-lab.md). Für die nächste
+> App-Implementierung sind die [M0-Tickets](https://github.com/interias/ATHENA/issues/1)
+> maßgeblich, sobald ihre Abarbeitung beauftragt ist.
+
 Kopiere den folgenden Auftrag in Codex, nachdem das gesamte Paket im neuen Repository liegt.
 
 ```text
