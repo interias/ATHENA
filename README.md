@@ -28,6 +28,7 @@ npm run dev
 | Grundlegende Entscheidungen | [Lokales Design Lab](docs/adr/0001-local-design-lab.md), [kanonische Inhalte](docs/adr/0002-canonical-content.md), [Anatomie und Review](docs/adr/0003-anatomy-review.md) |
 | Agentenregeln | [AGENTS.md](AGENTS.md) |
 | Nächste App-Implementierung | [M0-Tickets #1–#7](https://github.com/interias/ATHENA/issues/1), [Produktarchitektur](docs/07_TECH_ARCHITECTURE.md) |
+| M0-Epic und gemeinsame Basis | [Ausführungsplan](.Codex/prd.md), [visueller Ticketplan](docs/reviews/m0-plan.html), [Ausgangscheck](docs/reviews/m0-01-baseline.md) |
 | Labor bedienen | [Explorationsanleitung](Design/EXPLORATION_GUIDE.md) |
 | Ausgeführte Prüfungen und Grenzen | [Prüfbericht](Design/TEST_REPORT.md) |
 | Anatomische Prüfgrundlage | [Checkliste und Quellen](Design/ANATOMY_REVIEW.md) |
