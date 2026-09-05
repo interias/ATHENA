@@ -2,11 +2,60 @@
 
 Persönliches Lernstudio für Sportwissenschaft, Krafttraining, Ausdauer und Ernährung.
 Nutzbar ist das **Design Lab (D0)** mit der vollständigen Lektion 1
-„Gleiche Aufgabe, andere Reaktion“. Die Produktimplementierung M0 ist in
-[GitHub-Tickets](https://github.com/interias/ATHENA/issues/1) vorbereitet;
+„Gleiche Aufgabe, andere Reaktion“. Die Produktimplementierung M0 wird anhand der
+[GitHub-Tickets](https://github.com/interias/ATHENA/issues/1) aufgebaut;
 M1–M3 bleiben Backlog.
 
 ## Start
+
+### M0-Produkt
+
+Voraussetzung ist Docker Desktop mit Compose. Beim ersten Build werden die exakt
+fixierten Images und Pakete geladen; danach benötigen Start und Kapitelübersicht
+keinen Internetzugang und keinen API-Key.
+
+```sh
+docker compose up --build -d
+```
+
+Öffnen: **http://127.0.0.1:3000**. Nur dieser Web-Port wird auf dem Host
+veröffentlicht. Status und Logs lassen sich so prüfen:
+
+```sh
+docker compose ps
+docker compose logs api web
+```
+
+Stoppen, ohne Lernstand zu löschen:
+
+```sh
+docker compose down
+```
+
+Nach einer Repository-Aktualisierung werden die weiterhin fixierten Basen und
+Lockfiles neu gebaut und die Container ersetzt:
+
+```sh
+docker compose build --pull
+docker compose up -d
+```
+
+Das benannte Volume `learning_data` bleibt dabei erhalten. Ein Backup der
+SQLite-Datei wird bei gestoppter App erstellt:
+
+```sh
+docker compose stop web api
+mkdir -p backups
+docker compose cp api:/data/learning.db ./backups/learning.db
+docker compose start api web
+```
+
+Der Rückweg in ein frisches Volume ist in diesem Stand noch nicht als vollständige
+Wiederherstellung geprüft; insbesondere Containerbenutzer und Dateirechte müssen
+dabei erhalten bleiben. Diese Abnahme folgt mit dem vollständigen Pilotpfad.
+`docker compose down -v` löscht das benannte Volume und damit den lokalen Lernstand.
+
+### Design Lab (D0)
 
 Mit Node.js 22 und npm aus diesem Repository:
 
