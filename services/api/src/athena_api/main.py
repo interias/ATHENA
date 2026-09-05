@@ -3,11 +3,11 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from .config import Settings
-from .content import ContentLoader, M0_LESSON_ID
+from .content import ContentLoader, M0_LESSON_ID, lesson_response
 from .database import Database
 from .models import (
     ContentIssue,
@@ -16,6 +16,7 @@ from .models import (
     CurriculumChapter,
     CurriculumLesson,
     CurriculumResponse,
+    LessonResponse,
     ReadinessCheck,
     ReadinessResponse,
 )
@@ -108,6 +109,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
             ]
         )
+
+    @application.get(
+        "/v1/lessons/{lesson_id}",
+        response_model=LessonResponse,
+        responses={
+            404: {"description": "Lektion nicht gefunden"},
+            503: {"model": ReadinessResponse},
+        },
+    )
+    async def lesson(
+        lesson_id: str, request: Request
+    ) -> LessonResponse | JSONResponse:
+        if lesson_id != M0_LESSON_ID:
+            raise HTTPException(status_code=404, detail="Lektion nicht gefunden.")
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+        manifest: ContentManifest = request.app.state.content_manifest
+        return lesson_response(manifest)
 
     return application
 

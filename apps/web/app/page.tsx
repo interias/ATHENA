@@ -40,9 +40,6 @@ export default function Home() {
           <p className="eyebrow">Dein Lernpfad</p>
           <h2 id="curriculum-title">Kapitelübersicht</h2>
           <p>Die erste Lektion ist verfügbar. Weitere Lektionen sind geplant.</p>
-          <aside className="development-note">
-            Der Lesebereich ist noch in Vorbereitung. Deshalb führt diese Übersicht noch nicht auf eine leere Lektionsseite.
-          </aside>
         </div>
         <Curriculum />
       </section>

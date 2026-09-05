@@ -16,8 +16,18 @@ from .models import (
     ContentReport,
     Figure,
     Interaction,
+    InteractionOption,
+    InteractionRun,
     LearningItem,
     Lesson,
+    LessonComponentBlock,
+    LessonFigure,
+    LessonFreeTextExercise,
+    LessonHeadingBlock,
+    LessonInteraction,
+    LessonParagraphBlock,
+    LessonResponse,
+    LessonSingleChoiceExercise,
     Question,
     Source,
 )
@@ -291,12 +301,102 @@ class ContentLoader:
                     "invalid_interaction", location, "Interaktionsmetadaten sind unvollständig."
                 )
                 continue
+            if values["id"] == "int-ch01-load":
+                details = self._parse_m0_interaction(section, location)
+                if details is None:
+                    continue
+                values.update(details)
             interaction = self._model(Interaction, values, location)
             if interaction is not None:
                 interactions.append(interaction)
         if not interactions:
             self._issue("missing_interactions", str(path), "Keine Interaktionen gefunden.")
         return interactions
+
+    def _parse_m0_interaction(
+        self, section: str, location: str
+    ) -> dict[str, Any] | None:
+        question = self._capture(section, r"Frage: \*\*„([^“]+)“\*\*")
+        option_matches = re.findall(
+            r'^([1-3])\. „([^“]+)“ — (?:passend|nicht ableitbar)\.$',
+            section,
+            re.MULTILINE,
+        )
+        feedback_matches = re.findall(
+            r'Rückmeldung für Auswahl ([1-3]): „([^“]+)“', section
+        )
+        run_details = re.search(
+            r"jeweils ([^,]+?) und ([^,]+?), ([^.]+)\.", section
+        )
+        reaction_matches = re.findall(r'Lauf ([AB]): „([^“]+)“', section)
+        reveal_action_label = self._capture(
+            section, r'Nach Auswahl wird „([^“]+)“ aktiv\.'
+        )
+        reset_action_label = self._capture(
+            section, r'„([^“]+)“ setzt Auswahl und aufgedeckte Texte zurück'
+        )
+        reflection_question = self._capture(
+            section, r'Denkfrage: „([^“]+)“'
+        )
+        reflection_parts = re.search(
+            r"erscheinen Beispiele wie ([^.]+)\. \*\*([^*]+)\*\*", section
+        )
+
+        option_numbers = [number for number, _ in option_matches]
+        feedback_by_number = dict(feedback_matches)
+        reaction_by_run = dict(reaction_matches)
+        complete = (
+            question is not None
+            and option_numbers == ["1", "2", "3"]
+            and set(feedback_by_number) == {"1", "2", "3"}
+            and run_details is not None
+            and set(reaction_by_run) == {"A", "B"}
+            and reveal_action_label is not None
+            and reset_action_label is not None
+            and reflection_question is not None
+            and reflection_parts is not None
+        )
+        if not complete:
+            self._issue(
+                "invalid_interaction",
+                location,
+                "Die M0-Interaktion ist unvollständig oder hat ein unerwartetes Format.",
+            )
+            return None
+
+        distance, duration, route = (part.strip() for part in run_details.groups())
+        options = [
+            InteractionOption(
+                id=chr(ord("a") + int(number) - 1),
+                text=text,
+                feedback=feedback_by_number[number],
+            )
+            for number, text in option_matches
+        ]
+        runs = [
+            InteractionRun(
+                id=run.lower(),
+                distance=distance,
+                duration=duration,
+                route=route,
+                reaction=reaction_by_run[run],
+            )
+            for run in ("A", "B")
+        ]
+        reflection_example, reflection_limit = reflection_parts.groups()
+        reflection_text = (
+            f"{reflection_example[0].upper()}{reflection_example[1:]}. "
+            f"{reflection_limit}"
+        )
+        return {
+            "question": question,
+            "options": options,
+            "runs": runs,
+            "reveal_action_label": reveal_action_label,
+            "reset_action_label": reset_action_label,
+            "reflection_question": reflection_question,
+            "reflection_text": reflection_text,
+        }
 
     @staticmethod
     def _capture(text: str, pattern: str) -> str | None:
@@ -695,3 +795,111 @@ class ContentLoader:
         issue = ContentIssue(code=code, location=location, message=message)
         if issue not in self.issues:
             self.issues.append(issue)
+
+
+def lesson_response(manifest: ContentManifest) -> LessonResponse:
+    lesson = next(item for item in manifest.lessons if item.lesson_id == M0_LESSON_ID)
+    figure_by_id = {item.id: item for item in manifest.figures}
+    interaction_by_id = {item.id: item for item in manifest.interactions}
+    question_by_id = {item.id: item for item in manifest.questions}
+    source_by_id = {item.id: item for item in manifest.sources}
+
+    figures = []
+    for figure_id in lesson.figure_ids:
+        figure = figure_by_id[figure_id]
+        figures.append(
+            LessonFigure(
+                id=figure.id,
+                learning_purpose=figure.learning_purpose,
+                alt_text=figure.alt_text,
+                long_description=figure.long_description or "",
+                exact_labels=figure.exact_labels or [],
+                source_ids=figure.source_ids,
+                status=figure.status,
+                expert_review=figure.expert_review,
+            )
+        )
+
+    interaction = interaction_by_id["int-ch01-load"]
+    public_interaction = LessonInteraction(
+        id=interaction.id,
+        figure_id=interaction.figure_id,
+        question=interaction.question or "",
+        options=interaction.options,
+        runs=interaction.runs,
+        reveal_action_label=interaction.reveal_action_label or "",
+        reset_action_label=interaction.reset_action_label or "",
+        reflection_question=interaction.reflection_question or "",
+        reflection_text=interaction.reflection_text or "",
+        source_ids=interaction.source_ids,
+    )
+
+    exercises: list[LessonSingleChoiceExercise | LessonFreeTextExercise] = []
+    for question_id in lesson.question_ids:
+        if question_id not in M0_QUESTION_IDS:
+            continue
+        question = question_by_id[question_id]
+        common = {
+            "id": question.id,
+            "prompt": question.prompt,
+            "objective_ids": question.objective_ids,
+            "source_ids": question.source_ids,
+            "content_version": question.content_version,
+            "development_status": "in_development",
+        }
+        if question.kind == "single_choice":
+            exercises.append(
+                LessonSingleChoiceExercise(
+                    kind="single_choice", options=question.options or [], **common
+                )
+            )
+        elif question.kind == "free_text":
+            exercises.append(LessonFreeTextExercise(kind="free_text", **common))
+
+    return LessonResponse(
+        id=lesson.lesson_id,
+        title=lesson.title,
+        content_version=lesson.content_version,
+        status=lesson.status,
+        expert_reviewed_by=lesson.expert_reviewed_by,
+        blocks=_lesson_blocks(lesson.body),
+        sources=[source_by_id[source_id] for source_id in lesson.source_ids],
+        figures=figures,
+        interactions=[public_interaction],
+        exercises=exercises,
+    )
+
+
+def _lesson_blocks(
+    body: str,
+) -> list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock]:
+    blocks: list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock] = []
+    paragraph_lines: list[str] = []
+
+    def flush_paragraph() -> None:
+        if paragraph_lines:
+            blocks.append(
+                LessonParagraphBlock(kind="paragraph", text="\n".join(paragraph_lines))
+            )
+            paragraph_lines.clear()
+
+    for line in body.strip().splitlines():
+        if not line.strip():
+            flush_paragraph()
+            continue
+        heading = re.fullmatch(r"(#{1,6})\s+(.+)", line)
+        component = COMPONENT_RE.fullmatch(line)
+        if heading is not None:
+            flush_paragraph()
+            hashes, text = heading.groups()
+            blocks.append(
+                LessonHeadingBlock(kind="heading", level=len(hashes), text=text)
+            )
+        elif component is not None:
+            flush_paragraph()
+            kind, identifier = component.groups()
+            blocks.append(LessonComponentBlock(kind=kind, id=identifier))
+        else:
+            paragraph_lines.append(line)
+    flush_paragraph()
+    return blocks

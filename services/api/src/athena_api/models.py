@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import Literal
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class StrictModel(BaseModel):
@@ -116,6 +117,20 @@ class Figure(StrictModel):
     prompt: str | None = None
 
 
+class InteractionOption(StrictModel):
+    id: str
+    text: str
+    feedback: str
+
+
+class InteractionRun(StrictModel):
+    id: str
+    distance: str
+    duration: str
+    route: str
+    reaction: str
+
+
 class Interaction(StrictModel):
     id: str
     figure_id: str
@@ -123,6 +138,13 @@ class Interaction(StrictModel):
     objective_ids: list[str]
     source_ids: list[str]
     milestone: str
+    question: str | None = None
+    options: list[InteractionOption] = Field(default_factory=list)
+    runs: list[InteractionRun] = Field(default_factory=list)
+    reveal_action_label: str | None = None
+    reset_action_label: str | None = None
+    reflection_question: str | None = None
+    reflection_text: str | None = None
 
 
 class Source(StrictModel):
@@ -141,6 +163,16 @@ class Source(StrictModel):
     ]
     additional_url: str | None = None
     checked_abstract_url: str | None = None
+
+    @field_validator("url", "additional_url", "checked_abstract_url")
+    @classmethod
+    def validate_http_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        parsed = urlsplit(value)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("URL muss HTTP oder HTTPS verwenden")
+        return value
 
 
 class ContentManifest(StrictModel):
@@ -174,6 +206,80 @@ class CurriculumChapter(StrictModel):
 class CurriculumResponse(StrictModel):
     content_version: str
     chapters: list[CurriculumChapter]
+
+
+class LessonHeadingBlock(StrictModel):
+    kind: Literal["heading"]
+    level: int = Field(ge=1, le=6)
+    text: str
+
+
+class LessonParagraphBlock(StrictModel):
+    kind: Literal["paragraph"]
+    text: str
+
+
+class LessonComponentBlock(StrictModel):
+    kind: Literal["figure", "interaction", "exercise"]
+    id: str
+
+
+class LessonFigure(StrictModel):
+    id: str
+    learning_purpose: str
+    alt_text: str
+    long_description: str
+    exact_labels: list[str]
+    source_ids: list[str]
+    status: str
+    expert_review: str | None
+
+
+class LessonInteraction(StrictModel):
+    id: str
+    figure_id: str
+    question: str
+    options: list[InteractionOption]
+    runs: list[InteractionRun]
+    reveal_action_label: str
+    reset_action_label: str
+    reflection_question: str
+    reflection_text: str
+    source_ids: list[str]
+
+
+class LessonSingleChoiceExercise(StrictModel):
+    id: str
+    kind: Literal["single_choice"]
+    prompt: str
+    options: list[QuestionOption]
+    objective_ids: list[str]
+    source_ids: list[str]
+    content_version: str
+    development_status: Literal["in_development"]
+
+
+class LessonFreeTextExercise(StrictModel):
+    id: str
+    kind: Literal["free_text"]
+    prompt: str
+    objective_ids: list[str]
+    source_ids: list[str]
+    content_version: str
+    development_status: Literal["in_development"]
+
+
+class LessonResponse(StrictModel):
+    id: str
+    title: str
+    content_version: str
+    status: Literal["pilot_draft", "editorial_approved", "retired"]
+    expert_reviewed_by: str | None
+    blocks: list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock]
+    sources: list[Source]
+    figures: list[LessonFigure]
+    interactions: list[LessonInteraction]
+    exercises: list[LessonSingleChoiceExercise | LessonFreeTextExercise]
 
 
 class ReadinessCheck(StrictModel):
