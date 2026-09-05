@@ -1,0 +1,140 @@
+{
+  "id": "shoulder-posterior-right",
+  "version": "0.1.0",
+  "status": "source_based_draft",
+  "expertReview": null,
+  "title": "Rechte Schulter · knöcherne Orientierung",
+  "view": "Leicht schräge Rückansicht · medial links, lateral rechts",
+  "scope": "Eigenständig konstruierte, nicht maßstäbliche Orientierungsskizze. Konturen und räumliche Projektion sind noch nicht fachlich abgenommen.",
+  "omissions": "Schlüsselbein, Rippen, Muskeln, Sehnen, Bänder, Knorpel und vorderer Rabenschnabelfortsatz sind nicht dargestellt. Der Oberarmknochen endet im Bild als Ausschnitt.",
+  "sources": [
+    {
+      "id": "OS-8.1",
+      "title": "OpenStax · The Pectoral Girdle",
+      "url": "https://openstax.org/books/anatomy-and-physiology-2e/pages/8-1-the-pectoral-girdle"
+    },
+    {
+      "id": "OS-8.2",
+      "title": "OpenStax · Bones of the Upper Limb",
+      "url": "https://openstax.org/books/anatomy-and-physiology-2e/pages/8-2-bones-of-the-upper-limb"
+    },
+    {
+      "id": "OS-9.6",
+      "title": "OpenStax · Anatomy of Selected Synovial Joints",
+      "url": "https://openstax.org/books/anatomy-and-physiology-2e/pages/9-6-anatomy-of-selected-synovial-joints"
+    }
+  ],
+  "viewBox": "270 110 420 450",
+  "paths": [
+    {
+      "id": "scapula",
+      "kind": "bone",
+      "d": "M 305 130 Q 363 112 417 139 Q 451 151 470 144 Q 492 132 505 157 L 529 198 Q 552 207 550 230 Q 538 250 520 257 Q 493 290 469 346 L 385 480 Q 377 489 372 477 Q 355 410 334 355 Q 312 290 307 229 Z"
+    },
+    {
+      "id": "glenoid-rim",
+      "kind": "joint",
+      "d": "M 539 201 Q 559 213 552 240 L 543 254 Q 535 240 536 221 Z"
+    },
+    {
+      "id": "humerus",
+      "kind": "bone",
+      "d": "M 606 192 Q 648 188 664 224 Q 673 246 655 275 Q 640 297 640 334 L 647 527 L 594 527 L 588 342 Q 585 298 573 278 Q 555 266 558 242 Q 559 212 581 199 Q 593 192 606 192 Z"
+    },
+    {
+      "id": "humeral-head",
+      "kind": "landmark",
+      "d": "M 606 192 Q 623 214 621 238 Q 617 263 588 280"
+    },
+    {
+      "id": "scapular-spine-acromion",
+      "kind": "ridge",
+      "d": "M 309 215 Q 382 196 458 178 Q 490 170 513 153 Q 536 135 565 146 L 585 155 Q 593 164 585 173 Q 569 181 552 175 L 534 172 Q 507 189 478 197 Q 385 216 309 221 Z"
+    },
+    {
+      "id": "shaft-crop",
+      "kind": "landmark",
+      "d": "M 592 530 L 607 523 L 621 532 L 635 525 L 649 531"
+    }
+  ],
+  "labels": [
+    {
+      "id": "scapula-label",
+      "text": "Schulterblatt",
+      "targetId": "scapula",
+      "target": [
+        365,
+        332
+      ],
+      "marker": [
+        365,
+        332
+      ]
+    },
+    {
+      "id": "spine-label",
+      "text": "Schulterblattgräte",
+      "targetId": "scapular-spine-acromion",
+      "target": [
+        398,
+        202
+      ],
+      "marker": [
+        398,
+        202
+      ]
+    },
+    {
+      "id": "acromion-label",
+      "text": "Schulterhöhe (Acromion)",
+      "targetId": "scapular-spine-acromion",
+      "target": [
+        565,
+        157
+      ],
+      "marker": [
+        565,
+        157
+      ]
+    },
+    {
+      "id": "glenoid-label",
+      "text": "Gelenkpfanne · Rand",
+      "targetId": "glenoid-rim",
+      "target": [
+        544,
+        229
+      ],
+      "marker": [
+        500,
+        280
+      ]
+    },
+    {
+      "id": "head-label",
+      "text": "Oberarmkopf",
+      "targetId": "humerus",
+      "target": [
+        590,
+        235
+      ],
+      "marker": [
+        590,
+        235
+      ]
+    },
+    {
+      "id": "humerus-label",
+      "text": "Oberarmknochen",
+      "targetId": "humerus",
+      "target": [
+        619,
+        410
+      ],
+      "marker": [
+        619,
+        410
+      ]
+    }
+  ]
+}

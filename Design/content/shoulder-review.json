@@ -1,0 +1,12 @@
+{
+  "id": "shoulder-posterior-right",
+  "version": "0.1.0",
+  "status": "source_based_draft",
+  "expertReview": null,
+  "hashes": {
+    "content/shoulder-geometry.json": "8c37d6e1385d09165f2a315fc8bc1b36aba2e465f7d59a07ec2311561766778f",
+    "lib/anatomy.ts": "67b5be85e5a68f96a5ae372e469d0caa0f2af07fc23f7c9c5766d6d5433fe8d1",
+    "components/AnatomyStudy.tsx": "2ae91b6d84cea17ad6df7a318e1595a62afe3d8c98a4a858100e312f19c7778d",
+    "styles/anatomy.css": "049ccecb1930c9d28434bf21d2b1511c5bb677bec3e8ec310b42d2ae6889e1bc"
+  }
+}

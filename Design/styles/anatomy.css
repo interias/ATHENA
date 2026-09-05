@@ -1,0 +1,18 @@
+.anatomy-study { margin: 2rem 0; padding: clamp(1rem, 3vw, 2rem); background: #faf9f3; border: 1px solid #bfc2b8; border-top: 5px solid #446367; }
+.anatomy-study h2 { font-family: Georgia, serif; font-size: clamp(1.7rem, 3vw, 2.6rem); margin: .6rem 0; }
+.anatomy-study p { max-width: 80ch; line-height: 1.65; }
+.anatomy-controls { display: flex; gap: 1rem 2rem; flex-wrap: wrap; align-items: center; margin: 1.5rem 0; }
+.anatomy-controls input { width: 1.2rem; height: 1.2rem; vertical-align: middle; }
+.anatomy-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+.anatomy-panel { min-width: 0; }
+.anatomy-panel label { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.shoulder-diagram { display: block; width: 100%; height: auto; border: 1px solid #9c9c90; font-family: Arial, sans-serif; }
+.anatomy-mobile { display: none; gap: .7rem; margin-bottom: 1rem; }
+.anatomy-study details { margin-top: 1.5rem; }
+@media (max-width: 1050px) { .anatomy-comparison { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .anatomy-mobile { display: flex; }
+  .anatomy-panel[data-active="false"] { display: none; }
+  .anatomy-panel label { display: block; }
+  .anatomy-panel select { display: block; margin-top: .4rem; width: 100%; }
+}
