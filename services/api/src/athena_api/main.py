@@ -15,6 +15,7 @@ from .database import (
     AttemptConflictError,
     AttemptRecord,
     Database,
+    LessonProgressRecord,
     SelfAssessmentRecord,
 )
 from .models import (
@@ -28,6 +29,9 @@ from .models import (
     CurriculumResponse,
     FreeTextAnswer,
     LessonResponse,
+    LessonProgress,
+    ProgressResponse,
+    ProgressUpdateRequest,
     ReadinessCheck,
     ReadinessResponse,
     SelfAssessmentRequest,
@@ -146,6 +150,72 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return JSONResponse(status_code=503, content=response.model_dump())
         manifest: ContentManifest = request.app.state.content_manifest
         return lesson_response(manifest)
+
+    @application.get(
+        "/v1/progress",
+        response_model=ProgressResponse,
+        responses={503: {"model": ReadinessResponse}},
+    )
+    async def progress(request: Request) -> ProgressResponse | JSONResponse:
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+        manifest: ContentManifest = request.app.state.content_manifest
+        database: Database = request.app.state.database
+        available = [
+            lesson for lesson in manifest.lessons if lesson.lesson_id == M0_LESSON_ID
+        ]
+        lessons = [
+            _lesson_progress_response(
+                lesson.lesson_id,
+                lesson.content_version,
+                database.get_lesson_progress(
+                    lesson_id=lesson.lesson_id,
+                    content_version=lesson.content_version,
+                ),
+            )
+            for lesson in available
+        ]
+        return ProgressResponse(
+            content_version=manifest.chapter.content_version,
+            available_lessons=len(available),
+            planned_lessons=len(manifest.lessons) - len(available),
+            read_lessons=sum(item.read for item in lessons),
+            lessons=lessons,
+        )
+
+    @application.put(
+        "/v1/progress/{lesson_id}",
+        response_model=LessonProgress,
+        responses={
+            404: {"description": "Lektion nicht gefunden oder nicht verfügbar"},
+            409: {"description": "Inhaltsversion stimmt nicht überein"},
+            503: {"model": ReadinessResponse},
+        },
+    )
+    def update_progress(
+        lesson_id: str, payload: ProgressUpdateRequest, request: Request
+    ) -> LessonProgress | JSONResponse:
+        if lesson_id != M0_LESSON_ID:
+            raise HTTPException(status_code=404, detail="Lektion nicht gefunden oder nicht verfügbar.")
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+        manifest: ContentManifest = request.app.state.content_manifest
+        lesson = next(item for item in manifest.lessons if item.lesson_id == lesson_id)
+        if payload.content_version != lesson.content_version:
+            raise HTTPException(
+                status_code=409, detail="Inhaltsversion stimmt nicht überein."
+            )
+        database: Database = request.app.state.database
+        stored = database.save_lesson_progress(
+            lesson_id=lesson_id,
+            content_version=payload.content_version,
+            read=payload.read,
+        )
+        return _lesson_progress_response(
+            lesson_id, payload.content_version, stored
+        )
 
     @application.post(
         "/v1/attempts",
@@ -321,6 +391,20 @@ def _attempt_response(stored: AttemptRecord) -> AttemptResponse:
             model_answer=solution["model_answer"], rubric=solution["rubric"]
         )
     return AttemptResponse(**response_values)
+
+
+def _lesson_progress_response(
+    lesson_id: str,
+    content_version: str,
+    stored: LessonProgressRecord | None,
+) -> LessonProgress:
+    return LessonProgress(
+        lesson_id=lesson_id,
+        content_version=content_version,
+        read=stored is not None and stored.read_at is not None,
+        read_at=(datetime.fromisoformat(stored.read_at) if stored and stored.read_at else None),
+        updated_at=(datetime.fromisoformat(stored.updated_at) if stored else None),
+    )
 
 
 def _self_assessment_response(

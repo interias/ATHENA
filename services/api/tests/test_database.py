@@ -24,13 +24,14 @@ def test_migration_is_versioned_and_connection_enables_foreign_keys(
         assert connection.execute("PRAGMA busy_timeout").fetchone() == (
             BUSY_TIMEOUT_MS,
         )
-        assert connection.execute("PRAGMA user_version").fetchone() == (3,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
         assert connection.execute(
             "SELECT version, name FROM schema_migrations"
         ).fetchall() == [
             (1, "001_initial.sql"),
             (2, "002_attempts.sql"),
             (3, "003_free_text_attempts.sql"),
+            (4, "004_lesson_progress.sql"),
         ]
 
     with sqlite3.connect(database_path) as connection:
@@ -40,7 +41,12 @@ def test_migration_is_versioned_and_connection_enables_foreign_keys(
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             )
         }
-    assert tables == {"attempts", "schema_migrations", "self_assessments"}
+    assert tables == {
+        "attempts",
+        "lesson_progress",
+        "schema_migrations",
+        "self_assessments",
+    }
 
     with sqlite3.connect(database_path) as connection:
         columns = {
