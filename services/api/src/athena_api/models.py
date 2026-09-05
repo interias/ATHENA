@@ -305,6 +305,33 @@ class ProgressResponse(StrictModel):
     lessons: list[LessonProgress]
 
 
+PilotRating = Annotated[int, Field(ge=1, le=5)]
+
+
+class PilotFeedbackRequest(StrictModel):
+    feedback_id: Annotated[UUID, Field(strict=False)]
+    lesson_id: str = Field(min_length=1, max_length=64)
+    content_version: str = Field(min_length=1, max_length=32)
+    readability: PilotRating
+    text_amount: PilotRating
+    visual_usefulness: PilotRating
+    practical_relevance: PilotRating
+    usability: PilotRating
+    reread_location: str = Field(default="", max_length=2_000)
+    clarifying_visual: str = Field(default="", max_length=2_000)
+
+    @field_validator("reread_location", "clarifying_visual")
+    @classmethod
+    def reject_unsupported_control_characters(cls, value: str) -> str:
+        if any(ord(character) < 32 and character not in "\n\r\t" for character in value):
+            raise ValueError("Freitext enthält nicht unterstützte Steuerzeichen.")
+        return value
+
+
+class PilotFeedbackResponse(PilotFeedbackRequest):
+    created_at: datetime
+
+
 class ReadinessCheck(StrictModel):
     status: Literal["ok", "failed"]
     issues: list[ContentIssue] = Field(default_factory=list)

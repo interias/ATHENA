@@ -84,6 +84,15 @@ Alle folgenden Pfade gehören zur internen FastAPI. Browser greift über den Nex
 
 Für M0 nur q-ch01-01 und q-ch01-02 exponieren. Die übrige kanonische Aufgabenbank bleibt für M1 vorbereitet. Fortschrittsanzeige berücksichtigt den tatsächlich freigeschalteten Umfang.
 
+Pilotfeedback enthält `feedback_id` als UUID, `lesson_id`, `content_version`, die
+Pflichtbewertungen `readability`, `text_amount`, `visual_usefulness`,
+`practical_relevance` und `usability` als strikte Ganzzahlen von 1 bis 5 sowie die
+optionalen Texte `reread_location` und `clarifying_visual` mit höchstens 2.000
+Unicode-Codepoints je Feld. Der Server setzt `created_at`. Ein identischer Replay
+derselben UUID gibt denselben Snapshot mit demselben Zeitstempel zurück; ein
+geänderter Snapshot unter derselben UUID liefert 409. Neues späteres Feedback
+verwendet eine neue UUID.
+
 ## API: M1 ergänzen
 
 `GET /v1/reviews/due`, `POST /v1/reviews/{card_id}/attempts`, `POST /v1/reviews/{card_id}/ratings`, `GET /v1/export` sowie lokal geschützte Import-/Resetaktionen. Reset benötigt eine explizite Bestätigung in der Oberfläche und darf nicht durch Seitenaufruf geschehen.

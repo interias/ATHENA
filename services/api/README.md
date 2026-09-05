@@ -5,6 +5,10 @@ unter `ATHENA_CONTENT_ROOT` und `ATHENA_SOURCES_PATH` vollständig geprüft und 
 angewendet. Ungültige Inhalte lassen den Prozess für Diagnosen erreichbar, setzen
 `GET /readyz` und `GET /v1/curriculum` jedoch auf HTTP 503.
 
+M0 stellt Curriculum, Pilotlektion, versionsgebundenen Lesestatus, persistente
+Aufgabenversuche mit Selbstbewertung und idempotentes Pilotfeedback unter `/v1/`
+bereit. Nur die API schreibt in SQLite.
+
 Konfiguration:
 
 - `ATHENA_CONTENT_ROOT`: Wurzel des kanonischen `content/`-Verzeichnisses

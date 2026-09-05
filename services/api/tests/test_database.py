@@ -24,7 +24,7 @@ def test_migration_is_versioned_and_connection_enables_foreign_keys(
         assert connection.execute("PRAGMA busy_timeout").fetchone() == (
             BUSY_TIMEOUT_MS,
         )
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
         assert connection.execute(
             "SELECT version, name FROM schema_migrations"
         ).fetchall() == [
@@ -32,6 +32,7 @@ def test_migration_is_versioned_and_connection_enables_foreign_keys(
             (2, "002_attempts.sql"),
             (3, "003_free_text_attempts.sql"),
             (4, "004_lesson_progress.sql"),
+            (5, "005_pilot_feedback.sql"),
         ]
 
     with sqlite3.connect(database_path) as connection:
@@ -44,6 +45,7 @@ def test_migration_is_versioned_and_connection_enables_foreign_keys(
     assert tables == {
         "attempts",
         "lesson_progress",
+        "pilot_feedback",
         "schema_migrations",
         "self_assessments",
     }
@@ -125,3 +127,40 @@ def test_migration_003_preserves_existing_v2_choice_attempt(tmp_path: Path) -> N
         foreign_keys = connection.execute("PRAGMA foreign_key_list(self_assessments)").fetchall()
     assert migrated == (*original, None)
     assert foreign_keys[0][2:7] == ("attempts", "attempt_id", "id", "NO ACTION", "CASCADE")
+
+
+def test_migration_005_preserves_existing_v4_learning_data(tmp_path: Path) -> None:
+    api_root = Path(__file__).resolve().parents[1]
+    v4_migrations = tmp_path / "v4-migrations"
+    v4_migrations.mkdir()
+    for name in (
+        "001_initial.sql",
+        "002_attempts.sql",
+        "003_free_text_attempts.sql",
+        "004_lesson_progress.sql",
+    ):
+        shutil.copyfile(api_root / "migrations" / name, v4_migrations / name)
+    database_path = tmp_path / "athena.db"
+    Database(database_path, v4_migrations).migrate()
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            "INSERT INTO lesson_progress VALUES (?, ?, ?, ?)",
+            (
+                "ch01-l01",
+                "0.1.0",
+                "2026-09-05T10:20:30.123456+00:00",
+                "2026-09-05T10:20:30.123456+00:00",
+            ),
+        )
+        connection.commit()
+
+    Database(database_path, api_root / "migrations").migrate()
+
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT * FROM lesson_progress").fetchone() == (
+            "ch01-l01",
+            "0.1.0",
+            "2026-09-05T10:20:30.123456+00:00",
+            "2026-09-05T10:20:30.123456+00:00",
+        )
+        assert connection.execute("SELECT COUNT(*) FROM pilot_feedback").fetchone() == (0,)

@@ -16,6 +16,8 @@ from .database import (
     AttemptRecord,
     Database,
     LessonProgressRecord,
+    PilotFeedbackConflictError,
+    PilotFeedbackRecord,
     SelfAssessmentRecord,
 )
 from .models import (
@@ -30,6 +32,8 @@ from .models import (
     FreeTextAnswer,
     LessonResponse,
     LessonProgress,
+    PilotFeedbackRequest,
+    PilotFeedbackResponse,
     ProgressResponse,
     ProgressUpdateRequest,
     ReadinessCheck,
@@ -362,6 +366,58 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return _self_assessment_response(attempt, stored)
 
+    @application.post(
+        "/v1/pilot-feedback",
+        response_model=PilotFeedbackResponse,
+        status_code=201,
+        responses={
+            404: {"description": "Lektion nicht gefunden oder nicht verfügbar"},
+            409: {"description": "Inhaltsversion oder Feedback-ID kollidiert"},
+            503: {"model": ReadinessResponse},
+        },
+    )
+    def create_pilot_feedback(
+        payload: PilotFeedbackRequest, request: Request
+    ) -> PilotFeedbackResponse | JSONResponse:
+        if payload.lesson_id != M0_LESSON_ID:
+            raise HTTPException(
+                status_code=404, detail="Lektion nicht gefunden oder nicht verfügbar."
+            )
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+
+        manifest: ContentManifest = request.app.state.content_manifest
+        lesson = next(
+            item for item in manifest.lessons if item.lesson_id == payload.lesson_id
+        )
+        if payload.content_version != lesson.content_version:
+            raise HTTPException(
+                status_code=409, detail="Inhaltsversion stimmt nicht überein."
+            )
+
+        database: Database = request.app.state.database
+        try:
+            stored = database.save_pilot_feedback(
+                feedback_id=str(payload.feedback_id),
+                lesson_id=payload.lesson_id,
+                content_version=payload.content_version,
+                ratings={
+                    "practical_relevance": payload.practical_relevance,
+                    "readability": payload.readability,
+                    "text_amount": payload.text_amount,
+                    "usability": payload.usability,
+                    "visual_usefulness": payload.visual_usefulness,
+                },
+                free_text={
+                    "clarifying_visual": payload.clarifying_visual,
+                    "reread_location": payload.reread_location,
+                },
+            )
+        except PilotFeedbackConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return _pilot_feedback_response(stored)
+
     return application
 
 
@@ -419,6 +475,19 @@ def _self_assessment_response(
         created_at=datetime.fromisoformat(stored.created_at),
         objective_result="not_assessed",
         grading_source=SELF_ASSESSMENT,
+    )
+
+
+def _pilot_feedback_response(stored: PilotFeedbackRecord) -> PilotFeedbackResponse:
+    ratings = json.loads(stored.ratings_json)
+    free_text = json.loads(stored.free_text_json)
+    return PilotFeedbackResponse(
+        feedback_id=UUID(stored.id),
+        lesson_id=stored.lesson_id,
+        content_version=stored.content_version,
+        **ratings,
+        **free_text,
+        created_at=datetime.fromisoformat(stored.created_at),
     )
 
 
