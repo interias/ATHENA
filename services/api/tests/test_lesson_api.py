@@ -189,9 +189,10 @@ def test_exercises_expose_only_public_m0_fields(
         "content_version",
         "development_status",
     }
-    assert {item["development_status"] for item in payload["exercises"]} == {
-        "in_development"
-    }
+    assert [item["development_status"] for item in payload["exercises"]] == [
+        "available",
+        "in_development",
+    ]
     assert not {
         "correct_option",
         "feedback_by_option",

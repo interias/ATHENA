@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import sqlite3
 from contextlib import contextmanager
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -11,6 +14,25 @@ BUSY_TIMEOUT_MS = 5_000
 
 class DatabaseError(RuntimeError):
     pass
+
+
+class AttemptConflictError(DatabaseError):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class AttemptRecord:
+    id: str
+    item_id: str
+    content_version: str
+    answer_json: str
+    confidence: str | None
+    mode: str
+    assisted: bool
+    created_at: str
+    objective_result: str
+    grading_source: str
+    feedback: str
 
 
 class Database:
@@ -108,3 +130,155 @@ class Database:
             if connection.execute("PRAGMA foreign_keys").fetchone() != (1,):
                 raise DatabaseError("SQLite-Fremdschlüssel sind nicht aktiviert.")
             connection.execute("SELECT 1 FROM schema_migrations LIMIT 1").fetchall()
+
+    def save_attempt(
+        self,
+        *,
+        attempt_id: str,
+        item_id: str,
+        content_version: str,
+        answer: dict[str, str],
+        confidence: str | None,
+        mode: str,
+        assisted: bool,
+        objective_result: str,
+        grading_source: str,
+        feedback: str,
+    ) -> AttemptRecord:
+        answer_json = json.dumps(
+            answer,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        request_values = (
+            item_id,
+            content_version,
+            answer_json,
+            confidence,
+            mode,
+            int(assisted),
+        )
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                existing = connection.execute(
+                    "SELECT * FROM attempts WHERE id = ?", (attempt_id,)
+                ).fetchone()
+                if existing is not None:
+                    stored_values = tuple(
+                        existing[field]
+                        for field in (
+                            "item_id",
+                            "content_version",
+                            "answer_json",
+                            "confidence",
+                            "mode",
+                            "assisted",
+                        )
+                    )
+                    if stored_values != request_values:
+                        raise AttemptConflictError(
+                            "Die Versuch-ID wurde bereits mit anderem Inhalt verwendet."
+                        )
+                    connection.commit()
+                    return self._attempt_record(existing)
+
+                created_at = datetime.now(timezone.utc).isoformat(
+                    timespec="microseconds"
+                )
+                connection.execute(
+                    """
+                    INSERT INTO attempts (
+                        id, item_id, content_version, answer_json, confidence,
+                        mode, assisted, created_at, objective_result, grading_source,
+                        feedback
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        attempt_id,
+                        *request_values,
+                        created_at,
+                        objective_result,
+                        grading_source,
+                        feedback,
+                    ),
+                )
+                stored = connection.execute(
+                    "SELECT * FROM attempts WHERE id = ?", (attempt_id,)
+                ).fetchone()
+                connection.commit()
+                if stored is None:
+                    raise DatabaseError("Gespeicherter Versuch konnte nicht gelesen werden.")
+                return self._attempt_record(stored)
+            except Exception:
+                connection.rollback()
+                raise
+
+    def find_attempt(
+        self,
+        *,
+        attempt_id: str,
+        item_id: str,
+        content_version: str,
+        answer: dict[str, str],
+        confidence: str | None,
+        mode: str,
+        assisted: bool,
+    ) -> AttemptRecord | None:
+        answer_json = json.dumps(
+            answer,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        request_values = (
+            item_id,
+            content_version,
+            answer_json,
+            confidence,
+            mode,
+            int(assisted),
+        )
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            existing = connection.execute(
+                "SELECT * FROM attempts WHERE id = ?", (attempt_id,)
+            ).fetchone()
+        if existing is None:
+            return None
+        stored_values = tuple(
+            existing[field]
+            for field in (
+                "item_id",
+                "content_version",
+                "answer_json",
+                "confidence",
+                "mode",
+                "assisted",
+            )
+        )
+        if stored_values != request_values:
+            raise AttemptConflictError(
+                "Die Versuch-ID wurde bereits mit anderem Inhalt verwendet."
+            )
+        return self._attempt_record(existing)
+
+    @staticmethod
+    def _attempt_record(row: sqlite3.Row) -> AttemptRecord:
+        return AttemptRecord(
+            id=row["id"],
+            item_id=row["item_id"],
+            content_version=row["content_version"],
+            answer_json=row["answer_json"],
+            confidence=row["confidence"],
+            mode=row["mode"],
+            assisted=bool(row["assisted"]),
+            created_at=row["created_at"],
+            objective_result=row["objective_result"],
+            grading_source=row["grading_source"],
+            feedback=row["feedback"],
+        )

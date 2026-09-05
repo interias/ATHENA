@@ -6,6 +6,12 @@ const feedback = [
   "Eine langfristige Veränderung lässt sich aus diesem Vergleich nicht ablesen. Du kennst jetzt erst zwei unmittelbare Reaktionen.",
 ];
 
+const exerciseFeedback = [
+  "Das beschreibt dein Erleben, nicht die absolvierte Aufgabe.",
+  "Richtig: Strecke und Dauer beschreiben einen dokumentierten Teil der Aufgabe.",
+  "Zufriedenheit ist ein subjektives Urteil und kein Maß der Laufaufgabe.",
+];
+
 async function openLesson(page: Page) {
   await page.goto("/");
   await page.getByRole("link", { name: "Gleiche Aufgabe, andere Reaktion" }).click();
@@ -32,7 +38,8 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect(reader.getByRole("heading", { name: "Heute ist nicht langfristig" })).toBeVisible();
   await expect(reader.getByRole("heading", { name: "Merksatz" })).toBeVisible();
   await expect(page.locator(".knowledge-figure")).toHaveCount(2);
-  await expect(page.getByText("Aufgabe · in Entwicklung")).toHaveCount(2);
+  await expect(page.getByText("Denkaufgabe · Fiktives Beispiel")).toHaveCount(1);
+  await expect(page.getByText("Aufgabe · in Entwicklung")).toHaveCount(1);
   await expect(page.getByText("Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung")).toBeVisible();
   await expect(page.getByText("pilot_draft", { exact: false })).toBeVisible();
   const heroImage = page.locator(".lesson-hero img");
@@ -53,6 +60,115 @@ test("opens the complete canonical pilot reader without external runtime request
   expect(prematureReveal).not.toContain("Deutlich anstrengender erlebt.");
   expect(externalRequests).toEqual([]);
   expect(failedResponses).toEqual([]);
+});
+
+test("keeps exercise solutions out of the initial page and client bundle", async ({ page }) => {
+  await page.goto("/lessons/ch01-l01");
+  const exercise = page.locator(".exercise-card");
+  await expect(exercise.getByRole("heading", { name: /Welche Angabe beschreibt/ })).toBeVisible();
+  await expect(exercise.getByRole("radio")).toHaveCount(3);
+  await expect(exercise.getByText("Versuch dauerhaft gespeichert")).toHaveCount(0);
+  for (const text of exerciseFeedback) await expect(exercise.getByText(text)).toHaveCount(0);
+
+  const bundleText = await page.locator('script[src]').evaluateAll(async (scripts) => {
+    const responses = await Promise.all(scripts.map((script) => fetch((script as HTMLScriptElement).src)));
+    return (await Promise.all(responses.map((response) => response.text()))).join("\n");
+  });
+  for (const text of exerciseFeedback) expect(bundleText).not.toContain(text);
+});
+
+test("stores the keyboard answer before revealing canonical feedback", async ({ page }) => {
+  const requests: { url: string; body: Record<string, unknown> }[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST" && new URL(request.url()).pathname === "/api/attempts") {
+      requests.push({ url: request.url(), body: request.postDataJSON() as Record<string, unknown> });
+    }
+  });
+  await page.goto("/lessons/ch01-l01");
+  const exercise = page.locator(".exercise-card");
+  const correctChoice = exercise.getByRole("radio").nth(1);
+  await correctChoice.focus();
+  await page.keyboard.press("Space");
+  await exercise.getByLabel("Wie sicher bist du?").selectOption("sicher");
+  const submit = exercise.getByRole("button", { name: "Antwort speichern" });
+  await submit.focus();
+  await page.keyboard.press("Enter");
+
+  const result = exercise.getByRole("status");
+  await expect(result).toBeFocused();
+  await expect(result).toContainText(exerciseFeedback[1]);
+  await expect(result).toContainText("Versuch dauerhaft gespeichert · Zuversicht: sicher");
+  expect(requests).toHaveLength(1);
+  expect(new URL(requests[0].url).search).toBe("");
+  expect(requests[0].body).toMatchObject({
+    item_id: "q-ch01-01",
+    content_version: "0.1.0",
+    answer: { option_id: "b" },
+    confidence: "sicher",
+    mode: "practice",
+    assisted: false,
+  });
+  expect(requests[0].body.attempt_id).toMatch(/^[0-9a-f-]{36}$/);
+});
+
+test("retains answer and UUID after an error, then creates a UUID for a genuine new attempt", async ({ page }) => {
+  const attemptIds: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST" && new URL(request.url()).pathname === "/api/attempts") {
+      attemptIds.push((request.postDataJSON() as { attempt_id: string }).attempt_id);
+    }
+  });
+  await page.route("**/api/attempts", async (route) => {
+    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Testfehler" }) });
+  }, { times: 1 });
+  await page.goto("/lessons/ch01-l01");
+  const exercise = page.locator(".exercise-card");
+  const choice = exercise.getByRole("radio").first();
+  await choice.check();
+  await exercise.getByLabel("Wie sicher bist du?").selectOption("unsicher");
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+
+  await expect(exercise.getByRole("alert")).toContainText("Auswahl bleibt erhalten");
+  await expect(choice).toBeChecked();
+  await expect(exercise.getByLabel("Wie sicher bist du?")).toHaveValue("unsicher");
+  await expect(exercise.getByRole("status")).toHaveCount(0);
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+  await expect(exercise.getByRole("status")).toContainText(exerciseFeedback[0]);
+  expect(attemptIds[0]).toBe(attemptIds[1]);
+
+  await exercise.getByRole("button", { name: "Erneut versuchen" }).click();
+  await expect(choice).toBeFocused();
+  await expect(choice).not.toBeChecked();
+  await choice.check();
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+  await expect(exercise.getByRole("status")).toContainText(exerciseFeedback[0]);
+  expect(attemptIds[2]).not.toBe(attemptIds[1]);
+});
+
+test("starts a new UUID when an answer is changed after a lost successful response", async ({ page }) => {
+  const attemptIds: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST" && new URL(request.url()).pathname === "/api/attempts") {
+      attemptIds.push((request.postDataJSON() as { attempt_id: string }).attempt_id);
+    }
+  });
+  await page.route("**/api/attempts", async (route) => {
+    const storedResponse = await route.fetch();
+    expect(storedResponse.ok()).toBe(true);
+    await route.abort("failed");
+  }, { times: 1 });
+  await page.goto("/lessons/ch01-l01");
+  const exercise = page.locator(".exercise-card");
+  await exercise.getByRole("radio").first().check();
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+  await expect(exercise.getByRole("alert")).toContainText("Speicherstatus konnte nicht bestätigt werden");
+
+  await exercise.getByRole("radio").nth(1).check();
+  await expect(exercise.getByRole("alert")).toHaveCount(0);
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+  await expect(exercise.getByRole("status")).toContainText(exerciseFeedback[1]);
+  expect(attemptIds).toHaveLength(2);
+  expect(attemptIds[1]).not.toBe(attemptIds[0]);
 });
 
 test("opens comma-separated source metadata and returns focus", async ({ page }) => {
@@ -128,6 +244,11 @@ test("stays usable at 390 pixels, 200 percent scale and reduced motion", async (
   expect(reducedMotion).toBe("auto");
   let widths = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   expect(widths.content).toBeLessThanOrEqual(widths.viewport);
+
+  const exercise = page.locator(".exercise-card");
+  await exercise.getByRole("radio").nth(2).check();
+  await exercise.getByRole("button", { name: "Antwort speichern" }).click();
+  await expect(exercise.getByRole("status")).toContainText(exerciseFeedback[2]);
 
   const client = await page.context().newCDPSession(page);
   await client.send("Emulation.setDeviceMetricsOverride", {

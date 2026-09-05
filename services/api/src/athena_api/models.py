@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal
+from datetime import datetime
+from typing import Annotated, Literal
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -256,7 +258,7 @@ class LessonSingleChoiceExercise(StrictModel):
     objective_ids: list[str]
     source_ids: list[str]
     content_version: str
-    development_status: Literal["in_development"]
+    development_status: Literal["available", "in_development"]
 
 
 class LessonFreeTextExercise(StrictModel):
@@ -266,7 +268,7 @@ class LessonFreeTextExercise(StrictModel):
     objective_ids: list[str]
     source_ids: list[str]
     content_version: str
-    development_status: Literal["in_development"]
+    development_status: Literal["available", "in_development"]
 
 
 class LessonResponse(StrictModel):
@@ -290,3 +292,24 @@ class ReadinessCheck(StrictModel):
 class ReadinessResponse(StrictModel):
     status: Literal["ready", "not_ready"]
     checks: dict[str, ReadinessCheck]
+
+
+class SingleChoiceAnswer(StrictModel):
+    option_id: str = Field(min_length=1, max_length=64)
+
+
+class AttemptRequest(StrictModel):
+    attempt_id: Annotated[UUID, Field(strict=False)]
+    item_id: str = Field(min_length=1, max_length=64)
+    content_version: str = Field(min_length=1, max_length=32)
+    answer: SingleChoiceAnswer
+    confidence: Literal["unsicher", "mittel", "sicher"] | None = None
+    mode: Literal["practice"]
+    assisted: bool
+
+
+class AttemptResponse(AttemptRequest):
+    created_at: datetime
+    objective_result: Literal["correct", "incorrect"]
+    grading_source: Literal["canonical_single_choice"]
+    feedback: str
