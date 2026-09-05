@@ -1,0 +1,66 @@
+services:
+  api:
+    image: athena-m0-api:0.1.0
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    environment:
+      ATHENA_CONTENT_ROOT: /content
+      ATHENA_DATABASE_PATH: /data/learning.db
+      ATHENA_SOURCES_PATH: /research/SOURCES.md
+    expose:
+      - "8000"
+    volumes:
+      - learning_data:/data
+      - ./content:/content:ro
+      - ./research:/research:ro
+      - ./assets:/assets:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    networks:
+      - api_internal
+
+  web:
+    image: athena-m0-web:0.1.0
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      ATHENA_API_ORIGIN: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - web_front
+      - api_internal
+
+volumes:
+  learning_data:
+    name: ${COMPOSE_PROJECT_NAME:-athena-m0}_learning_data
+
+networks:
+  web_front:
+  api_internal:
+    internal: true
