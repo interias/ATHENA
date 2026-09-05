@@ -298,11 +298,22 @@ class SingleChoiceAnswer(StrictModel):
     option_id: str = Field(min_length=1, max_length=64)
 
 
+class FreeTextAnswer(StrictModel):
+    text: str = Field(max_length=4_000)
+
+    @field_validator("text")
+    @classmethod
+    def reject_blank_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Antwort darf nicht leer sein.")
+        return value
+
+
 class AttemptRequest(StrictModel):
     attempt_id: Annotated[UUID, Field(strict=False)]
     item_id: str = Field(min_length=1, max_length=64)
     content_version: str = Field(min_length=1, max_length=32)
-    answer: SingleChoiceAnswer
+    answer: SingleChoiceAnswer | FreeTextAnswer
     confidence: Literal["unsicher", "mittel", "sicher"] | None = None
     mode: Literal["practice"]
     assisted: bool
@@ -310,6 +321,31 @@ class AttemptRequest(StrictModel):
 
 class AttemptResponse(AttemptRequest):
     created_at: datetime
-    objective_result: Literal["correct", "incorrect"]
-    grading_source: Literal["canonical_single_choice"]
+    objective_result: Literal["correct", "incorrect", "not_assessed"]
+    grading_source: Literal["canonical_single_choice", "self_assessment"]
     feedback: str
+    model_answer: str | None = None
+    rubric: list[RubricCriterion] | None = None
+
+
+class SelfAssessmentRequest(StrictModel):
+    content_version: str = Field(min_length=1, max_length=32)
+    checked_criterion_ids: list[str] = Field(max_length=64)
+    rating: Literal["again", "hard", "good"]
+
+    @field_validator("checked_criterion_ids")
+    @classmethod
+    def reject_duplicate_criteria(cls, value: list[str]) -> list[str]:
+        if any(not criterion_id or len(criterion_id) > 64 for criterion_id in value):
+            raise ValueError("Kriterien-IDs sind ungültig.")
+        if len(value) != len(set(value)):
+            raise ValueError("Kriterien-IDs dürfen nicht doppelt vorkommen.")
+        return value
+
+
+class SelfAssessmentResponse(SelfAssessmentRequest):
+    attempt_id: Annotated[UUID, Field(strict=False)]
+    item_id: str
+    created_at: datetime
+    objective_result: Literal["not_assessed"]
+    grading_source: Literal["self_assessment"]

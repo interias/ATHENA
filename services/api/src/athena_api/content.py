@@ -846,9 +846,7 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
             "source_ids": question.source_ids,
             "content_version": question.content_version,
             "development_status": (
-                "available"
-                if question.id == "q-ch01-01"
-                else "in_development"
+                "available" if question.id in M0_QUESTION_IDS else "in_development"
             ),
         }
         if question.kind == "single_choice":

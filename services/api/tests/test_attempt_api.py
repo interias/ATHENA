@@ -42,6 +42,23 @@ def attempt_payload(
     }
 
 
+def free_text_payload(
+    *,
+    attempt_id: str | None = None,
+    text: str = "Distanz und Dauer sind gleich, das Erleben verschieden; die Ursache bleibt offen.",
+    confidence: str | None = None,
+) -> dict[str, object]:
+    return {
+        "attempt_id": attempt_id or str(uuid4()),
+        "item_id": "q-ch01-02",
+        "content_version": "0.1.0",
+        "answer": {"text": text},
+        "confidence": confidence,
+        "mode": "practice",
+        "assisted": False,
+    }
+
+
 @pytest.mark.parametrize(
     ("option_id", "objective_result", "feedback"),
     [
@@ -95,7 +112,7 @@ def test_confidence_may_be_omitted(content_root: Path, tmp_path: Path) -> None:
     assert response.json()["confidence"] is None
 
 
-@pytest.mark.parametrize("item_id", ["q-ch01-02", "q-ch01-03", "unknown"])
+@pytest.mark.parametrize("item_id", ["q-ch01-03", "unknown"])
 def test_attempt_rejects_unknown_or_not_enabled_items(
     content_root: Path, tmp_path: Path, item_id: str
 ) -> None:
@@ -229,3 +246,168 @@ def test_restart_replay_uses_persisted_grading_and_feedback_snapshot(
     assert new_attempt.json()["feedback"] == "Geändertes kanonisches Feedback."
     with sqlite3.connect(database_path) as connection:
         assert connection.execute("SELECT COUNT(*) FROM attempts").fetchone() == (2,)
+
+
+def test_free_text_is_stored_before_canonical_solution_is_returned(
+    content_root: Path, tmp_path: Path
+) -> None:
+    database_path = tmp_path / "athena.db"
+    payload = free_text_payload(confidence="sicher")
+    with TestClient(make_app(content_root, database_path)) as client:
+        response = client.post("/v1/attempts", json=payload)
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["answer"] == payload["answer"]
+    assert body["objective_result"] == "not_assessed"
+    assert body["grading_source"] == "self_assessment"
+    assert body["model_answer"].startswith("Die dokumentierte Distanz und Dauer")
+    assert [item["id"] for item in body["rubric"]] == ["c1", "c2", "c3"]
+    assert all(item["required"] for item in body["rubric"])
+    with sqlite3.connect(database_path) as connection:
+        row = connection.execute(
+            "SELECT answer_json, objective_result, grading_source, solution_json FROM attempts"
+        ).fetchone()
+    assert row[:3] == (
+        '{"text":"Distanz und Dauer sind gleich, das Erleben verschieden; die Ursache bleibt offen."}',
+        "not_assessed",
+        "self_assessment",
+    )
+    assert "model_answer" in row[3]
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["", "   \n\t", "x" * 4_001, "🧪" * 4_001],
+    ids=["empty", "whitespace", "ascii-overlong", "unicode-overlong"],
+)
+def test_free_text_rejects_blank_or_more_than_4000_unicode_characters(
+    content_root: Path, tmp_path: Path, text: str
+) -> None:
+    with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
+        response = client.post("/v1/attempts", json=free_text_payload(text=text))
+    assert response.status_code == 422
+
+
+def test_free_text_accepts_4000_non_bmp_unicode_characters(
+    content_root: Path, tmp_path: Path
+) -> None:
+    text = "🧪" * 4_000
+    with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
+        response = client.post("/v1/attempts", json=free_text_payload(text=text))
+    assert response.status_code == 201
+    assert response.json()["answer"]["text"] == text
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        {"option_id": "b"},
+        {"text": "Antwort", "extra": "forbidden"},
+        {"text": 7},
+    ],
+)
+def test_free_text_rejects_wrong_answer_shape(
+    content_root: Path, tmp_path: Path, answer: dict[str, object]
+) -> None:
+    payload = free_text_payload()
+    payload["answer"] = answer
+    with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
+        response = client.post("/v1/attempts", json=payload)
+    assert response.status_code == 422
+
+
+def test_free_text_replay_and_new_attempt_are_independent(
+    content_root: Path, tmp_path: Path
+) -> None:
+    database_path = tmp_path / "athena.db"
+    payload = free_text_payload(attempt_id=str(uuid4()))
+    with TestClient(make_app(content_root, database_path)) as client:
+        first = client.post("/v1/attempts", json=payload)
+        replay = client.post("/v1/attempts", json=payload)
+        conflict = client.post(
+            "/v1/attempts", json={**payload, "answer": {"text": "Andere Antwort"}}
+        )
+        second = client.post(
+            "/v1/attempts", json={**payload, "attempt_id": str(uuid4())}
+        )
+    assert first.status_code == replay.status_code == second.status_code == 201
+    assert replay.json() == first.json()
+    assert conflict.status_code == 409
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM attempts").fetchone() == (2,)
+
+
+def test_self_assessment_is_canonical_idempotent_and_persistent(
+    content_root: Path, tmp_path: Path
+) -> None:
+    database_path = tmp_path / "athena.db"
+    attempt = free_text_payload(attempt_id=str(uuid4()))
+    assessment = {
+        "content_version": "0.1.0",
+        "checked_criterion_ids": ["c1", "c2", "c3"],
+        "rating": "good",
+    }
+    path = f"/v1/attempts/{attempt['attempt_id']}/self-assessment"
+    with TestClient(make_app(content_root, database_path)) as client:
+        assert client.post("/v1/attempts", json=attempt).status_code == 201
+        first = client.post(path, json=assessment)
+        replay = client.post(path, json=assessment)
+        conflict = client.post(path, json={**assessment, "rating": "hard"})
+    assert first.status_code == replay.status_code == 201
+    assert replay.json() == first.json()
+    assert first.json()["objective_result"] == "not_assessed"
+    assert first.json()["grading_source"] == "self_assessment"
+    assert conflict.status_code == 409
+
+    with TestClient(make_app(content_root, database_path)) as client:
+        restarted = client.post(path, json=assessment)
+        attempt_replay = client.post("/v1/attempts", json=attempt)
+    assert restarted.json() == first.json()
+    assert attempt_replay.status_code == 201
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM self_assessments").fetchone() == (1,)
+
+
+@pytest.mark.parametrize(
+    ("assessment", "status"),
+    [
+        ({"content_version": "0.1.0", "checked_criterion_ids": ["unknown"], "rating": "hard"}, 422),
+        ({"content_version": "0.1.0", "checked_criterion_ids": ["c1", "c1"], "rating": "hard"}, 422),
+        ({"content_version": "0.1.0", "checked_criterion_ids": ["c1"], "rating": "good"}, 422),
+        ({"content_version": "0.0.9", "checked_criterion_ids": [], "rating": "again"}, 409),
+        ({"content_version": "0.1.0", "checked_criterion_ids": [], "rating": "great"}, 422),
+        ({"content_version": "0.1.0", "checked_criterion_ids": [], "rating": "again", "extra": True}, 422),
+    ],
+)
+def test_self_assessment_rejects_invalid_payload(
+    content_root: Path, tmp_path: Path, assessment: dict[str, object], status: int
+) -> None:
+    attempt = free_text_payload()
+    with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
+        client.post("/v1/attempts", json=attempt)
+        response = client.post(
+            f"/v1/attempts/{attempt['attempt_id']}/self-assessment", json=assessment
+        )
+    assert response.status_code == status
+
+
+def test_self_assessment_rejects_unknown_and_choice_attempts(
+    content_root: Path, tmp_path: Path
+) -> None:
+    choice = attempt_payload()
+    assessment = {
+        "content_version": "0.1.0",
+        "checked_criterion_ids": [],
+        "rating": "again",
+    }
+    with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
+        client.post("/v1/attempts", json=choice)
+        choice_response = client.post(
+            f"/v1/attempts/{choice['attempt_id']}/self-assessment", json=assessment
+        )
+        unknown_response = client.post(
+            f"/v1/attempts/{uuid4()}/self-assessment", json=assessment
+        )
+    assert choice_response.status_code == 409
+    assert unknown_response.status_code == 404

@@ -33,6 +33,16 @@ class AttemptRecord:
     objective_result: str
     grading_source: str
     feedback: str
+    solution_json: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class SelfAssessmentRecord:
+    attempt_id: str
+    content_version: str
+    checked_criterion_ids_json: str
+    rating: str
+    created_at: str
 
 
 class Database:
@@ -144,6 +154,7 @@ class Database:
         objective_result: str,
         grading_source: str,
         feedback: str,
+        solution: dict[str, object] | None = None,
     ) -> AttemptRecord:
         answer_json = json.dumps(
             answer,
@@ -159,6 +170,11 @@ class Database:
             confidence,
             mode,
             int(assisted),
+        )
+        solution_json = (
+            json.dumps(solution, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+            if solution is not None
+            else None
         )
         with self.connect() as connection:
             connection.row_factory = sqlite3.Row
@@ -194,8 +210,8 @@ class Database:
                     INSERT INTO attempts (
                         id, item_id, content_version, answer_json, confidence,
                         mode, assisted, created_at, objective_result, grading_source,
-                        feedback
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        feedback, solution_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         attempt_id,
@@ -204,6 +220,7 @@ class Database:
                         objective_result,
                         grading_source,
                         feedback,
+                        solution_json,
                     ),
                 )
                 stored = connection.execute(
@@ -267,6 +284,75 @@ class Database:
             )
         return self._attempt_record(existing)
 
+    def get_attempt(self, attempt_id: str) -> AttemptRecord | None:
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            row = connection.execute(
+                "SELECT * FROM attempts WHERE id = ?", (attempt_id,)
+            ).fetchone()
+        return self._attempt_record(row) if row is not None else None
+
+    def save_self_assessment(
+        self,
+        *,
+        attempt_id: str,
+        content_version: str,
+        checked_criterion_ids: list[str],
+        rating: str,
+    ) -> SelfAssessmentRecord:
+        checked_json = json.dumps(
+            checked_criterion_ids,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        request_values = (content_version, checked_json, rating)
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                existing = connection.execute(
+                    "SELECT * FROM self_assessments WHERE attempt_id = ?",
+                    (attempt_id,),
+                ).fetchone()
+                if existing is not None:
+                    stored_values = tuple(
+                        existing[field]
+                        for field in (
+                            "content_version",
+                            "checked_criterion_ids_json",
+                            "rating",
+                        )
+                    )
+                    if stored_values != request_values:
+                        raise AttemptConflictError(
+                            "Der Versuch wurde bereits anders selbst bewertet."
+                        )
+                    connection.commit()
+                    return self._self_assessment_record(existing)
+
+                created_at = datetime.now(timezone.utc).isoformat(timespec="microseconds")
+                connection.execute(
+                    """
+                    INSERT INTO self_assessments (
+                        attempt_id, content_version, checked_criterion_ids_json,
+                        rating, created_at
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (attempt_id, *request_values, created_at),
+                )
+                stored = connection.execute(
+                    "SELECT * FROM self_assessments WHERE attempt_id = ?",
+                    (attempt_id,),
+                ).fetchone()
+                connection.commit()
+                if stored is None:
+                    raise DatabaseError("Selbstbewertung konnte nicht gelesen werden.")
+                return self._self_assessment_record(stored)
+            except Exception:
+                connection.rollback()
+                raise
+
     @staticmethod
     def _attempt_record(row: sqlite3.Row) -> AttemptRecord:
         return AttemptRecord(
@@ -281,4 +367,15 @@ class Database:
             objective_result=row["objective_result"],
             grading_source=row["grading_source"],
             feedback=row["feedback"],
+            solution_json=row["solution_json"],
+        )
+
+    @staticmethod
+    def _self_assessment_record(row: sqlite3.Row) -> SelfAssessmentRecord:
+        return SelfAssessmentRecord(
+            attempt_id=row["attempt_id"],
+            content_version=row["content_version"],
+            checked_criterion_ids_json=row["checked_criterion_ids_json"],
+            rating=row["rating"],
+            created_at=row["created_at"],
         )

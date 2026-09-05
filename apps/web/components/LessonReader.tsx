@@ -55,20 +55,41 @@ type Exercise = {
   development_status: "available" | "in_development";
 };
 
+type RubricCriterion = {
+  id: string;
+  criterion: string;
+  required: boolean;
+};
+
 type Confidence = "unsicher" | "mittel" | "sicher";
 
 type AttemptResponse = {
   attempt_id: string;
   item_id: string;
   content_version: string;
-  answer: { option_id: string };
+  answer: { option_id: string } | { text: string };
   confidence: Confidence | null;
   mode: "practice";
   assisted: boolean;
   created_at: string;
-  objective_result: "correct" | "incorrect";
-  grading_source: "canonical_single_choice";
+  objective_result: "correct" | "incorrect" | "not_assessed";
+  grading_source: "canonical_single_choice" | "self_assessment";
   feedback: string;
+  model_answer?: string;
+  rubric?: RubricCriterion[];
+};
+
+type SelfAssessmentRating = "again" | "hard" | "good";
+
+type SelfAssessmentResponse = {
+  attempt_id: string;
+  item_id: string;
+  content_version: string;
+  checked_criterion_ids: string[];
+  rating: SelfAssessmentRating;
+  created_at: string;
+  objective_result: "not_assessed";
+  grading_source: "self_assessment";
 };
 
 type LessonBlock =
@@ -416,6 +437,206 @@ function SingleChoiceExercise({ exercise }: { exercise: Exercise }) {
   );
 }
 
+function FreeTextExercise({ exercise }: { exercise: Exercise }) {
+  const answerRef = useRef<HTMLTextAreaElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const selfResultRef = useRef<HTMLDivElement>(null);
+  const attemptId = useRef<string | null>(null);
+  const [answer, setAnswer] = useState("");
+  const [confidence, setConfidence] = useState<Confidence | "">("");
+  const [result, setResult] = useState<AttemptResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [checkedCriteria, setCheckedCriteria] = useState<string[]>([]);
+  const [rating, setRating] = useState<SelfAssessmentRating | "">("");
+  const [selfResult, setSelfResult] = useState<SelfAssessmentResponse | null>(null);
+  const [selfError, setSelfError] = useState<string | null>(null);
+  const [selfSubmitting, setSelfSubmitting] = useState(false);
+  const characterCount = Array.from(answer).length;
+
+  function reviseAttempt(update: () => void) {
+    if (error) {
+      attemptId.current = null;
+      setError(null);
+    }
+    update();
+  }
+
+  function updateAnswer(value: string) {
+    reviseAttempt(() => setAnswer(value));
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!answer.trim() || characterCount > 4_000 || submitting || result) return;
+    const stableAttemptId = attemptId.current ?? crypto.randomUUID();
+    attemptId.current = stableAttemptId;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attempt_id: stableAttemptId,
+          item_id: exercise.id,
+          content_version: exercise.content_version,
+          answer: { text: answer },
+          confidence: confidence || null,
+          mode: "practice",
+          assisted: false,
+        }),
+      });
+      if (!response.ok) throw new Error();
+      setResult((await response.json()) as AttemptResponse);
+      requestAnimationFrame(() => resultRef.current?.focus());
+    } catch {
+      setError("Der Speicherstatus konnte nicht bestätigt werden. Dein Text bleibt erhalten: Sende ihn unverändert erneut oder ändere ihn für einen neuen Versuch.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function submitSelfAssessment(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!result || !rating || selfSubmitting || selfResult) return;
+    setSelfSubmitting(true);
+    setSelfError(null);
+    try {
+      const response = await fetch(`/api/attempts/${result.attempt_id}/self-assessment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content_version: result.content_version,
+          checked_criterion_ids: checkedCriteria,
+          rating,
+        }),
+      });
+      if (!response.ok) throw new Error();
+      setSelfResult((await response.json()) as SelfAssessmentResponse);
+      requestAnimationFrame(() => selfResultRef.current?.focus());
+    } catch {
+      setSelfError("Der Speicherstatus der Selbstbewertung ist unklar. Sende dieselbe Auswahl erneut oder beginne einen neuen Versuch.");
+    } finally {
+      setSelfSubmitting(false);
+    }
+  }
+
+  function startNewAttempt() {
+    attemptId.current = null;
+    setAnswer("");
+    setConfidence("");
+    setResult(null);
+    setError(null);
+    setCheckedCriteria([]);
+    setRating("");
+    setSelfResult(null);
+    setSelfError(null);
+    requestAnimationFrame(() => answerRef.current?.focus());
+  }
+
+  const requiredIds = new Set(result?.rubric?.filter((item) => item.required).map((item) => item.id));
+  const allRequiredChecked = requiredIds.size > 0 && [...requiredIds].every((id) => checkedCriteria.includes(id));
+
+  return (
+    <section className="exercise-card free-text-exercise" aria-labelledby={`${exercise.id}-title`}>
+      <p className="figure-number">Denkaufgabe · Fiktives Beispiel</p>
+      <h2 id={`${exercise.id}-title`}>{exercise.prompt}</h2>
+      <form onSubmit={submit}>
+        <label className="free-text-control">
+          <span>Deine Antwort in eigenen Worten</span>
+          <textarea
+            ref={answerRef}
+            rows={7}
+            value={answer}
+            disabled={submitting || Boolean(result)}
+            aria-describedby={`${exercise.id}-character-count`}
+            onChange={(event) => updateAnswer(event.target.value)}
+          />
+        </label>
+        <p id={`${exercise.id}-character-count`} className={`character-count${characterCount > 4_000 ? " character-count-error" : ""}`} aria-live="polite">
+          {characterCount.toLocaleString("de-DE")} von 4.000 Zeichen{characterCount > 4_000 ? " – bitte kürzen" : ""}
+        </p>
+        <label className="confidence-control">
+          <span>Wie sicher bist du? <small>(optional)</small></span>
+          <select
+            value={confidence}
+            disabled={submitting || Boolean(result)}
+            onChange={(event) => reviseAttempt(() => setConfidence(event.target.value as Confidence | ""))}
+          >
+            <option value="">Keine Angabe</option>
+            <option value="unsicher">Unsicher</option>
+            <option value="mittel">Mittel</option>
+            <option value="sicher">Sicher</option>
+          </select>
+        </label>
+        <div className="exercise-actions">
+          <button type="submit" className="primary-action" disabled={!answer.trim() || characterCount > 4_000 || submitting || Boolean(result)}>
+            {submitting ? "Wird gespeichert …" : "Antwort speichern"}
+          </button>
+          {result && <button type="button" className="secondary-action" onClick={startNewAttempt}>Neuen Versuch beginnen</button>}
+        </div>
+      </form>
+      {error && <p className="attempt-error" role="alert">{error}</p>}
+      {result && (
+        <div className="attempt-feedback free-text-feedback" tabIndex={-1} ref={resultRef}>
+          <strong>Gespeichert – jetzt selbst vergleichen</strong>
+          <p>{result.feedback}</p>
+          <h3>Musterantwort</h3>
+          <p>{result.model_answer}</p>
+          <p className="assessment-boundary">Alternative korrekte Formulierungen sind ausdrücklich möglich. Die App bewertet deinen Text nicht automatisch.</p>
+          <form onSubmit={submitSelfAssessment}>
+            <fieldset disabled={selfSubmitting || Boolean(selfResult) || Boolean(selfError)}>
+              <legend>Selbstbewertung anhand der Kriterien</legend>
+              {result.rubric?.map((criterion) => (
+                <label key={criterion.id} className="rubric-criterion">
+                  <input
+                    type="checkbox"
+                    checked={checkedCriteria.includes(criterion.id)}
+                    onChange={(event) => {
+                      setCheckedCriteria((current) => event.target.checked
+                        ? [...current, criterion.id]
+                        : current.filter((id) => id !== criterion.id));
+                      if (!event.target.checked && criterion.required && rating === "good") setRating("");
+                    }}
+                  />
+                  <span>{criterion.criterion}{criterion.required ? " (Pflichtkriterium)" : ""}</span>
+                </label>
+              ))}
+            </fieldset>
+            <label className="confidence-control">
+              <span>Wie schätzt du deine Antwort ein?</span>
+              <select
+                value={rating}
+                disabled={selfSubmitting || Boolean(selfResult) || Boolean(selfError)}
+                onChange={(event) => setRating(event.target.value as SelfAssessmentRating | "")}
+              >
+                <option value="">Bitte wählen</option>
+                <option value="again">Noch einmal – noch nicht erinnert</option>
+                <option value="hard">Schwierig – teilweise oder unsicher</option>
+                <option value="good" disabled={!allRequiredChecked}>Gut – alle Pflichtkriterien erfüllt</option>
+              </select>
+            </label>
+            <div className="exercise-actions">
+              <button type="submit" className="primary-action" disabled={!rating || selfSubmitting || Boolean(selfResult)}>
+                {selfSubmitting ? "Wird gespeichert …" : "Selbstbewertung speichern"}
+              </button>
+            </div>
+          </form>
+          <small>Freitext dauerhaft gespeichert{result.confidence ? ` · Zuversicht: ${result.confidence}` : ""} · noch nicht objektiv bewertet</small>
+        </div>
+      )}
+      {selfError && <p className="attempt-error" role="alert">{selfError}</p>}
+      {selfResult && (
+        <div className="self-assessment-result" role="status" tabIndex={-1} ref={selfResultRef}>
+          <strong>Selbstbewertung dauerhaft gespeichert</strong>
+          <p>Deine Einstufung: {{ again: "Noch nicht erinnert", hard: "Teilweise oder unsicher", good: "Alle Pflichtkriterien erfüllt" }[selfResult.rating]}. Sie ist eine Selbsteinschätzung und keine objektive Wissensmessung.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function SourcePanel({
   sources,
   onClose,
@@ -553,7 +774,9 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
           if (!exercise) return null;
           return exercise.id === "q-ch01-01" && exercise.kind === "single_choice"
             ? <SingleChoiceExercise key={index} exercise={exercise} />
-            : <ExercisePreview key={index} exercise={exercise} />;
+            : exercise.id === "q-ch01-02" && exercise.kind === "free_text"
+              ? <FreeTextExercise key={index} exercise={exercise} />
+              : <ExercisePreview key={index} exercise={exercise} />;
         })}
       </article>
       <footer className="lesson-footer">
