@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 
 type Lesson = {
   id: string;
@@ -88,8 +89,8 @@ export function Curriculum() {
                 <li className={available ? "lesson available" : "lesson planned"} key={lesson.id}>
                   <span className="lesson-order" aria-hidden="true">{String(lesson.order).padStart(2, "0")}</span>
                   <span className="lesson-copy">
-                    <strong>{lesson.title}</strong>
-                    <small>{available ? "Lesebereich in Vorbereitung" : "In Vorbereitung"}</small>
+                    {available ? <Link href={`/lessons/${lesson.id}`}><strong>{lesson.title}</strong></Link> : <strong>{lesson.title}</strong>}
+                    <small>{available ? "Jetzt lesen" : "In Vorbereitung"}</small>
                   </span>
                   <span className="status" data-status={lesson.availability}>
                     {available ? "Verfügbar" : "Geplant"}
