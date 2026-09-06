@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
+import { PilotFeedback } from "./PilotFeedback";
 
 type Source = {
   id: string;
@@ -844,6 +845,7 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
               : <ExercisePreview key={index} exercise={exercise} />;
         })}
         <ReadingProgress initialProgress={progress} />
+        <PilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
       </article>
       <footer className="lesson-footer">
         <Link href="/">Zur Kapitelübersicht</Link>

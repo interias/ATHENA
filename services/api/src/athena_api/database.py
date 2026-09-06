@@ -20,6 +20,10 @@ class AttemptConflictError(DatabaseError):
     pass
 
 
+class PilotFeedbackConflictError(DatabaseError):
+    pass
+
+
 @dataclass(frozen=True, slots=True)
 class AttemptRecord:
     id: str
@@ -51,6 +55,16 @@ class LessonProgressRecord:
     content_version: str
     read_at: str | None
     updated_at: str
+
+
+@dataclass(frozen=True, slots=True)
+class PilotFeedbackRecord:
+    id: str
+    lesson_id: str
+    content_version: str
+    ratings_json: str
+    free_text_json: str
+    created_at: str
 
 
 class Database:
@@ -426,6 +440,75 @@ class Database:
                 connection.rollback()
                 raise
 
+    def save_pilot_feedback(
+        self,
+        *,
+        feedback_id: str,
+        lesson_id: str,
+        content_version: str,
+        ratings: dict[str, int],
+        free_text: dict[str, str],
+    ) -> PilotFeedbackRecord:
+        ratings_json = json.dumps(
+            ratings,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        free_text_json = json.dumps(
+            free_text,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        request_values = (lesson_id, content_version, ratings_json, free_text_json)
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                existing = connection.execute(
+                    "SELECT * FROM pilot_feedback WHERE id = ?", (feedback_id,)
+                ).fetchone()
+                if existing is not None:
+                    stored_values = tuple(
+                        existing[field]
+                        for field in (
+                            "lesson_id",
+                            "content_version",
+                            "ratings_json",
+                            "free_text",
+                        )
+                    )
+                    if stored_values != request_values:
+                        raise PilotFeedbackConflictError(
+                            "Die Feedback-ID wurde bereits mit anderem Inhalt verwendet."
+                        )
+                    connection.commit()
+                    return self._pilot_feedback_record(existing)
+
+                created_at = datetime.now(timezone.utc).isoformat(timespec="microseconds")
+                connection.execute(
+                    """
+                    INSERT INTO pilot_feedback (
+                        id, lesson_id, content_version, ratings_json,
+                        free_text, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (feedback_id, *request_values, created_at),
+                )
+                stored = connection.execute(
+                    "SELECT * FROM pilot_feedback WHERE id = ?", (feedback_id,)
+                ).fetchone()
+                connection.commit()
+                if stored is None:
+                    raise DatabaseError("Pilotfeedback konnte nicht gelesen werden.")
+                return self._pilot_feedback_record(stored)
+            except Exception:
+                connection.rollback()
+                raise
+
     @staticmethod
     def _attempt_record(row: sqlite3.Row) -> AttemptRecord:
         return AttemptRecord(
@@ -460,4 +543,15 @@ class Database:
             content_version=row["content_version"],
             read_at=row["read_at"],
             updated_at=row["updated_at"],
+        )
+
+    @staticmethod
+    def _pilot_feedback_record(row: sqlite3.Row) -> PilotFeedbackRecord:
+        return PilotFeedbackRecord(
+            id=row["id"],
+            lesson_id=row["lesson_id"],
+            content_version=row["content_version"],
+            ratings_json=row["ratings_json"],
+            free_text_json=row["free_text"],
+            created_at=row["created_at"],
         )

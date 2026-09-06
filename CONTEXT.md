@@ -42,6 +42,13 @@ _Vermeiden_: Fachvisualisierung als Bezeichnung für eine dekorative Szene.
 **Designbewertung**: Persönliche Einschätzung einer konkreten Variante mit Favorit, Bewertungen und Notizen.
 _Vermeiden_: Lernerfolgsnachweis, Wirksamkeitsmessung.
 
+**Pilotfeedback**: Versionsgebundene persönliche Bewertung der fertigen
+M0-Lektion anhand der fünf Kriterien aus der Pilot-Auswertung und zweier optionaler
+Freitexte. _Vermeiden_: Wissensmessung, Fachfreigabe oder D0-Designbewertung.
+
+**Pilotabnahme**: Stefans persönliche Entscheidung nach Nutzung des vollständigen
+M0-Pfads. Bestandene Softwaretests bereiten sie vor, ersetzen sie aber nicht.
+
 **Agentenreview**: Dokumentierte quellenbezogene Prüfung durch einen vom Ersteller getrennten Reviewer-Agenten mit Korrekturschleife; Qualitätsschranke für neue private Entwürfe.
 _Vermeiden_: unabhängige menschliche Fachfreigabe, `expert_reviewed` als Ergebnis eines Agentenreviews.
 
