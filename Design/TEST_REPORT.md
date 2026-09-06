@@ -60,6 +60,14 @@ Auf Empfehlung des Reviewers wurden Pflichtvisuals, Schutz verdeckter Antworten,
 Selbstbewertung und direkte ADR-Verweise ergänzt. Überholte
 Aussagen zur noch offenen Stilwahl sind durch den aktuellen Ziel-/Ist-Stand ersetzt.
 
+## Erhalt der Inhaltsbasis am 6. September 2026
+
+Das Labor liest jetzt den bytegleichen Inhaltsstand aus
+`content/baseline-0.1.0/`, während die Produktlektion separat überarbeitet wird.
+Alle zehn Inhaltstests, Typecheck und Lint bestanden. Die Schreibproben behalten
+ihre Texte und Quellenhashes; nur der explizite Herkunftspfad wurde angepasst.
+Für diese reine Pfadumstellung wurde kein neuer Browserlauf ausgeführt.
+
 ## Grenzen und ausstehende Arbeit
 
 - Die gewählte lebhafte Marmorbibliothek ist spezifiziert; ihre vollständige

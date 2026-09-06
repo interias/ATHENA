@@ -9,7 +9,7 @@ import { Lesson } from "../components/Lesson";
 
 test("canonical lesson is complete, traced to original bytes and limited to D0", async () => {
   const content = await loadContent();
-  const raw = await readFile("../content/ch01/01_LOAD.md", "utf8");
+  const raw = await readFile("content/baseline-0.1.0/01_LOAD.md", "utf8");
   assert.equal(content.hash, createHash("sha256").update(raw).digest("hex"));
   assert.equal(content.body, raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "").trim());
   assert.deepEqual(content.questions.map((question) => question.id), ["q-ch01-01", "q-ch01-02"]);

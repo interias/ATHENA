@@ -32,10 +32,13 @@ Tatsächliche Ergebnisse und Grenzen: [TEST_REPORT.md](TEST_REPORT.md).
 
 ## Daten und Persistenz
 
-Der Loader liest fünf feste Originalpfade im übergeordneten Repository; `Design/`
-deshalb innerhalb dieses Repositorys starten. Markdown wird als Daten verarbeitet.
-Nach einer Änderung am Original müssen die [Schreibproben](content/voices.json)
-redaktionell geprüft werden; ein neuer Hash allein ersetzt diese Prüfung nicht.
+Der Loader liest die fünf festen Dateien der [Inhaltsbasis 0.1.0](content/baseline-0.1.0/README.md).
+Diese bytegenau erhaltene Fassung hält die D0-Vergleiche stabil, während die
+Produktlektion überarbeitet wird. Markdown wird als Daten verarbeitet.
+Die [Schreibproben](content/voices.json) behalten ihre ursprünglichen Texte und
+Quellenhashes; nur der Pfad zeigt jetzt auf die gesicherte Originalfassung.
+Eine spätere Änderung dieser Basis verlangt eine erneute redaktionelle Prüfung;
+ein neuer Hash allein ersetzt sie nicht.
 
 | Bereich | Browser-Speicher | URL |
 |---|---|---|
