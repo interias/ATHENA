@@ -11,7 +11,12 @@ from fastapi.responses import JSONResponse
 
 from .config import Settings
 from .content import ContentLoader, M0_LESSON_ID, lesson_response
-from .database import AttemptConflictError, AttemptRecord, Database
+from .database import (
+    AttemptConflictError,
+    AttemptRecord,
+    Database,
+    SelfAssessmentRecord,
+)
 from .models import (
     AttemptRequest,
     AttemptResponse,
@@ -21,14 +26,18 @@ from .models import (
     CurriculumChapter,
     CurriculumLesson,
     CurriculumResponse,
+    FreeTextAnswer,
     LessonResponse,
     ReadinessCheck,
     ReadinessResponse,
+    SelfAssessmentRequest,
+    SelfAssessmentResponse,
     SingleChoiceAnswer,
 )
 
-M0_ATTEMPT_QUESTION_ID = "q-ch01-01"
+M0_ATTEMPT_QUESTION_IDS = {"q-ch01-01", "q-ch01-02"}
 CANONICAL_SINGLE_CHOICE = "canonical_single_choice"
+SELF_ASSESSMENT = "self_assessment"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -141,6 +150,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @application.post(
         "/v1/attempts",
         response_model=AttemptResponse,
+        response_model_exclude_unset=True,
         status_code=201,
         responses={
             404: {"description": "Aufgabe nicht gefunden"},
@@ -151,7 +161,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def create_attempt(
         payload: AttemptRequest, request: Request
     ) -> AttemptResponse | JSONResponse:
-        if payload.item_id != M0_ATTEMPT_QUESTION_ID:
+        if payload.item_id not in M0_ATTEMPT_QUESTION_IDS:
             raise HTTPException(status_code=404, detail="Aufgabe nicht gefunden.")
         response = _readiness(request)
         if response.status == "not_ready":
@@ -175,18 +185,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         manifest: ContentManifest = request.app.state.content_manifest
         question = next(
-            item for item in manifest.questions if item.id == M0_ATTEMPT_QUESTION_ID
+            item for item in manifest.questions if item.id == payload.item_id
         )
         if payload.content_version != question.content_version:
             raise HTTPException(
                 status_code=409, detail="Inhaltsversion stimmt nicht überein."
             )
-        option_ids = {option.id for option in question.options or []}
-        if payload.answer.option_id not in option_ids:
-            raise HTTPException(status_code=422, detail="Antwortoption ist ungültig.")
-
-        is_correct = payload.answer.option_id == question.correct_option
-        feedback_by_option = question.feedback_by_option or {}
+        if question.kind == "single_choice":
+            if not isinstance(payload.answer, SingleChoiceAnswer):
+                raise HTTPException(status_code=422, detail="Antwortformat ist ungültig.")
+            option_ids = {option.id for option in question.options or []}
+            if payload.answer.option_id not in option_ids:
+                raise HTTPException(status_code=422, detail="Antwortoption ist ungültig.")
+            is_correct = payload.answer.option_id == question.correct_option
+            feedback_by_option = question.feedback_by_option or {}
+            objective_result = "correct" if is_correct else "incorrect"
+            grading_source = CANONICAL_SINGLE_CHOICE
+            feedback = feedback_by_option[payload.answer.option_id]
+            solution = None
+        elif question.kind == "free_text":
+            if not isinstance(payload.answer, FreeTextAnswer):
+                raise HTTPException(status_code=422, detail="Antwortformat ist ungültig.")
+            objective_result = "not_assessed"
+            grading_source = SELF_ASSESSMENT
+            feedback = question.feedback or ""
+            solution = {
+                "model_answer": question.model_answer or "",
+                "rubric": [criterion.model_dump() for criterion in question.rubric or []],
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Aufgabe nicht gefunden.")
         try:
             stored = database.save_attempt(
                 attempt_id=str(payload.attempt_id),
@@ -196,23 +224,86 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 confidence=payload.confidence,
                 mode=payload.mode,
                 assisted=payload.assisted,
-                objective_result="correct" if is_correct else "incorrect",
-                grading_source=CANONICAL_SINGLE_CHOICE,
-                feedback=feedback_by_option[payload.answer.option_id],
+                objective_result=objective_result,
+                grading_source=grading_source,
+                feedback=feedback,
+                solution=solution,
             )
         except AttemptConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
         return _attempt_response(stored)
 
+    @application.post(
+        "/v1/attempts/{attempt_id}/self-assessment",
+        response_model=SelfAssessmentResponse,
+        status_code=201,
+        responses={
+            404: {"description": "Versuch nicht gefunden"},
+            409: {"description": "Inhaltsversion oder Selbstbewertung kollidiert"},
+            503: {"model": ReadinessResponse},
+        },
+    )
+    def create_self_assessment(
+        attempt_id: UUID, payload: SelfAssessmentRequest, request: Request
+    ) -> SelfAssessmentResponse | JSONResponse:
+        response = _readiness(request)
+        if response.status == "not_ready":
+            return JSONResponse(status_code=503, content=response.model_dump())
+
+        database: Database = request.app.state.database
+        attempt = database.get_attempt(str(attempt_id))
+        if attempt is None:
+            raise HTTPException(status_code=404, detail="Versuch nicht gefunden.")
+        if attempt.item_id != "q-ch01-02" or attempt.grading_source != SELF_ASSESSMENT:
+            raise HTTPException(
+                status_code=409,
+                detail="Selbstbewertung ist nur für den zugehörigen Freitextversuch möglich.",
+            )
+        if payload.content_version != attempt.content_version:
+            raise HTTPException(status_code=409, detail="Inhaltsversion stimmt nicht überein.")
+
+        solution = json.loads(attempt.solution_json or "{}")
+        rubric = solution.get("rubric", [])
+        canonical_ids = {criterion["id"] for criterion in rubric}
+        checked_ids = set(payload.checked_criterion_ids)
+        if not checked_ids.issubset(canonical_ids):
+            raise HTTPException(status_code=422, detail="Kriterium ist ungültig.")
+        required_ids = {
+            criterion["id"] for criterion in rubric if criterion["required"]
+        }
+        if payload.rating == "good" and not required_ids.issubset(checked_ids):
+            raise HTTPException(
+                status_code=422,
+                detail="Good erfordert alle kanonischen Pflichtkriterien.",
+            )
+
+        try:
+            ordered_checked_ids = [
+                criterion["id"] for criterion in rubric if criterion["id"] in checked_ids
+            ]
+            stored = database.save_self_assessment(
+                attempt_id=str(attempt_id),
+                content_version=payload.content_version,
+                checked_criterion_ids=ordered_checked_ids,
+                rating=payload.rating,
+            )
+        except AttemptConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return _self_assessment_response(attempt, stored)
+
     return application
 
 
 def _attempt_response(stored: AttemptRecord) -> AttemptResponse:
-    stored_answer = SingleChoiceAnswer.model_validate(
-        json.loads(stored.answer_json)
+    answer_data = json.loads(stored.answer_json)
+    stored_answer = (
+        SingleChoiceAnswer.model_validate(answer_data)
+        if stored.grading_source == CANONICAL_SINGLE_CHOICE
+        else FreeTextAnswer.model_validate(answer_data)
     )
-    return AttemptResponse(
+    solution = json.loads(stored.solution_json) if stored.solution_json else {}
+    response_values = dict(
         attempt_id=UUID(stored.id),
         item_id=stored.item_id,
         content_version=stored.content_version,
@@ -224,6 +315,26 @@ def _attempt_response(stored: AttemptRecord) -> AttemptResponse:
         objective_result=stored.objective_result,
         grading_source=stored.grading_source,
         feedback=stored.feedback,
+    )
+    if stored.solution_json:
+        response_values.update(
+            model_answer=solution["model_answer"], rubric=solution["rubric"]
+        )
+    return AttemptResponse(**response_values)
+
+
+def _self_assessment_response(
+    attempt: AttemptRecord, stored: SelfAssessmentRecord
+) -> SelfAssessmentResponse:
+    return SelfAssessmentResponse(
+        attempt_id=UUID(stored.attempt_id),
+        item_id=attempt.item_id,
+        content_version=stored.content_version,
+        checked_criterion_ids=json.loads(stored.checked_criterion_ids_json),
+        rating=stored.rating,
+        created_at=datetime.fromisoformat(stored.created_at),
+        objective_result="not_assessed",
+        grading_source=SELF_ASSESSMENT,
     )
 
 

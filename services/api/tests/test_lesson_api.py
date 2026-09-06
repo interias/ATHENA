@@ -191,8 +191,11 @@ def test_exercises_expose_only_public_m0_fields(
     }
     assert [item["development_status"] for item in payload["exercises"]] == [
         "available",
-        "in_development",
+        "available",
     ]
+    serialized = str(payload)
+    assert "Die dokumentierte Distanz und Dauer sind gleich" not in serialized
+    assert "Gleiche dokumentierte äußere Merkmale nennen" not in serialized
     assert not {
         "correct_option",
         "feedback_by_option",
