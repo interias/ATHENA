@@ -7,12 +7,12 @@ const feedback = [
 ];
 
 const exerciseFeedback = [
-  "Das beschreibt dein Erleben, nicht die absolvierte Aufgabe.",
-  "Richtig: Strecke und Dauer beschreiben einen dokumentierten Teil der Aufgabe.",
-  "Zufriedenheit ist ein subjektives Urteil und kein Maß der Laufaufgabe.",
+  "Eine stärkere akute Beanspruchung beweist keine bestimmte langfristige Anpassung.",
+  "Richtig: Dokumentierte Aufgabe, beobachtete Reaktion und weitergehende Erklärung bleiben getrennt.",
+  "Die Reaktion zeigt keine vollständige Gleichheit, beweist aber auch nicht, welches äußere Merkmal verschieden gewesen sein müsste.",
 ];
 
-const freeTextModelAnswer = "Die dokumentierte Distanz und Dauer sind gleich, das Erleben unterscheidet sich.";
+const freeTextModelAnswer = "Übung, Last, Sätze und Wiederholungen stimmen im Protokoll überein.";
 
 function freeTextExercise(page: Page) {
   return page.locator(".free-text-exercise");
@@ -21,14 +21,15 @@ function freeTextExercise(page: Page) {
 async function openLesson(page: Page) {
   await page.goto("/");
   await page.getByRole("link", { name: "Gleiche Aufgabe, andere Reaktion" }).click();
-  await expect(page.getByRole("heading", { name: "Zwei Läufe", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gleiche Aufgabe, andere Reaktion", exact: true })).toBeVisible();
 }
 
 test("opens the complete canonical pilot reader without external runtime requests", async ({ page }) => {
+  const expectedOrigin = new URL(process.env.ATHENA_WEB_URL ?? "http://127.0.0.1:3000").origin;
   const externalRequests: string[] = [];
   const failedResponses: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).origin !== "http://127.0.0.1:3000") externalRequests.push(request.url());
+    if (new URL(request.url()).origin !== expectedOrigin) externalRequests.push(request.url());
   });
   page.on("response", (response) => {
     if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.url()}`);
@@ -37,13 +38,42 @@ test("opens the complete canonical pilot reader without external runtime request
   await openLesson(page);
 
   const reader = page.locator(".lesson-reader");
+  await expect(reader.getByRole("heading", { name: "Etwa 5 Minuten mit Aufgaben" })).toBeVisible();
+  await expect(reader.getByText("Orientierungswert, kein Timer.")).toBeVisible();
+  await expect(reader.locator(".lesson-guide li")).toHaveText(["1Lesen", "2Anwenden", "3Abschließen"]);
+  const heroHeight = await page.locator(".lesson-hero").evaluate((element) => element.getBoundingClientRect().height);
+  expect(heroHeight).toBeLessThanOrEqual(480);
+  const optionalFeedback = page.locator(".optional-feedback");
+  await expect(optionalFeedback).not.toHaveAttribute("open", "");
+  await expect(page.locator(".pilot-feedback")).not.toBeVisible();
+  await expect(optionalFeedback.getByText("Die Bewertung gehört nicht zur Zeitangabe der Lektion.")).toBeVisible();
   await expect(reader.getByText("Fiktives Beispiel.", { exact: true })).toBeVisible();
-  await expect(reader.getByRole("heading", { name: "Aufgabe und Reaktion", exact: true })).toBeVisible();
-  await expect(reader.getByRole("heading", { name: "Eine kleine Denkpause" })).toBeVisible();
-  await expect(reader.getByRole("heading", { name: "Ein Satz im Gym" })).toBeVisible();
+  await expect(reader.getByRole("heading", { name: "Was wurde eigentlich gemessen?" })).toBeVisible();
+  await expect(reader.getByRole("heading", { name: "Erst urteilen, dann aufdecken" })).toBeVisible();
   await expect(reader.getByRole("heading", { name: "Heute ist nicht langfristig" })).toBeVisible();
   await expect(reader.getByRole("heading", { name: "Merksatz" })).toBeVisible();
-  await expect(page.locator(".knowledge-figure")).toHaveCount(2);
+  await expect(page.locator(".knowledge-figure")).toHaveCount(1);
+  const illustrations = reader.locator(".lesson-illustration");
+  await expect(illustrations).toHaveCount(3);
+  await expect(illustrations.locator("figcaption")).toHaveText([
+    "Fiktive Illustration · Das Trainingstagebuch spielt Orakel.",
+    "Fiktive Illustration · Trainingsalltag im römischen Lernstudio.",
+    "Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse.",
+  ]);
+  const illustrationImages = illustrations.locator("img");
+  expect(await illustrationImages.evaluateAll((images) => images.map((image) => ({
+    path: new URL((image as HTMLImageElement).src).pathname,
+    alt: image.getAttribute("alt"),
+    loading: image.getAttribute("loading"),
+  })))).toEqual([
+    { path: "/images/lessons/l1-oracle-v1.webp", alt: "", loading: "lazy" },
+    { path: "/images/lessons/l1-training-studio-v1.webp", alt: "", loading: "lazy" },
+    { path: "/images/lessons/l1-no-certificate-v2.webp", alt: "", loading: "lazy" },
+  ]);
+  for (const image of await illustrationImages.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete ? element.naturalWidth : 0)).toBeGreaterThan(0);
+  }
   await expect(page.getByText("Denkaufgabe · Fiktives Beispiel")).toHaveCount(2);
   await expect(page.getByText("Aufgabe · in Entwicklung")).toHaveCount(0);
   await expect(page.getByText("Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung")).toBeVisible();
@@ -53,12 +83,12 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect.poll(() => heroImage.evaluate((image: HTMLImageElement) => image.complete ? image.naturalWidth : 0)).toBeGreaterThan(0);
   await expect(page.getByText("Angenehm erlebt", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Deutlich anstrengender erlebt", { exact: true })).toHaveCount(0);
-  const prematureReveal = await page.locator(".interactive-figure").evaluate((figure) => {
-    const attributes = Array.from(figure.querySelectorAll("[aria-label], [title]"))
+  const prematureReveal = await reader.evaluate((element) => {
+    const attributes = Array.from(element.querySelectorAll("[aria-label], [title]"))
       .flatMap((element) => [element.getAttribute("aria-label"), element.getAttribute("title")])
       .filter(Boolean)
       .join(" ");
-    return `${figure.textContent ?? ""} ${attributes}`;
+    return `${element.textContent ?? ""} ${attributes}`;
   });
   expect(prematureReveal).not.toContain("A wurde als angenehm erlebt");
   expect(prematureReveal).not.toContain("B als deutlich anstrengender");
@@ -70,8 +100,8 @@ test("opens the complete canonical pilot reader without external runtime request
 
 test("keeps exercise solutions out of the initial page and client bundle", async ({ page }) => {
   await page.goto("/lessons/ch01-l01");
-  const exercise = page.locator(".exercise-card").filter({ has: page.getByRole("heading", { name: /Welche Angabe beschreibt/ }) });
-  await expect(exercise.getByRole("heading", { name: /Welche Angabe beschreibt/ })).toBeVisible();
+  const exercise = page.locator(".exercise-card:not(.free-text-exercise)");
+  await expect(exercise.getByRole("heading", { name: /Welche Schlussfolgerung trennt die drei Ebenen/ })).toBeVisible();
   await expect(exercise.getByRole("radio")).toHaveCount(3);
   await expect(exercise.getByText("Versuch dauerhaft gespeichert")).toHaveCount(0);
   for (const text of exerciseFeedback) await expect(exercise.getByText(text)).toHaveCount(0);
@@ -134,7 +164,7 @@ test("stores a keyboard free-text answer before showing canonical self-assessmen
   await expect(assessment).toContainText("Alle Pflichtkriterien erfüllt");
   await expect(assessment).toContainText("keine objektive Wissensmessung");
   expect(requests[1].body).toEqual({
-    content_version: "0.1.0",
+    content_version: "0.2.0",
     checked_criterion_ids: ["c1", "c2", "c3"],
     rating: "good",
   });
@@ -208,7 +238,7 @@ test("stores the keyboard answer before revealing canonical feedback", async ({ 
     }
   });
   await page.goto("/lessons/ch01-l01");
-  const exercise = page.locator(".exercise-card").filter({ has: page.getByRole("heading", { name: /Welche Angabe beschreibt/ }) });
+  const exercise = page.locator(".exercise-card:not(.free-text-exercise)");
   const correctChoice = exercise.getByRole("radio").nth(1);
   await correctChoice.focus();
   await page.keyboard.press("Space");
@@ -225,7 +255,7 @@ test("stores the keyboard answer before revealing canonical feedback", async ({ 
   expect(new URL(requests[0].url).search).toBe("");
   expect(requests[0].body).toMatchObject({
     item_id: "q-ch01-01",
-    content_version: "0.1.0",
+    content_version: "0.2.0",
     answer: { option_id: "b" },
     confidence: "sicher",
     mode: "practice",
@@ -245,7 +275,7 @@ test("retains answer and UUID after an error, then creates a UUID for a genuine 
     await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Testfehler" }) });
   }, { times: 1 });
   await page.goto("/lessons/ch01-l01");
-  const exercise = page.locator(".exercise-card").filter({ has: page.getByRole("heading", { name: /Welche Angabe beschreibt/ }) });
+  const exercise = page.locator(".exercise-card:not(.free-text-exercise)");
   const choice = exercise.getByRole("radio").first();
   await choice.check();
   await exercise.getByLabel("Wie sicher bist du?").selectOption("unsicher");
@@ -281,7 +311,7 @@ test("starts a new UUID when an answer is changed after a lost successful respon
     await route.abort("failed");
   }, { times: 1 });
   await page.goto("/lessons/ch01-l01");
-  const exercise = page.locator(".exercise-card").filter({ has: page.getByRole("heading", { name: /Welche Angabe beschreibt/ }) });
+  const exercise = page.locator(".exercise-card:not(.free-text-exercise)");
   await exercise.getByRole("radio").first().check();
   await exercise.getByRole("button", { name: "Antwort speichern" }).click();
   await expect(exercise.getByRole("alert")).toContainText("Speicherstatus konnte nicht bestätigt werden");
@@ -368,7 +398,7 @@ test("stays usable at 390 pixels, 200 percent scale and reduced motion", async (
   let widths = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   expect(widths.content).toBeLessThanOrEqual(widths.viewport);
 
-  const exercise = page.locator(".exercise-card").filter({ has: page.getByRole("heading", { name: /Welche Angabe beschreibt/ }) });
+  const exercise = page.locator(".exercise-card:not(.free-text-exercise)");
   await exercise.getByRole("radio").nth(2).check();
   await exercise.getByRole("button", { name: "Antwort speichern" }).click();
   await expect(exercise.getByRole("status")).toContainText(exerciseFeedback[2]);
@@ -388,7 +418,7 @@ test("stays usable at 390 pixels, 200 percent scale and reduced motion", async (
 
 test("meets measured contrast targets for reader text and primary controls", async ({ page }) => {
   await page.goto("/lessons/ch01-l01");
-  await expect(page.getByRole("heading", { name: "Zwei Läufe", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gleiche Aufgabe, andere Reaktion", exact: true })).toBeVisible();
   await page.locator(".interactive-figure").getByRole("radio").first().check();
   const ratios = await page.evaluate(() => {
     function rgb(value: string) {

@@ -47,7 +47,6 @@ INTERACTION_SECTION_RE = re.compile(
 M0_LESSON_ID = "ch01-l01"
 M0_QUESTION_IDS = {"q-ch01-01", "q-ch01-02"}
 M0_RENDERERS = {
-    "fig-ch01-load": "svg",
     "fig-ch01-two-runs": "interactive_svg_html",
     "int-ch01-load": "interaction",
 }
@@ -665,7 +664,7 @@ class ContentLoader:
 
         unexpected_figures = {
             figure.id for figure in figures.values() if figure.required_in == "M0"
-        } - {"fig-ch01-load", "fig-ch01-two-runs"}
+        } - {"fig-ch01-two-runs"}
         unexpected_interactions = {
             item.id for item in interactions.values() if item.milestone == "M0"
         } - {"int-ch01-load"}

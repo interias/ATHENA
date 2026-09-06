@@ -25,13 +25,13 @@ function yamlBlock(text: string) {
 }
 
 export async function loadContent(): Promise<LabContent> {
-  // Only these fixed, reviewed repository paths are ever read.
+  // Keep D0 comparisons bound to the original reviewed content version.
   const [raw, questionsText, sourcesText, figuresText, interactionText] = await Promise.all([
-    readFile(resolve(process.cwd(), "../content/ch01/01_LOAD.md"), "utf8"),
-    readFile(resolve(process.cwd(), "../content/ch01/05_QUESTIONS.md"), "utf8"),
-    readFile(resolve(process.cwd(), "../research/SOURCES.md"), "utf8"),
-    readFile(resolve(process.cwd(), "../content/ch01/06_VISUAL_BRIEFS.md"), "utf8"),
-    readFile(resolve(process.cwd(), "../content/ch01/07_INTERACTIONS.md"), "utf8"),
+    readFile(resolve(process.cwd(), "content/baseline-0.1.0/01_LOAD.md"), "utf8"),
+    readFile(resolve(process.cwd(), "content/baseline-0.1.0/05_QUESTIONS.md"), "utf8"),
+    readFile(resolve(process.cwd(), "content/baseline-0.1.0/SOURCES.md"), "utf8"),
+    readFile(resolve(process.cwd(), "content/baseline-0.1.0/06_VISUAL_BRIEFS.md"), "utf8"),
+    readFile(resolve(process.cwd(), "content/baseline-0.1.0/07_INTERACTIONS.md"), "utf8"),
   ]);
   const frontmatter = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   if (!frontmatter) throw new Error("Lesson frontmatter missing.");

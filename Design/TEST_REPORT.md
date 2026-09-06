@@ -60,6 +60,14 @@ Auf Empfehlung des Reviewers wurden Pflichtvisuals, Schutz verdeckter Antworten,
 Selbstbewertung und direkte ADR-Verweise ergänzt. Überholte
 Aussagen zur noch offenen Stilwahl sind durch den aktuellen Ziel-/Ist-Stand ersetzt.
 
+## Erhalt der Inhaltsbasis am 6. September 2026
+
+Das Labor liest jetzt den bytegleichen Inhaltsstand aus
+`content/baseline-0.1.0/`, während die Produktlektion separat überarbeitet wird.
+Alle zehn Inhaltstests, Typecheck und Lint bestanden. Die Schreibproben behalten
+ihre Texte und Quellenhashes; nur der explizite Herkunftspfad wurde angepasst.
+Für diese reine Pfadumstellung wurde kein neuer Browserlauf ausgeführt.
+
 ## Grenzen und ausstehende Arbeit
 
 - Die gewählte lebhafte Marmorbibliothek ist spezifiziert; ihre vollständige
@@ -71,6 +79,6 @@ Aussagen zur noch offenen Stilwahl sind durch den aktuellen Ziel-/Ist-Stand erse
   Screenreaderprüfung. Kontrastprüfung umfasst Texttokens, nicht jede Pixelkombination.
 - Kein Firefox, Safari oder echtes Mobilgerät; CSS-Zoom ist kein natives Zoommenü.
   `npm start` und ein Portkonflikt wurden nicht als eigene Bedienstrecken geprüft.
-- M0 ist noch nicht implementiert; die App-Tickets sind inzwischen veröffentlicht.
-  Die Bereitstellung des D0-Bestands per Commit und Push ist separat beauftragt.
-  M1–M3 und Deployments sind damit nicht freigegeben.
+- M0 ist inzwischen getrennt vom Labor implementiert; sein Prüfstand steht im
+  [M0-Abnahmebericht](../docs/reviews/m0-07-pilot-feedback.md). Die obigen
+  D0-Browserergebnisse prüfen diese Produktstrecke nicht mit.

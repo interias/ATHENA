@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const baseURL = process.env.ATHENA_WEB_URL ?? "http://127.0.0.1:3000";
+const testProxyServer = process.env.ATHENA_TEST_PROXY_SERVER;
+
 export default defineConfig({
   testDir: "./tests",
   testMatch: "*.spec.ts",
@@ -9,8 +12,14 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: "list",
   use: {
-    baseURL: process.env.ATHENA_WEB_URL ?? "http://127.0.0.1:3000",
+    baseURL,
     channel: "chrome",
+    proxy: testProxyServer
+      ? { server: testProxyServer, bypass: "<-loopback>" }
+      : undefined,
+    launchOptions: {
+      args: testProxyServer ? ["--proxy-bypass-list=<-loopback>"] : [],
+    },
     viewport: { width: 1440, height: 1000 },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

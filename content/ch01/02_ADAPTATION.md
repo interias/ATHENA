@@ -3,7 +3,7 @@ lesson_id: ch01-l02
 chapter_id: ch01
 order: 2
 title: Anpassung braucht ein Ziel
-content_version: 0.1.0
+content_version: 0.2.0
 status: pilot_draft
 editorial_approved_by: null
 expert_reviewed_by: null

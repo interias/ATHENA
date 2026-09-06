@@ -53,7 +53,7 @@ def test_lesson_endpoint_returns_canonical_public_contract(
     ]
     assert payload["id"] == "ch01-l01"
     assert payload["title"] == "Gleiche Aufgabe, andere Reaktion"
-    assert payload["content_version"] == "0.1.0"
+    assert payload["content_version"] == "0.2.0"
     assert payload["status"] == "pilot_draft"
     assert payload["expert_reviewed_by"] is None
 
@@ -73,7 +73,6 @@ def test_lesson_endpoint_returns_canonical_public_contract(
         for block in payload["blocks"]
         if block["kind"] in {"figure", "interaction", "exercise"}
     ] == [
-        ("figure", "fig-ch01-load"),
         ("interaction", "int-ch01-load"),
         ("exercise", "q-ch01-01"),
         ("exercise", "q-ch01-02"),
@@ -89,10 +88,7 @@ def test_lesson_endpoint_returns_canonical_public_contract(
         assert "additional_url" in source
         assert "checked_abstract_url" in source
 
-    assert [figure["id"] for figure in payload["figures"]] == [
-        "fig-ch01-load",
-        "fig-ch01-two-runs",
-    ]
+    assert [figure["id"] for figure in payload["figures"]] == ["fig-ch01-two-runs"]
     assert all(
         set(figure)
         == {
@@ -194,8 +190,8 @@ def test_exercises_expose_only_public_m0_fields(
         "available",
     ]
     serialized = str(payload)
-    assert "Die dokumentierte Distanz und Dauer sind gleich" not in serialized
-    assert "Gleiche dokumentierte äußere Merkmale nennen" not in serialized
+    assert "Übung, Last, Sätze und Wiederholungen stimmen" not in serialized
+    assert "protokollierten Aufgabenmerkmale als begrenzten Ausschnitt" not in serialized
     assert not {
         "correct_option",
         "feedback_by_option",

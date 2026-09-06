@@ -387,6 +387,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if response.status == "not_ready":
             return JSONResponse(status_code=503, content=response.model_dump())
 
+        ratings = {
+            "practical_relevance": payload.practical_relevance,
+            "readability": payload.readability,
+            "text_amount": payload.text_amount,
+            "usability": payload.usability,
+            "visual_usefulness": payload.visual_usefulness,
+        }
+        free_text = {
+            "clarifying_visual": payload.clarifying_visual,
+            "reread_location": payload.reread_location,
+        }
+        database: Database = request.app.state.database
+        try:
+            stored = database.find_pilot_feedback(
+                feedback_id=str(payload.feedback_id),
+                lesson_id=payload.lesson_id,
+                content_version=payload.content_version,
+                ratings=ratings,
+                free_text=free_text,
+            )
+        except PilotFeedbackConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        if stored is not None:
+            return _pilot_feedback_response(stored)
+
         manifest: ContentManifest = request.app.state.content_manifest
         lesson = next(
             item for item in manifest.lessons if item.lesson_id == payload.lesson_id
@@ -395,24 +420,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=409, detail="Inhaltsversion stimmt nicht überein."
             )
-
-        database: Database = request.app.state.database
         try:
             stored = database.save_pilot_feedback(
                 feedback_id=str(payload.feedback_id),
                 lesson_id=payload.lesson_id,
                 content_version=payload.content_version,
-                ratings={
-                    "practical_relevance": payload.practical_relevance,
-                    "readability": payload.readability,
-                    "text_amount": payload.text_amount,
-                    "usability": payload.usability,
-                    "visual_usefulness": payload.visual_usefulness,
-                },
-                free_text={
-                    "clarifying_visual": payload.clarifying_visual,
-                    "reread_location": payload.reread_location,
-                },
+                ratings=ratings,
+                free_text=free_text,
             )
         except PilotFeedbackConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc

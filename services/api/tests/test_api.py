@@ -53,7 +53,7 @@ def test_health_readiness_and_curriculum_use_canonical_content(
         response = client.get("/v1/curriculum")
         assert response.status_code == 200
         payload = response.json()
-        assert payload["content_version"] == "0.1.0"
+        assert payload["content_version"] == "0.2.0"
         chapter = payload["chapters"][0]
         assert chapter["order"] == 1
         assert chapter["title"] == "Wie Training wirkt"

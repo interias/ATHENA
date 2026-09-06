@@ -1,5 +1,10 @@
 # Pilot-Lesefassung — Wie Training wirkt
 
+> Historische Lesehilfe der Inhaltsversion 0.1.0. Seit der Überarbeitung vom
+> 6. September 2026 gilt für L1 die [aktuelle kanonische Lektion](content/ch01/01_LOAD.md).
+> Die folgende Fassung bleibt als Vergleich erhalten; Aussagen zum damaligen
+> Implementierungsstand sind historisch.
+
 **Trainingswissen · Kapitel 1 · Recherchegestützter Entwurf · Version 0.1**
 
 Vier kurze Lektionen als Probe für Ton, Tiefe und Gestaltung. Alle konkreten Trainingsfälle sind fiktiv; sie beschreiben nicht Stefans tatsächliche Messwerte. Die App und die beschriebenen Bilder wurden noch nicht erstellt.

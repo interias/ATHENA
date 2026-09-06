@@ -45,6 +45,12 @@ type InteractionData = {
   source_ids: string[];
 };
 
+type LessonIllustrationProps = {
+  src: string;
+  caption: string;
+  slot: "oracle" | "training-studio" | "no-certificate";
+};
+
 type Exercise = {
   id: string;
   kind: "single_choice" | "free_text";
@@ -169,6 +175,42 @@ function ReadingProgress({ initialProgress }: { initialProgress: LessonProgress 
         {saving ? "Wird gespeichert …" : error ? "Erneut versuchen" : progress.read ? "Lesemarkierung zurücknehmen" : "Als gelesen markieren"}
       </button>
     </section>
+  );
+}
+
+function OptionalPilotFeedback({
+  lessonId,
+  contentVersion,
+}: {
+  lessonId: string;
+  contentVersion: string;
+}) {
+  return (
+    <details className="optional-feedback">
+      <summary>
+        <span className="figure-number">Optional · nach der Lerneinheit</span>
+        <strong>Pilotfeedback geben</strong>
+        <span>Die Bewertung gehört nicht zur Zeitangabe der Lektion.</span>
+      </summary>
+      <PilotFeedback lessonId={lessonId} contentVersion={contentVersion} />
+    </details>
+  );
+}
+
+function LessonIllustration({ src, caption, slot }: LessonIllustrationProps) {
+  return (
+    <figure className="lesson-illustration" data-illustration-slot={slot}>
+      <Image
+        src={src}
+        alt=""
+        width={1536}
+        height={1024}
+        sizes="(max-width: 700px) calc(100vw - 54px), 680px"
+        loading="lazy"
+        unoptimized
+      />
+      <figcaption>{caption}</figcaption>
+    </figure>
   );
 }
 
@@ -802,6 +844,31 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
   const interactions = new Map(lesson.interactions.map((interaction) => [interaction.id, interaction]));
   const exercises = new Map(lesson.exercises.map((exercise) => [exercise.id, exercise]));
   const visibleSources = sourceIds.map((id) => lesson.sources.find((source) => source.id === id)).filter((source): source is Source => Boolean(source));
+  const firstParagraphIndex = lesson.blocks.findIndex((block) => block.kind === "paragraph");
+
+  function renderBlock(block: LessonBlock) {
+    if (block.kind === "heading") {
+      if (block.level === 1) return null;
+      return block.level === 2 ? <h2>{block.text}</h2> : <h3>{block.text}</h3>;
+    }
+    if (block.kind === "paragraph") return <p><InlineText text={block.text} onOpenSources={openSources} /></p>;
+    if (block.kind === "figure") {
+      const figure = figures.get(block.id);
+      return figure ? <StaticLoadFigure figure={figure} onOpenSources={openSources} /> : null;
+    }
+    if (block.kind === "interaction") {
+      const interaction = interactions.get(block.id);
+      const figure = interaction ? figures.get(interaction.figure_id) : undefined;
+      return interaction && figure ? <TwoRunsInteraction interaction={interaction} figure={figure} onOpenSources={openSources} /> : null;
+    }
+    const exercise = exercises.get(block.id);
+    if (!exercise) return null;
+    return exercise.id === "q-ch01-01" && exercise.kind === "single_choice"
+      ? <SingleChoiceExercise exercise={exercise} />
+      : exercise.id === "q-ch01-02" && exercise.kind === "free_text"
+        ? <FreeTextExercise exercise={exercise} />
+        : <ExercisePreview exercise={exercise} />;
+  }
 
   return (
     <main className="lesson-shell">
@@ -821,31 +888,48 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
         <p className="atmosphere-credit">Domus · Pompejanisches Rot · lokale freie Interpretation · generierter, ungeprüfter Atmosphärenentwurf</p>
       </header>
       <article className="lesson-reader">
+        <section className="lesson-guide" aria-labelledby="lesson-guide-title">
+          <div>
+            <p className="figure-number">Zeitaufwand</p>
+            <h2 id="lesson-guide-title">Etwa 5 Minuten mit Aufgaben</h2>
+            <p>Orientierungswert, kein Timer.</p>
+          </div>
+          <ol>
+            <li><span>1</span><strong>Lesen</strong></li>
+            <li><span>2</span><strong>Anwenden</strong></li>
+            <li><span>3</span><strong>Abschließen</strong></li>
+          </ol>
+        </section>
         {lesson.blocks.map((block, index) => {
-          if (block.kind === "heading") {
-            if (block.level === 1) return null;
-            return block.level === 2 ? <h2 key={index}>{block.text}</h2> : <h3 key={index}>{block.text}</h3>;
-          }
-          if (block.kind === "paragraph") return <p key={index}><InlineText text={block.text} onOpenSources={openSources} /></p>;
-          if (block.kind === "figure") {
-            const figure = figures.get(block.id);
-            return figure ? <StaticLoadFigure key={index} figure={figure} onOpenSources={openSources} /> : null;
-          }
-          if (block.kind === "interaction") {
-            const interaction = interactions.get(block.id);
-            const figure = interaction ? figures.get(interaction.figure_id) : undefined;
-            return interaction && figure ? <TwoRunsInteraction key={index} interaction={interaction} figure={figure} onOpenSources={openSources} /> : null;
-          }
-          const exercise = exercises.get(block.id);
-          if (!exercise) return null;
-          return exercise.id === "q-ch01-01" && exercise.kind === "single_choice"
-            ? <SingleChoiceExercise key={index} exercise={exercise} />
-            : exercise.id === "q-ch01-02" && exercise.kind === "free_text"
-              ? <FreeTextExercise key={index} exercise={exercise} />
-              : <ExercisePreview key={index} exercise={exercise} />;
+          return (
+            <Fragment key={`${block.kind}-${index}`}>
+              {block.kind === "interaction" && block.id === "int-ch01-load" && (
+                <LessonIllustration
+                  src="/images/lessons/l1-training-studio-v1.webp"
+                  caption="Fiktive Illustration · Trainingsalltag im römischen Lernstudio."
+                  slot="training-studio"
+                />
+              )}
+              {block.kind === "exercise" && block.id === "q-ch01-01" && (
+                <LessonIllustration
+                  src="/images/lessons/l1-no-certificate-v2.webp"
+                  caption="Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse."
+                  slot="no-certificate"
+                />
+              )}
+              {renderBlock(block)}
+              {index === firstParagraphIndex && (
+                <LessonIllustration
+                  src="/images/lessons/l1-oracle-v1.webp"
+                  caption="Fiktive Illustration · Das Trainingstagebuch spielt Orakel."
+                  slot="oracle"
+                />
+              )}
+            </Fragment>
+          );
         })}
         <ReadingProgress initialProgress={progress} />
-        <PilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
+        <OptionalPilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
       </article>
       <footer className="lesson-footer">
         <Link href="/">Zur Kapitelübersicht</Link>

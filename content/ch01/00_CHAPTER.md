@@ -1,7 +1,7 @@
 ---
 chapter_id: ch01
 title: Wie Training wirkt
-content_version: 0.1.0
+content_version: 0.2.0
 status: pilot_draft
 ---
 # Kapitel 1 — Wie Training wirkt
@@ -21,7 +21,7 @@ Dieses Kapitel ist ein recherchegestützter Pilotentwurf für persönliches Lern
 | ch01-o05 | Grenzen einzelner Indikatoren und Messungen benennen |
 | ch01-o06 | Beobachtung, plausible Erklärung und kausale Schlussfolgerung auseinanderhalten |
 
-## Vier Lektionen
+## Vorhandene Lektionen
 
 [L1 — Gleiche Aufgabe, andere Reaktion](01_LOAD.md)
 
@@ -39,7 +39,11 @@ Im fertigen Lernstudio werden Lösungen erst nach dem Antwortversuch eingeblende
 
 ## Umfang
 
-Vier kurze Sitzungen plus spätere Wiederholung als Ausgangspunkt. Nicht in einer Sitzung durchscrollen müssen. M0 setzt zunächst nur L1 um; M1 erschließt den Rest.
+L1 ist als Pilot für etwa fünf Minuten einschließlich Aufgaben überarbeitet.
+Die übrigen drei Textentwürfe bleiben gesperrt. Der
+[Plan für acht kurze Einheiten](../../docs/plans/ch01-five-minute-lessons.md)
+beschreibt den vorgesehenen Neuschnitt des Kapitels; seine Umsetzung benötigt
+einen weiteren Auftrag. Die Zeitangabe ist zunächst ein Gestaltungsbudget.
 
 ## Abschlussfrage
 
