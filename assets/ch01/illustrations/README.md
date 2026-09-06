@@ -1,0 +1,32 @@
+# Illustrationen zur Pilotlektion
+
+Drei zusätzliche Bildmotive für L1, am 6. September 2026 auf ausdrücklichen
+Nutzerauftrag mit dem integrierten Imagegen-Werkzeug erzeugt. Die vollständigen
+[Erzeugungsanweisungen](prompts.json), die [gezielte Korrektur](certificate-edit-prompt.txt)
+und das [Dateimanifest](manifest.json) dokumentieren die Herkunft. Das konkrete
+Modell wurde vom Werkzeug nicht genannt und bleibt deshalb `null`.
+
+| Motiv | Produktdatei | Rolle |
+|---|---|---|
+| Trainingstagebuch als Orakel | [l1-oracle-v1.webp](../../../apps/web/public/images/lessons/l1-oracle-v1.webp) | Greift den ironischen Einstieg mit Notizbuch, Lorbeer und skeptischer Eule auf. |
+| Römisches Trainingsstudio | [l1-training-studio-v1.webp](../../../apps/web/public/images/lessons/l1-training-studio-v1.webp) | Verbindet den fiktiven Lernraum mit modernen Trainingsgegenständen. |
+| Kein automatisches Fortschrittszeugnis | [l1-no-certificate-v2.webp](../../../apps/web/public/images/lessons/l1-no-certificate-v2.webp) | Begleitet den Merksatz mit Laufschuh, leerem Blatt und streng blickender Eule. |
+
+Alle drei Dateien haben 1536 × 1024 Pixel. Die PNG-Ausgaben wurden ohne Beschnitt,
+Skalierung oder Montage als WebP mit Qualität 88 codiert. Zusammen benötigen die
+ausgelieferten Dateien 967.592 Bytes. Die Anwendung lädt sie lokal und verzögert;
+es gibt keinen Bilddienst zur Laufzeit.
+
+Die Szenen sind fiktive redaktionelle Illustrationen. Sie sind weder historische
+Rekonstruktionen noch Geräteanleitungen oder fachliche Messgrafiken. Die bereits
+vorhandene interaktive Fachgrafik und ihre verdeckten Antworten bleiben getrennt.
+Der kanonische Lehrtext und die Inhaltsversion `0.2.0` werden nicht verändert.
+
+Beim dritten Erstentwurf wurden markenähnliche Seitenstreifen und ein logoartiges
+Zungenemblem am Schuh beanstandet. Die gezielte Imagegen-Bearbeitung ersetzt diese
+Details durch einen generischen Schuh. Der Erstentwurf wird nicht ausgeliefert;
+sein Herkunftsdatensatz bleibt im Manifest als verworfen erhalten. Dies ist ein
+sichtbarer Gestaltungsbefund, keine Aussage über einen Rechts- oder Lizenzstatus.
+
+Bewertung und Nachprüfung durch einen getrennten GPT-5.6-Sol-High-Reviewer:
+[Bildreview](../../../docs/reviews/l1-generated-illustrations.md).

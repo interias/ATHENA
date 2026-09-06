@@ -53,6 +53,27 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect(reader.getByRole("heading", { name: "Heute ist nicht langfristig" })).toBeVisible();
   await expect(reader.getByRole("heading", { name: "Merksatz" })).toBeVisible();
   await expect(page.locator(".knowledge-figure")).toHaveCount(1);
+  const illustrations = reader.locator(".lesson-illustration");
+  await expect(illustrations).toHaveCount(3);
+  await expect(illustrations.locator("figcaption")).toHaveText([
+    "Fiktive Illustration · Das Trainingstagebuch spielt Orakel.",
+    "Fiktive Illustration · Trainingsalltag im römischen Lernstudio.",
+    "Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse.",
+  ]);
+  const illustrationImages = illustrations.locator("img");
+  expect(await illustrationImages.evaluateAll((images) => images.map((image) => ({
+    path: new URL((image as HTMLImageElement).src).pathname,
+    alt: image.getAttribute("alt"),
+    loading: image.getAttribute("loading"),
+  })))).toEqual([
+    { path: "/images/lessons/l1-oracle-v1.webp", alt: "", loading: "lazy" },
+    { path: "/images/lessons/l1-training-studio-v1.webp", alt: "", loading: "lazy" },
+    { path: "/images/lessons/l1-no-certificate-v2.webp", alt: "", loading: "lazy" },
+  ]);
+  for (const image of await illustrationImages.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete ? element.naturalWidth : 0)).toBeGreaterThan(0);
+  }
   await expect(page.getByText("Denkaufgabe · Fiktives Beispiel")).toHaveCount(2);
   await expect(page.getByText("Aufgabe · in Entwicklung")).toHaveCount(0);
   await expect(page.getByText("Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung")).toBeVisible();
