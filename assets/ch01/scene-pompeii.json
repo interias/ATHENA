@@ -1,0 +1,20 @@
+{
+  "id": "scene-pompeii",
+  "title": "Domus · Pompejanisches Rot",
+  "style": "Fresko und kräftige Farbflächen",
+  "description": "Zinnoberrote Wände, schwarzer Sockel, offenes Atrium und ein kantiger Sonnenfleck.",
+  "prompt": "Original atmospheric environment concept for ATHENA learning studio. Strongly Roman-inspired DOMUS ATRIUM, extravagant deep vermilion Pompeian-red fresco walls with black dado and restrained gold geometric framing, central rectangular impluvium reflecting bright blue sky, dramatic diagonal hard sunlight on polished cream travertine floor, tall doorway into a lush peristyle garden. Low eye-level oblique architectural composition, bold red occupies much of frame, architectural grandeur but intimate scale. Vivid sophisticated cinematic matte painting, sharp light and shadow, tactile plaster. Landscape 3:2. A visually arresting place for contemplation, no desk, no books, no owl ornament, no beige generic study. Free artistic Roman interpretation, not an archaeological reconstruction. No text, letters, numbers, logos, modern furniture, fantasy armor, weapons or watermark.",
+  "category": "atmosphere",
+  "collection": "roman",
+  "source_path": "Design/public/images/scene-pompeii.png",
+  "product_path": "apps/web/public/images/scene-pompeii.png",
+  "status": "generated_unreviewed",
+  "alt": "Zinnoberrote Wände, schwarzer Sockel, offenes Atrium und ein kantiger Sonnenfleck. Freie römische Interpretation; generierter, ungeprüfter Bildentwurf.",
+  "generatedAt": "2026-09-05T12:27:34.588Z",
+  "model": null,
+  "generator": "built-in image_gen",
+  "originalFilename": "exec-e7c99155-0752-4dc6-b4be-40b181bc6091.png",
+  "sha256": "6156611d91e8d1630d731cb818ab12897201e77b9f74932df04d5d471bfdf6a7",
+  "width": 1536,
+  "height": 1024
+}

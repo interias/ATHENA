@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATHENA M0 · Ticketplan für Epic #8</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202426;
+      --muted: #5b6266;
+      --paper: #fffdf9;
+      --panel: #f5f0e8;
+      --line: #766f65;
+      --red: #8f2d24;
+      --red-soft: #f4ded8;
+      --blue: #244f68;
+      --blue-soft: #dcebf0;
+      --bronze: #7a5423;
+      --free: #e6ebe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #ebe6de;
+      font: 18px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 1rem auto 3rem;
+      padding: clamp(1rem, 3vw, 3rem);
+      background: var(--paper);
+      border: 1px solid #d6cfc4;
+      box-shadow: 0 1rem 3rem rgb(49 42 34 / 10%);
+    }
+    h1, h2 { font-family: Georgia, "Times New Roman", serif; line-height: 1.15; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); }
+    h2 { margin-top: 2.5rem; font-size: clamp(1.45rem, 3vw, 2rem); }
+    p, li { max-width: 65ch; }
+    .eyebrow { margin: 0 0 .35rem; color: var(--red); font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .lead { font-size: 1.12rem; }
+    .legend { display: flex; flex-wrap: wrap; gap: .6rem 1rem; padding: 0; list-style: none; }
+    .legend li { display: flex; align-items: center; gap: .45rem; }
+    .swatch { width: 1.8rem; height: .65rem; border-radius: 999px; background: var(--blue); }
+    .swatch.conflict { background: repeating-linear-gradient(90deg, var(--red) 0 7px, transparent 7px 11px); }
+    .swatch.exclusive { background: var(--red-soft); border: 2px solid var(--red); }
+    figure { margin: 1.25rem 0; }
+    .diagram {
+      width: 100%;
+      height: auto;
+      padding: .5rem;
+      border: 1px solid #cdc5b9;
+      background: #fff;
+    }
+    figcaption { max-width: 75ch; margin-top: .65rem; color: var(--muted); font-size: .92rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .6rem .7rem; border: 1px solid #bdb5aa; text-align: left; vertical-align: top; }
+    th { color: #fff; background: var(--blue); }
+    tbody tr:nth-child(even) { background: var(--panel); }
+    code { padding: .08em .28em; background: #eee9e1; border-radius: .2rem; }
+    .note { padding: 1rem 1.2rem; border-left: .35rem solid var(--red); background: var(--red-soft); }
+    .node { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 2; }
+    .node-exclusive { fill: var(--red-soft); stroke: var(--red); stroke-width: 3; }
+    .node-final { fill: #ece4ce; stroke: var(--bronze); stroke-width: 2; }
+    .edge { fill: none; stroke: var(--blue); stroke-width: 3; marker-end: url(#arrow); }
+    .conflict-edge { fill: none; stroke: var(--red); stroke-width: 3; stroke-dasharray: 8 7; }
+    .ticket { font-size: 22px; font-weight: 800; fill: var(--ink); }
+    .node-label { font-size: 14px; fill: var(--ink); }
+    .small-label { font-size: 13px; fill: var(--muted); }
+    .conflict-label { font-size: 13px; font-weight: 700; fill: var(--red); }
+    .lane { fill: #faf8f4; stroke: #bdb5aa; }
+    .free-lane { fill: var(--free); stroke: #87928a; }
+    .ticket-block { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 2; }
+    .merge-line { stroke: var(--bronze); stroke-width: 4; }
+    .merge-dot { fill: var(--paper); stroke: var(--bronze); stroke-width: 3; }
+    .lane-label { font-size: 17px; font-weight: 700; fill: var(--ink); }
+    @media (max-width: 700px) {
+      body { font-size: 16px; }
+      main { width: 100%; margin: 0; border: 0; }
+      .diagram-scroll { overflow-x: auto; padding-bottom: .5rem; }
+      .diagram { min-width: 860px; }
+      table { font-size: .8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">ATHENA · M0-Pilot</p>
+  <h1>Ticketplan für Epic #8</h1>
+  <p class="lead">Sieben kleine Übergaben bauen den vollständigen M0-Pilotpfad auf. Der Start erfolgt mit einem Implementierungsslot; nach jedem abgenommenen Ticket wird in <code>epic/8-m0-pilot</code> gemergt.</p>
+  <div class="note"><strong>Technischer Stand am 6. September 2026:</strong> Alle Tickets #1–#7 sind umgesetzt, unabhängig geprüft und in den Epic-Branch integriert. Stefan hat die zuvor blockierte Integration und Veröffentlichung ausdrücklich freigegeben. Der gemeinsame Pull Request bleibt für den menschlichen Review und Merge offen. Stefans persönliche Pilotabnahme bleibt der nächste Schritt; M1 beginnt nicht automatisch.</div>
+
+  <h2>Abhängigkeiten und Kollisionen</h2>
+  <ul class="legend" aria-label="Legende des Arbeitsgraphs">
+    <li><span class="swatch" aria-hidden="true"></span>Ausführungsreihenfolge</li>
+    <li><span class="swatch conflict" aria-hidden="true"></span>Modulkollision</li>
+    <li><span class="swatch exclusive" aria-hidden="true"></span>Exklusive Arbeit</li>
+  </ul>
+  <div class="diagram-scroll">
+    <figure>
+      <svg class="diagram" viewBox="0 0 1380 390" role="img" aria-labelledby="graph-title graph-desc">
+        <title id="graph-title">Arbeitsgraph der Tickets eins bis sieben</title>
+        <desc id="graph-desc">Ticket eins führt zu zwei, zwei zu drei. Ab drei führt ein Zweig über vier und fünf zu sieben, ein zweiter über sechs zu sieben. Zwischen vier und sechs besteht eine Modulkollision. Ticket zwei bearbeitet Lockfiles und Migrationen exklusiv.</desc>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#244f68"></path>
+          </marker>
+        </defs>
+
+        <path class="edge" d="M220 180 H270"></path>
+        <path class="edge" d="M450 180 H500"></path>
+        <path class="edge" d="M680 180 C715 180 710 95 750 95"></path>
+        <path class="edge" d="M930 95 H980"></path>
+        <path class="edge" d="M1160 95 C1200 95 1195 180 1230 180"></path>
+        <path class="edge" d="M680 180 C715 180 710 275 750 275"></path>
+        <path class="edge" d="M930 275 C1100 275 1110 180 1230 180"></path>
+
+        <rect class="node" x="40" y="120" width="180" height="120" rx="12"></rect>
+        <text class="ticket" x="60" y="153">#1</text>
+        <text class="node-label" x="60" y="182">Gemeinsame</text>
+        <text class="node-label" x="60" y="202">Ausgangsbasis</text>
+        <text class="small-label" x="60" y="225">Plan · Baseline</text>
+
+        <rect class="node-exclusive" x="270" y="110" width="180" height="140" rx="12"></rect>
+        <text class="ticket" x="290" y="145">#2</text>
+        <text class="node-label" x="290" y="174">Lokale App</text>
+        <text class="node-label" x="290" y="194">und Lektionseinstieg</text>
+        <text class="conflict-label" x="290" y="220">EXKLUSIV</text>
+        <text class="small-label" x="290" y="239">Lockfiles · Migration</text>
+
+        <rect class="node" x="500" y="120" width="180" height="120" rx="12"></rect>
+        <text class="ticket" x="520" y="153">#3</text>
+        <text class="node-label" x="520" y="182">Lektion · Quellen</text>
+        <text class="node-label" x="520" y="202">Fachgrafiken</text>
+        <text class="small-label" x="520" y="225">Contentpfad steht</text>
+
+        <rect class="node" x="750" y="35" width="180" height="120" rx="12"></rect>
+        <text class="ticket" x="770" y="68">#4</text>
+        <text class="node-label" x="770" y="97">Auswahlaufgabe</text>
+        <text class="node-label" x="770" y="117">und Feedback</text>
+        <text class="small-label" x="770" y="140">Web · API · DB</text>
+
+        <rect class="node" x="980" y="35" width="180" height="120" rx="12"></rect>
+        <text class="ticket" x="1000" y="68">#5</text>
+        <text class="node-label" x="1000" y="97">Freie Erklärung</text>
+        <text class="node-label" x="1000" y="117">und Selbstbewertung</text>
+        <text class="small-label" x="1000" y="140">persistenter Versuch</text>
+
+        <rect class="node" x="750" y="215" width="180" height="120" rx="12"></rect>
+        <text class="ticket" x="770" y="248">#6</text>
+        <text class="node-label" x="770" y="277">Lesestatus</text>
+        <text class="node-label" x="770" y="297">nach Neustart</text>
+        <text class="small-label" x="770" y="320">Web · API · DB</text>
+
+        <path class="conflict-edge" d="M945 145 V225"></path>
+        <text class="conflict-label" x="960" y="178">gemeinsame Module</text>
+        <text class="conflict-label" x="960" y="197">#4 / #6: seriell</text>
+
+        <rect class="node-final" x="1230" y="120" width="120" height="120" rx="12"></rect>
+        <text class="ticket" x="1250" y="153">#7</text>
+        <text class="node-label" x="1250" y="182">Abschluss</text>
+        <text class="node-label" x="1250" y="202">Pilotfeedback</text>
+        <text class="small-label" x="1250" y="225">M0-Prüfung</text>
+      </svg>
+      <figcaption>Der Graph zeigt die fachlichen Kanten <code>1→2→3→4→5→7</code> und <code>3→6→7</code>. Die Kollisionskante zwischen #4 und #6 begründet die konservative Gesamtreihenfolge 1 bis 7.</figcaption>
+    </figure>
+  </div>
+
+  <table>
+    <thead><tr><th>Von</th><th>Nach</th><th>Übergabe</th></tr></thead>
+    <tbody>
+      <tr><td>#1</td><td>#2</td><td>Gemeinsame Basis und bestätigte Entscheidungen</td></tr>
+      <tr><td>#2</td><td>#3</td><td>Startbare Web-/API-Struktur, Lockfiles und Migration</td></tr>
+      <tr><td>#3</td><td>#4</td><td>Validierter Lektions-, Quellen- und Grafikpfad</td></tr>
+      <tr><td>#4</td><td>#5</td><td>Persistenter Aufgabenversuch als Grundlage</td></tr>
+      <tr><td>#5</td><td>#7</td><td>Freitext-Selbsteinschätzung abgeschlossen</td></tr>
+      <tr><td>#3</td><td>#6</td><td>Versionsgebundene Lektion für Lesestatus verfügbar</td></tr>
+      <tr><td>#6</td><td>#7</td><td>Persistenter Lesestatus abgeschlossen</td></tr>
+      <tr><td>#4</td><td>#6</td><td>Kollision in Web/API/DB; zeitlich trennen</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ein Slot, zwei freie Spuren</h2>
+  <div class="diagram-scroll">
+    <figure>
+      <svg class="diagram" viewBox="0 0 1220 520" role="img" aria-labelledby="slots-title slots-desc">
+        <title id="slots-title">Serielle Slotbelegung mit Epic-Mergelinie</title>
+        <desc id="slots-desc">Alle sieben Tickets laufen nacheinander in Slot eins. Nach jeder Abnahme wird das Ticket in den Epic-Branch gemergt. Slot zwei und drei bleiben frei. Ticket zwei und alle späteren Schemaänderungen laufen exklusiv.</desc>
+
+        <text class="lane-label" x="20" y="78">Epic-Branch</text>
+        <line class="merge-line" x1="170" y1="72" x2="1160" y2="72"></line>
+        <text class="small-label" x="170" y="38">epic/8-m0-pilot · Merge nach jeder Abnahme</text>
+
+        <rect class="lane" x="170" y="115" width="990" height="100" rx="10"></rect>
+        <rect class="free-lane" x="170" y="245" width="990" height="80" rx="10"></rect>
+        <rect class="free-lane" x="170" y="355" width="990" height="80" rx="10"></rect>
+        <text class="lane-label" x="20" y="170">Slot 1</text>
+        <text class="lane-label" x="20" y="292">Slot 2</text>
+        <text class="lane-label" x="20" y="402">Slot 3</text>
+
+        <g aria-label="Ticket eins"><rect class="ticket-block" x="185" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="220" y="172">#1</text></g>
+        <g aria-label="Ticket zwei, exklusiv"><rect class="node-exclusive" x="325" y="125" width="105" height="80" rx="8"></rect><text class="ticket" x="360" y="165">#2</text><text class="conflict-label" x="341" y="189">exklusiv</text></g>
+        <g aria-label="Ticket drei"><rect class="ticket-block" x="465" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="500" y="172">#3</text></g>
+        <g aria-label="Ticket vier"><rect class="ticket-block" x="605" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="640" y="172">#4</text></g>
+        <g aria-label="Ticket fünf"><rect class="ticket-block" x="745" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="780" y="172">#5</text></g>
+        <g aria-label="Ticket sechs"><rect class="ticket-block" x="885" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="920" y="172">#6</text></g>
+        <g aria-label="Ticket sieben"><rect class="ticket-block" x="1025" y="130" width="105" height="70" rx="8"></rect><text class="ticket" x="1060" y="172">#7</text></g>
+
+        <g aria-label="Mergepunkte">
+          <circle class="merge-dot" cx="237" cy="72" r="10"></circle><line class="merge-line" x1="237" y1="115" x2="237" y2="82"></line>
+          <circle class="merge-dot" cx="377" cy="72" r="10"></circle><line class="merge-line" x1="377" y1="115" x2="377" y2="82"></line>
+          <circle class="merge-dot" cx="517" cy="72" r="10"></circle><line class="merge-line" x1="517" y1="115" x2="517" y2="82"></line>
+          <circle class="merge-dot" cx="657" cy="72" r="10"></circle><line class="merge-line" x1="657" y1="115" x2="657" y2="82"></line>
+          <circle class="merge-dot" cx="797" cy="72" r="10"></circle><line class="merge-line" x1="797" y1="115" x2="797" y2="82"></line>
+          <circle class="merge-dot" cx="937" cy="72" r="10"></circle><line class="merge-line" x1="937" y1="115" x2="937" y2="82"></line>
+          <circle class="merge-dot" cx="1077" cy="72" r="10"></circle><line class="merge-line" x1="1077" y1="115" x2="1077" y2="82"></line>
+        </g>
+
+        <text class="node-label" x="490" y="292">frei für spätere, nachgewiesen kollisionsfreie Arbeit</text>
+        <text class="node-label" x="490" y="402">frei für spätere, nachgewiesen kollisionsfreie Arbeit</text>
+        <text class="small-label" x="170" y="475">Pro Ticket: Implementierung → getrenntes Review → Hostcheck → Merge in Epic-Branch.</text>
+      </svg>
+      <figcaption>Die freie Kapazität ist Absicht: Der erste Durchlauf optimiert eine überprüfbare gemeinsame Basis. Erst nach stabilen Modulgrenzen darf parallelisiert werden.</figcaption>
+    </figure>
+  </div>
+
+  <div class="note">
+    <strong>Laufzeitisolation:</strong> Ab #2 verwendet jedes Ticket <code>COMPOSE_PROJECT_NAME=athena-m0-&lt;nr&gt;</code> und eigene SQLite-Tempdateien. Gemeinsame laufende Container oder Datenbanken werden nicht benutzt.
+  </div>
+
+  <h2>Abschlussgrenze</h2>
+  <p>Ein grüner Teilumfang schließt M0 nicht ab. #7 bündelt den vollständigen Browserpfad einschließlich Backend und Persistenz sowie die relevanten Content-/Backendtests, Typecheck, Lint, Build und Browserprüfung. Danach folgt die Pilotabnahme; M1–M3 und Deployment benötigen einen gesonderten Auftrag.</p>
+</main>
+</body>
+</html>
