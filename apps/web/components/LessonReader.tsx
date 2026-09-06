@@ -172,6 +172,25 @@ function ReadingProgress({ initialProgress }: { initialProgress: LessonProgress 
   );
 }
 
+function OptionalPilotFeedback({
+  lessonId,
+  contentVersion,
+}: {
+  lessonId: string;
+  contentVersion: string;
+}) {
+  return (
+    <details className="optional-feedback">
+      <summary>
+        <span className="figure-number">Optional · nach der Lerneinheit</span>
+        <strong>Pilotfeedback geben</strong>
+        <span>Die Bewertung gehört nicht zur Zeitangabe der Lektion.</span>
+      </summary>
+      <PilotFeedback lessonId={lessonId} contentVersion={contentVersion} />
+    </details>
+  );
+}
+
 function RouteDrawing() {
   return (
     <svg className="run-route" viewBox="0 0 240 62" aria-hidden="true" fill="none">
@@ -821,6 +840,18 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
         <p className="atmosphere-credit">Domus · Pompejanisches Rot · lokale freie Interpretation · generierter, ungeprüfter Atmosphärenentwurf</p>
       </header>
       <article className="lesson-reader">
+        <section className="lesson-guide" aria-labelledby="lesson-guide-title">
+          <div>
+            <p className="figure-number">Zeitaufwand</p>
+            <h2 id="lesson-guide-title">Etwa 5 Minuten mit Aufgaben</h2>
+            <p>Orientierungswert, kein Timer.</p>
+          </div>
+          <ol>
+            <li><span>1</span><strong>Lesen</strong></li>
+            <li><span>2</span><strong>Anwenden</strong></li>
+            <li><span>3</span><strong>Abschließen</strong></li>
+          </ol>
+        </section>
         {lesson.blocks.map((block, index) => {
           if (block.kind === "heading") {
             if (block.level === 1) return null;
@@ -845,7 +876,7 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
               : <ExercisePreview key={index} exercise={exercise} />;
         })}
         <ReadingProgress initialProgress={progress} />
-        <PilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
+        <OptionalPilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
       </article>
       <footer className="lesson-footer">
         <Link href="/">Zur Kapitelübersicht</Link>

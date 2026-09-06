@@ -509,6 +509,47 @@ class Database:
                 connection.rollback()
                 raise
 
+    def find_pilot_feedback(
+        self,
+        *,
+        feedback_id: str,
+        lesson_id: str,
+        content_version: str,
+        ratings: dict[str, int],
+        free_text: dict[str, str],
+    ) -> PilotFeedbackRecord | None:
+        ratings_json = json.dumps(
+            ratings,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        free_text_json = json.dumps(
+            free_text,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        request_values = (lesson_id, content_version, ratings_json, free_text_json)
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            existing = connection.execute(
+                "SELECT * FROM pilot_feedback WHERE id = ?", (feedback_id,)
+            ).fetchone()
+        if existing is None:
+            return None
+        stored_values = tuple(
+            existing[field]
+            for field in ("lesson_id", "content_version", "ratings_json", "free_text")
+        )
+        if stored_values != request_values:
+            raise PilotFeedbackConflictError(
+                "Die Feedback-ID wurde bereits mit anderem Inhalt verwendet."
+            )
+        return self._pilot_feedback_record(existing)
+
     @staticmethod
     def _attempt_record(row: sqlite3.Row) -> AttemptRecord:
         return AttemptRecord(

@@ -1,6 +1,9 @@
 import { chromium, expect, test, type Page } from "@playwright/test";
 
 async function completeFeedback(page: Page) {
+  const optionalFeedback = page.locator(".optional-feedback");
+  await optionalFeedback.locator("summary").click();
+  await expect(optionalFeedback).toHaveAttribute("open", "");
   const feedback = page.locator(".pilot-feedback");
   const ratings = [1, 2, 3, 4, 5];
   for (const [index, rating] of ratings.entries()) {
@@ -26,7 +29,7 @@ test("stores the five pilot ratings and exact optional prompts", async ({ page }
   expect(requests).toHaveLength(1);
   expect(requests[0]).toMatchObject({
     lesson_id: "ch01-l01",
-    content_version: "0.1.0",
+    content_version: "0.2.0",
     readability: 1,
     text_amount: 2,
     visual_usefulness: 3,
@@ -100,6 +103,14 @@ test("uses a new UUID after editing an unconfirmed submission", async ({ page })
 test("is keyboard-operable without horizontal overflow at 390 pixels", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/lessons/ch01-l01");
+  const optionalFeedback = page.locator(".optional-feedback");
+  const summary = optionalFeedback.locator("summary");
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  const summaryOutline = await summary.evaluate((element) => getComputedStyle(element).outlineStyle);
+  expect(summaryOutline).not.toBe("none");
+  await page.keyboard.press("Enter");
+  await expect(optionalFeedback).toHaveAttribute("open", "");
   const feedback = page.locator(".pilot-feedback");
   const groups = feedback.getByRole("group");
   for (let index = 0; index < 5; index += 1) {
@@ -139,18 +150,25 @@ test("keeps overlong Unicode text editable and counts codepoints like the API", 
 
 test("reflows at actual 200 percent Chrome page zoom", async ({ browserName }, testInfo) => {
   expect(browserName).toBe("chromium");
+  const testProxyServer = process.env.ATHENA_TEST_PROXY_SERVER;
+  const baseURL = process.env.ATHENA_WEB_URL ?? "http://127.0.0.1:3000";
   const context = await chromium.launchPersistentContext(testInfo.outputPath("chrome-profile"), {
     channel: "chrome",
     headless: true,
     viewport: null,
-    args: ["--window-size=1280,1000"],
+    proxy: testProxyServer ? { server: testProxyServer, bypass: "<-loopback>" } : undefined,
+    args: [
+      "--window-size=1280,1000",
+      ...(testProxyServer ? ["--proxy-bypass-list=<-loopback>"] : []),
+    ],
   });
   try {
     const settings = context.pages()[0] ?? await context.newPage();
     await settings.goto("chrome://settings/appearance");
     await settings.locator("#zoomLevel").selectOption("2");
     const page = await context.newPage();
-    await page.goto("http://127.0.0.1:3000/lessons/ch01-l01");
+    await page.goto(`${baseURL}/lessons/ch01-l01`);
+    await page.locator(".optional-feedback > summary").click();
     await expect(page.locator(".pilot-feedback")).toBeVisible();
     const metrics = await page.evaluate(() => ({
       innerWidth: window.innerWidth,

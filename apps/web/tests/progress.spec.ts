@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function openUnreadLesson(page: Page) {
   await page.goto("/lessons/ch01-l01");
-  await expect(page.getByRole("heading", { name: "Zwei Läufe", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gleiche Aufgabe, andere Reaktion", exact: true })).toBeVisible();
   const progressButton = page.locator(".reading-progress button");
   await expect(progressButton).toBeVisible();
   if (await progressButton.getAttribute("class") === "secondary-action") {
@@ -43,7 +43,10 @@ test("keeps the stored status after a failed update and offers a retry", async (
     if (intercepted) return route.continue();
     intercepted = true;
     const storedResponse = await route.fetch();
-    expect(storedResponse.ok()).toBe(true);
+    expect(
+      storedResponse.ok(),
+      `${storedResponse.status()} ${await storedResponse.text()}`,
+    ).toBe(true);
     await route.abort("failed");
   });
 

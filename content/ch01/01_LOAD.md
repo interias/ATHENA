@@ -3,7 +3,7 @@ lesson_id: ch01-l01
 chapter_id: ch01
 order: 1
 title: Gleiche Aufgabe, andere Reaktion
-content_version: 0.1.0
+content_version: 0.2.0
 status: pilot_draft
 editorial_approved_by: null
 expert_reviewed_by: null
@@ -16,7 +16,6 @@ source_ids:
 - S05
 - S06
 figure_ids:
-- fig-ch01-load
 - fig-ch01-two-runs
 question_ids:
 - q-ch01-01
@@ -26,47 +25,27 @@ question_ids:
 
 # Gleiche Aufgabe, andere Reaktion
 
-## Zwei Läufe
+## Was wurde eigentlich gemessen?
 
-**Fiktives Beispiel.** Du läufst an zwei Tagen dieselbe flache Strecke: zehn Kilometer in einer Stunde. Beim ersten Mal fühlt sich das angenehm an. Beim zweiten Mal bist du froh, als du wieder zu Hause bist.
+**Fiktives Beispiel.** Zwei flache Läufe stehen mit je zehn Kilometern und sechzig Minuten im Protokoll. Gleiche Zahlen, gleiches Training? Nur wenn das Trainingstagebuch inzwischen zum Orakel befördert wurde.
 
-War es dasselbe Training? In deinem Protokoll stehen dieselbe Distanz und dieselbe Dauer. Dein Erleben war trotzdem anders. Genau diese Unterscheidung brauchen wir, bevor wir darüber sprechen, wie viel Training sinnvoll ist.
+Eine Frage zu **operationalisieren** heißt festzulegen, welche erfassbaren Merkmale das untersuchte Konstrukt abbilden sollen. Das Protokoll hält die gewählten Werte fest. Distanz und Dauer bilden hier einen Ausschnitt der **äußeren Belastung** ab, also der absolvierten Aufgabe. Die **innere Beanspruchung** ist die individuelle körperliche und psychische Reaktion darauf. In der Literatur heißen diese Ebenen *external load* und *internal load*; die verwendeten Messgrößen hängen von der jeweiligen Frage ab. [S05]
 
-Am Ende dieser Lektion kannst du die dokumentierte Aufgabe von deiner Reaktion darauf trennen und erklären, warum aus einer einzelnen Empfindung noch keine langfristige Anpassung folgt.
+Damit ist bereits eine Grenze sichtbar: Gleiche protokollierte Werte bedeuten zunächst nur, dass diese Werte übereinstimmen. Sie beweisen weder vollständige Gleichheit aller Bedingungen noch eine gleiche Reaktion. Präzision beginnt manchmal mit dem unspektakulären Satz: **Der dokumentierte Ausschnitt war gleich.**
 
-## Aufgabe und Reaktion
+## Erst urteilen, dann aufdecken
 
-Die **äußere Belastung** beschreibt die tatsächlich absolvierte Aufgabe: zum Beispiel Laufdauer, Strecke oder bewegte Last und Wiederholungen. Die **innere Beanspruchung** bezeichnet hier die individuelle körperliche und psychische Reaktion darauf. In englischer Literatur begegnen dir dafür *external load* und *internal load*. Die Terminologie variiert; diese Unterscheidung orientiert sich am Konzept von Impellizzeri und Kollegen. [S05]
-
-[[figure:fig-ch01-load]]
-
-Für unser Laufbeispiel bedeutet das: „Zehn Kilometer in einer Stunde“ beschreibt einen Ausschnitt der äußeren Aufgabe. „Es fühlte sich deutlich anstrengender an“ beschreibt eine innere Reaktion. Beide Informationen sind nützlich. Keine ersetzt die andere.
-
-Zwei Zahlen bilden außerdem nicht die komplette Aufgabe ab. Selbst bei gleicher Distanz und Dauer könnten etwa Streckenprofil oder Untergrund verschieden sein. Der sorgfältige Satz lautet deshalb zunächst: **Der dokumentierte Ausschnitt war gleich.** Ob sämtliche Bedingungen vergleichbar waren, musst du erst prüfen.
-
-## Eine kleine Denkpause
-
-Stell dir die beiden Läufe als Karten vor. Zuerst siehst du nur Distanz und Dauer. Welche Aussage ist damit gerechtfertigt: gleiche dokumentierte Aufgabe, gleiche Beanspruchung oder beides?
+Die beiden Laufkarten zeigen zunächst nur die äußeren Merkmale. Entscheide, welche Aussage dadurch gedeckt ist, und decke anschließend die Reaktionen auf.
 
 [[interaction:int-ch01-load]]
 
-Die Antwort lässt sich nicht dadurch verbessern, dass du besonders entschlossen rätst. Solange die Reaktion fehlt, fehlt eine Information. Nach dem Aufdecken kannst du beide Karten beschreiben, aber noch nicht automatisch erklären, warum sie sich unterscheiden.
-
-Du könntest nun nach Kontext fragen: Was war vorher? Unter welchen Bedingungen wurde gelaufen? Wie wurde die Anstrengung erfasst? Solche Fragen öffnen mögliche Erklärungen. Sie beweisen keine davon.
-
-## Ein Satz im Gym
-
-Übertragen wir die Idee auf ein anderes fiktives Beispiel: Du absolvierst an einer Maschine drei Sätze mit demselben eingestellten Gewicht. Allein diese Angaben sagen noch nicht, wie viele Wiederholungen du tatsächlich gemacht hast oder wie anstrengend die Sätze waren.
-
-„Ich habe meinen Plan ausgeführt“ und „ich habe denselben Reiz erlebt“ sind daher keine austauschbaren Aussagen. Das Protokoll beschreibt zunächst, was du getan hast. Deine Reaktion ist eine zusätzliche Beobachtung.
-
-Für dein eigenes Nachdenken könntest du künftig eine Einheit in zwei Sätzen beschreiben: zuerst die Aufgabe, danach dein Erleben. Dafür musst du nichts an deinem Training ändern und keine zusätzlichen Tests absolvieren.
+Nach dem Aufdecken kannst du Aufgabe und Reaktion getrennt beschreiben und erst dann vergleichen. Was sichtbar wird, ist zunächst eine Beobachtung, keine Ursache. Kontextfragen können Hypothesen liefern. Mehr Selbstvertrauen macht daraus noch keinen Befund.
 
 ## Heute ist nicht langfristig
 
-Eine unmittelbare Reaktion und eine längerfristige Veränderung gehören ebenfalls auf verschiedene Ebenen. Konzeptionelle Trainingsmodelle unterscheiden akute und chronische sowie günstige und ungünstige Effekte. [S06]
+Eine **akute Reaktion** gehört nicht auf dieselbe Ebene wie eine längerfristige **Anpassung**. Konzeptionelle Trainingsmodelle trennen akute und chronische Effekte und berücksichtigen individuelle sowie kontextuelle Faktoren. Sie liefern aus zwei Läufen keine persönliche Vorhersageformel. [S06]
 
-Daraus folgt für unser Beispiel: Ein anstrengender Lauf ist zunächst ein anstrengender Lauf. Ob er zu einer gewünschten Anpassung beiträgt, ist eine andere Frage. Deine Erschöpfung stellt dir kein automatisches Fortschrittszeugnis aus.
+Für den Fall folgt deshalb nur: Die aufgedeckten Angaben beschreiben akute Reaktionen auf die dokumentierte Aufgabe. Ob daraus eine bestimmte langfristige Anpassung entsteht, ist eine neue Frage. Erschöpfung verteilt weiterhin keine Fortschrittszeugnisse.
 
 [[exercise:q-ch01-01]]
 
@@ -74,4 +53,4 @@ Daraus folgt für unser Beispiel: Ein anstrengender Lauf ist zunächst ein anstr
 
 ## Merksatz
 
-**Beschreibe erst die Aufgabe und die Reaktion. Beurteile danach, was du daraus tatsächlich weißt.**
+**Lege fest, welche erfassbaren Merkmale die Frage abbilden, halte sie im Protokoll fest und trenne Aufgabe, Reaktion und weitergehenden Schluss.**

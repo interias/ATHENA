@@ -7,64 +7,71 @@ M0: nur q-ch01-01 und q-ch01-02. M1: alle zwölf Kernaufgaben, acht Reviewkarten
 ```yaml
 schema_version: '1.0'
 chapter_id: ch01
-content_version: 0.1.0
+content_version: 0.2.0
 questions:
 - id: q-ch01-01
   lesson_id: ch01-l01
   objective_ids:
   - ch01-o01
   kind: single_choice
-  content_version: 0.1.0
-  prompt: Welche Angabe beschreibt am unmittelbarsten einen Ausschnitt der äußeren Aufgabe?
+  content_version: 0.2.0
+  prompt: Zwei fiktive Radergometer-Einheiten stimmen in Dauer und eingestellter Leistung überein; Einheit B
+    wird deutlich anstrengender erlebt.
+    Welche Schlussfolgerung trennt die drei Ebenen am saubersten?
   options:
   - id: a
-    text: Der Lauf fühlte sich schwer an.
+    text: Einheit B setzte wegen der höheren Beanspruchung sicher den stärkeren langfristigen Anpassungsreiz.
   - id: b
-    text: Ich lief zehn Kilometer in einer Stunde.
+    text: Die protokollierten äußeren Merkmale stimmen überein, die innere Reaktion unterscheidet sich; Ursache
+      und langfristige Anpassung bleiben offen.
   - id: c
-    text: Ich war danach zufrieden.
+    text: Die unterschiedliche Reaktion beweist, dass auch die gesamte äußere Belastung verschieden war.
   correct_option: b
   feedback_by_option:
-    a: Das beschreibt dein Erleben, nicht die absolvierte Aufgabe.
-    b: 'Richtig: Strecke und Dauer beschreiben einen dokumentierten Teil der Aufgabe.'
-    c: Zufriedenheit ist ein subjektives Urteil und kein Maß der Laufaufgabe.
+    a: Eine stärkere akute Beanspruchung beweist keine bestimmte langfristige Anpassung.
+    b: 'Richtig: Dokumentierte Aufgabe, beobachtete Reaktion und weitergehende Erklärung bleiben getrennt.'
+    c: Die Reaktion zeigt keine vollständige Gleichheit, beweist aber auch nicht, welches äußere Merkmal verschieden
+      gewesen sein müsste.
   source_ids:
   - S05
-  misconception: Aufgabe und subjektive Reaktion werden gleichgesetzt.
+  - S06
+  misconception: Eine unterschiedliche akute Reaktion wird unmittelbar zur äußeren Ursache oder langfristigen
+    Anpassung erklärt.
 - id: q-ch01-02
   lesson_id: ch01-l01
   objective_ids:
   - ch01-o01
   - ch01-o02
   kind: free_text
-  content_version: 0.1.0
-  prompt: Zwei fiktive Läufe haben dieselbe Distanz und Dauer, fühlen sich aber verschieden an. Was weißt du
-    — und was noch nicht?
+  content_version: 0.2.0
+  prompt: 'Neuer fiktiver Fall: Bei zwei Krafttrainingseinheiten stehen dieselbe Übung, Last, Satz- und Wiederholungszahl
+    im Protokoll. Die zweite Einheit wird deutlich anstrengender erlebt. Erkläre kurz, was dokumentiert ist,
+    was beobachtet wurde und was offenbleibt.'
   rubric:
   - id: c1
-    criterion: Gleiche dokumentierte äußere Merkmale nennen.
+    criterion: Die übereinstimmenden protokollierten Aufgabenmerkmale als begrenzten Ausschnitt benennen.
     required: true
   - id: c2
-    criterion: Die unterschiedliche innere Reaktion benennen.
+    criterion: Das unterschiedliche Anstrengungserleben als innere Reaktion getrennt benennen.
     required: true
   - id: c3
-    criterion: Keine konkrete Ursache oder langfristige Anpassung als bewiesen darstellen.
+    criterion: Ursache und bestimmte langfristige Anpassung ausdrücklich offenlassen.
     required: true
-  model_answer: Die dokumentierte Distanz und Dauer sind gleich, das Erleben unterscheidet sich. Weitere Aufgabenmerkmale
-    und Kontext könnten verschieden sein. Die Ursache und der längerfristige Trainingseffekt lassen sich so
-    noch nicht bestimmen.
-  feedback: Gut ist eine Trennung der Ebenen. Eine plausibel klingende Ursache allein ist noch keine vollständige
-    Antwort.
+  model_answer: Übung, Last, Sätze und Wiederholungen stimmen im Protokoll überein. Das Anstrengungserleben
+    als innere Reaktion unterscheidet sich. Ursache und langfristige Anpassung lassen sich daraus nicht bestimmen.
+  feedback: Prüfe, ob deine Antwort den dokumentierten Ausschnitt, die Reaktion und die offene Schlussfolgerung
+    klar voneinander trennt.
   source_ids:
   - S05
   - S06
-  misconception: Gleiches Protokoll beweist gleichen Reiz oder gleichen Trainingseffekt.
+  misconception: Gleiche protokollierte Aufgabenmerkmale beweisen gleiche Beanspruchung oder denselben langfristigen
+    Effekt.
 - id: q-ch01-03
   lesson_id: ch01-l01
   objective_ids:
   - ch01-o01
   kind: matching
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Ordne die Angaben aus einem fiktiven Training zu.
   items:
   - id: a
@@ -95,7 +102,7 @@ questions:
   objective_ids:
   - ch01-o03
   kind: single_choice
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Welche Formulierung passt am besten zu unserem Progressionsbegriff?
   options:
   - id: a
@@ -118,7 +125,7 @@ questions:
   - ch01-o02
   - ch01-o03
   kind: single_choice
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Eine Person verbessert ihren Krafttest. Was folgt daraus am sichersten?
   options:
   - id: a
@@ -140,7 +147,7 @@ questions:
   objective_ids:
   - ch01-o03
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Formuliere ein fiktives Trainingsziel, eine dazu passende Beobachtung und eine Bedingung für einen
     brauchbaren Vergleich.
   rubric:
@@ -168,7 +175,7 @@ questions:
   - ch01-o04
   - ch01-o05
   kind: single_choice
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Heute stehen acht statt zehn Wiederholungen im Protokoll. Welcher Satz ist am besten abgesichert?
   options:
   - id: a
@@ -191,7 +198,7 @@ questions:
   objective_ids:
   - ch01-o05
   kind: single_choice
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Wie verwendest du Muskelkater in diesem Kapitel?
   options:
   - id: a
@@ -215,7 +222,7 @@ questions:
   - ch01-o04
   - ch01-o05
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Ein fiktiver Trainingstag fällt schlechter aus. Nenne zwei Klärungsfragen und eine Schlussfolgerung,
     die du noch nicht ziehen würdest.
   rubric:
@@ -240,7 +247,7 @@ questions:
   objective_ids:
   - ch01-o06
   kind: single_choice
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Du änderst zwei Dinge gleichzeitig und beobachtest danach eine Verbesserung. Was ist die stärkste
     zulässige Aussage?
   options:
@@ -263,7 +270,7 @@ questions:
   - ch01-o05
   - ch01-o06
   kind: matching
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: Ordne die drei Aussagen nach ihrer Rolle.
   items:
   - id: a
@@ -293,7 +300,7 @@ questions:
   - ch01-o05
   - ch01-o06
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   prompt: 'Verbessere den Satz: „Seit ich die Reihenfolge geändert habe, bin ich stärker. Also ist diese Reihenfolge
     immer besser.“'
   rubric:
@@ -316,7 +323,7 @@ questions:
 review_cards:
 - id: r-ch01-01
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o01
   prompt: Erkläre äußere Aufgabe und innere Reaktion mit einem neuen Beispiel.
@@ -333,7 +340,7 @@ review_cards:
   - S05
 - id: r-ch01-02
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o01
   - ch01-o02
@@ -352,7 +359,7 @@ review_cards:
   - S06
 - id: r-ch01-03
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o03
   prompt: Warum ist „jede Einheit schwerer“ keine notwendige Definition von Progression?
@@ -369,7 +376,7 @@ review_cards:
   - S04
 - id: r-ch01-04
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o02
   prompt: Warum misst ein besserer Krafttest nicht direkt den Muskelzuwachs?
@@ -386,7 +393,7 @@ review_cards:
   - S32
 - id: r-ch01-05
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o04
   prompt: Du erzielst heute einen niedrigeren Leistungswert. Welche zusätzliche Aussage wäre voreilig?
@@ -404,7 +411,7 @@ review_cards:
   - S08
 - id: r-ch01-06
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o05
   prompt: Warum nutzen wir Muskelkater nicht als Wachstumsanzeige?
@@ -421,7 +428,7 @@ review_cards:
   - S07
 - id: r-ch01-07
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o05
   prompt: Was würdest du für einen brauchbaren Vergleich zweier Übungsergebnisse möglichst gleich halten?
@@ -437,7 +444,7 @@ review_cards:
   - S33
 - id: r-ch01-08
   kind: free_text
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o06
   prompt: Formuliere Beobachtung und mögliche Erklärung getrennt an einem neuen Fall.
@@ -456,7 +463,7 @@ review_cards:
   source_ids: []
 transfer_cases:
 - id: t-ch01-01
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o01
   - ch01-o04
@@ -488,7 +495,7 @@ transfer_cases:
   - S08
   boundary: Keine konkrete Veränderung des individuellen Trainingsplans erforderlich.
 - id: t-ch01-02
-  content_version: 0.1.0
+  content_version: 0.2.0
   objective_ids:
   - ch01-o05
   - ch01-o06

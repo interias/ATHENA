@@ -4,7 +4,7 @@
 
 ## Produktionsregeln
 
-M0 erstellt ausschließlich `fig-ch01-load` sowie die grafische Darstellung von `int-ch01-load`. M1 ergänzt die übrigen vier Fachvisualisierungen. Die optionale Szene erfordert einen gesonderten Produktionsauftrag; nicht automatisch einen kostenpflichtigen Bilderdienst aufrufen.
+Der überarbeitete M0-Pilot verwendet ausschließlich die grafische Darstellung von `int-ch01-load`. `fig-ch01-load` bleibt als unzugeordnetes historisches Briefing erhalten. M1 ergänzt die übrigen vier Fachvisualisierungen. Die optionale Szene erfordert einen gesonderten Produktionsauftrag; nicht automatisch einen kostenpflichtigen Bilderdienst aufrufen.
 
 Fachgrafiken als eigenständig erstellte SVG/HTML-Komponenten umsetzen. Beschriftungen sind echter Text. Ein Link zu einer Publikation gibt keine Erlaubnis, deren Abbildung zu kopieren. Die hier beschriebenen eigenen Grafiken visualisieren selbst formulierte Konzepte; Rechte und Herkunft dennoch dokumentieren.
 
@@ -23,12 +23,11 @@ schema_version: '1.0'
 chapter_id: ch01
 figures:
 - id: fig-ch01-load
-  lesson_ids:
-  - ch01-l01
+  lesson_ids: []
   render_kind: svg
   interaction_id: null
   status: planned
-  required_in: M0
+  required_in: null
   source_ids:
   - S05
   - S06

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
@@ -25,6 +26,19 @@ def make_app(content_root: Path, database_path: Path):
     )
 
 
+def set_content_version(content_root: Path, version: str) -> None:
+    for path in (content_root / "ch01").glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        path.write_text(
+            re.sub(
+                r"(?m)^(\s*content_version:\s*)\S+\s*$",
+                rf"\g<1>{version}",
+                text,
+            ),
+            encoding="utf-8",
+        )
+
+
 def attempt_payload(
     *,
     attempt_id: str | None = None,
@@ -34,7 +48,7 @@ def attempt_payload(
     return {
         "attempt_id": attempt_id or str(uuid4()),
         "item_id": "q-ch01-01",
-        "content_version": "0.1.0",
+        "content_version": "0.2.0",
         "answer": {"option_id": option_id},
         "confidence": confidence,
         "mode": "practice",
@@ -51,7 +65,7 @@ def free_text_payload(
     return {
         "attempt_id": attempt_id or str(uuid4()),
         "item_id": "q-ch01-02",
-        "content_version": "0.1.0",
+        "content_version": "0.2.0",
         "answer": {"text": text},
         "confidence": confidence,
         "mode": "practice",
@@ -65,17 +79,17 @@ def free_text_payload(
         (
             "a",
             "incorrect",
-            "Das beschreibt dein Erleben, nicht die absolvierte Aufgabe.",
+            "Eine stärkere akute Beanspruchung beweist keine bestimmte langfristige Anpassung.",
         ),
         (
             "b",
             "correct",
-            "Richtig: Strecke und Dauer beschreiben einen dokumentierten Teil der Aufgabe.",
+            "Richtig: Dokumentierte Aufgabe, beobachtete Reaktion und weitergehende Erklärung bleiben getrennt.",
         ),
         (
             "c",
             "incorrect",
-            "Zufriedenheit ist ein subjektives Urteil und kein Maß der Laufaufgabe.",
+            "Die Reaktion zeigt keine vollständige Gleichheit, beweist aber auch nicht, welches äußere Merkmal verschieden gewesen sein müsste.",
         ),
     ],
 )
@@ -128,7 +142,7 @@ def test_attempt_rejects_wrong_content_version(
     content_root: Path, tmp_path: Path
 ) -> None:
     payload = attempt_payload()
-    payload["content_version"] = "0.0.9"
+    payload["content_version"] = "0.1.0"
     with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
         response = client.post("/v1/attempts", json=payload)
 
@@ -174,7 +188,7 @@ def test_identical_replay_returns_exact_result_and_changed_payload_conflicts(
             "/v1/attempts", json={**payload, "answer": {"option_id": "a"}}
         )
         changed_version = client.post(
-            "/v1/attempts", json={**payload, "content_version": "0.0.9"}
+            "/v1/attempts", json={**payload, "content_version": "0.1.0"}
         )
 
     assert first.status_code == replay.status_code == 201
@@ -217,7 +231,11 @@ def test_restart_replay_uses_persisted_grading_and_feedback_snapshot(
     content_root: Path, tmp_path: Path
 ) -> None:
     database_path = tmp_path / "athena.db"
-    payload = attempt_payload(attempt_id=str(uuid4()), option_id="a")
+    set_content_version(content_root, "0.1.0")
+    payload = {
+        **attempt_payload(attempt_id=str(uuid4()), option_id="a"),
+        "content_version": "0.1.0",
+    }
     with TestClient(make_app(content_root, database_path)) as client:
         original = client.post("/v1/attempts", json=payload)
     assert original.status_code == 201
@@ -227,17 +245,22 @@ def test_restart_replay_uses_persisted_grading_and_feedback_snapshot(
         questions_path.read_text(encoding="utf-8")
         .replace("  correct_option: b", "  correct_option: a", 1)
         .replace(
-            "Das beschreibt dein Erleben, nicht die absolvierte Aufgabe.",
+            "Eine stärkere akute Beanspruchung beweist keine bestimmte langfristige Anpassung.",
             "Geändertes kanonisches Feedback.",
             1,
         ),
         encoding="utf-8",
     )
+    set_content_version(content_root, "0.2.0")
     with TestClient(make_app(content_root, database_path)) as client:
         replay = client.post("/v1/attempts", json=payload)
         new_attempt = client.post(
             "/v1/attempts",
-            json={**payload, "attempt_id": str(uuid4())},
+            json={
+                **payload,
+                "attempt_id": str(uuid4()),
+                "content_version": "0.2.0",
+            },
         )
 
     assert replay.status_code == new_attempt.status_code == 201
@@ -261,7 +284,7 @@ def test_free_text_is_stored_before_canonical_solution_is_returned(
     assert body["answer"] == payload["answer"]
     assert body["objective_result"] == "not_assessed"
     assert body["grading_source"] == "self_assessment"
-    assert body["model_answer"].startswith("Die dokumentierte Distanz und Dauer")
+    assert body["model_answer"].startswith("Übung, Last, Sätze und Wiederholungen")
     assert [item["id"] for item in body["rubric"]] == ["c1", "c2", "c3"]
     assert all(item["required"] for item in body["rubric"])
     with sqlite3.connect(database_path) as connection:
@@ -342,7 +365,11 @@ def test_self_assessment_is_canonical_idempotent_and_persistent(
     content_root: Path, tmp_path: Path
 ) -> None:
     database_path = tmp_path / "athena.db"
-    attempt = free_text_payload(attempt_id=str(uuid4()))
+    set_content_version(content_root, "0.1.0")
+    attempt = {
+        **free_text_payload(attempt_id=str(uuid4())),
+        "content_version": "0.1.0",
+    }
     assessment = {
         "content_version": "0.1.0",
         "checked_criterion_ids": ["c1", "c2", "c3"],
@@ -360,6 +387,7 @@ def test_self_assessment_is_canonical_idempotent_and_persistent(
     assert first.json()["grading_source"] == "self_assessment"
     assert conflict.status_code == 409
 
+    set_content_version(content_root, "0.2.0")
     with TestClient(make_app(content_root, database_path)) as client:
         restarted = client.post(path, json=assessment)
         attempt_replay = client.post("/v1/attempts", json=attempt)
@@ -372,12 +400,12 @@ def test_self_assessment_is_canonical_idempotent_and_persistent(
 @pytest.mark.parametrize(
     ("assessment", "status"),
     [
-        ({"content_version": "0.1.0", "checked_criterion_ids": ["unknown"], "rating": "hard"}, 422),
-        ({"content_version": "0.1.0", "checked_criterion_ids": ["c1", "c1"], "rating": "hard"}, 422),
-        ({"content_version": "0.1.0", "checked_criterion_ids": ["c1"], "rating": "good"}, 422),
-        ({"content_version": "0.0.9", "checked_criterion_ids": [], "rating": "again"}, 409),
-        ({"content_version": "0.1.0", "checked_criterion_ids": [], "rating": "great"}, 422),
-        ({"content_version": "0.1.0", "checked_criterion_ids": [], "rating": "again", "extra": True}, 422),
+        ({"content_version": "0.2.0", "checked_criterion_ids": ["unknown"], "rating": "hard"}, 422),
+        ({"content_version": "0.2.0", "checked_criterion_ids": ["c1", "c1"], "rating": "hard"}, 422),
+        ({"content_version": "0.2.0", "checked_criterion_ids": ["c1"], "rating": "good"}, 422),
+        ({"content_version": "0.1.0", "checked_criterion_ids": [], "rating": "again"}, 409),
+        ({"content_version": "0.2.0", "checked_criterion_ids": [], "rating": "great"}, 422),
+        ({"content_version": "0.2.0", "checked_criterion_ids": [], "rating": "again", "extra": True}, 422),
     ],
 )
 def test_self_assessment_rejects_invalid_payload(
@@ -397,7 +425,7 @@ def test_self_assessment_rejects_unknown_and_choice_attempts(
 ) -> None:
     choice = attempt_payload()
     assessment = {
-        "content_version": "0.1.0",
+        "content_version": "0.2.0",
         "checked_criterion_ids": [],
         "rating": "again",
     }

@@ -79,6 +79,6 @@ Für diese reine Pfadumstellung wurde kein neuer Browserlauf ausgeführt.
   Screenreaderprüfung. Kontrastprüfung umfasst Texttokens, nicht jede Pixelkombination.
 - Kein Firefox, Safari oder echtes Mobilgerät; CSS-Zoom ist kein natives Zoommenü.
   `npm start` und ein Portkonflikt wurden nicht als eigene Bedienstrecken geprüft.
-- M0 ist noch nicht implementiert; die App-Tickets sind inzwischen veröffentlicht.
-  Die Bereitstellung des D0-Bestands per Commit und Push ist separat beauftragt.
-  M1–M3 und Deployments sind damit nicht freigegeben.
+- M0 ist inzwischen getrennt vom Labor implementiert; sein Prüfstand steht im
+  [M0-Abnahmebericht](../docs/reviews/m0-07-pilot-feedback.md). Die obigen
+  D0-Browserergebnisse prüfen diese Produktstrecke nicht mit.

@@ -3,8 +3,11 @@
 Persönliches Lernstudio für Sportwissenschaft, Krafttraining, Ausdauer und Ernährung.
 Nutzbar sind das **Design Lab (D0)** und die lokale **M0-Produktstrecke** mit der
 vollständigen Pilotlektion „Gleiche Aufgabe, andere Reaktion“, Aufgaben,
-Lesestatus und Pilotfeedback. Die technische M0-Prüfung ist dokumentiert; Stefans
-persönliche Pilotabnahme steht noch aus. M1–M3 bleiben Backlog und benötigen einen
+Lesestatus und Pilotfeedback. L1 ist nach der ersten persönlichen Rückmeldung als
+Fünf-Minuten-Pilot überarbeitet; das Zeitbudget ist noch in der Nutzung zu prüfen.
+Der [Kapitelplan](docs/plans/ch01-five-minute-lessons.md) beschreibt den weiteren
+Neuschnitt, der [Fachdiff](docs/reviews/l1-five-minute-editorial.md) die Änderungen.
+M1–M3 bleiben Backlog und benötigen einen
 neuen Auftrag.
 
 ## Start
@@ -97,6 +100,7 @@ Ziel und vorhandenen Stand. Agentenreview ist keine unabhängige menschliche Fac
 - `docs/01_…12_…`: ursprüngliche Produkt-, Redaktions- und Stilplanung; spätere
   Infrastruktur ist kein D0-Auftrag. [Meilensteinbacklog](docs/10_IMPLEMENTATION_PLAN.md).
 - `templates/`: Vorlagen für spätere Inhaltsarbeit.
-- [Pilot-Lesefassung](PILOT_LESEFASSUNG.md): abgeleitete Lesehilfe, nicht separat pflegen.
+- [Pilot-Lesefassung](PILOT_LESEFASSUNG.md): historische Lesehilfe der Fassung 0.1.0;
+  die aktuelle Pilotlektion steht in `content/ch01/01_LOAD.md` und der Produkt-App.
 - [Ursprünglicher D0-Auftrag](START_CODEX_DESIGN.md) und [früherer M0-Auftrag](START_CODEX.md):
   historische Auftragsquellen; aktuelle Entscheidungen stehen in der Spezifikation.
