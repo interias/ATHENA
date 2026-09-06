@@ -132,6 +132,16 @@ Seitenfehler. Die gemessenen Kontraste lagen bei mindestens 6,71:1 für Text,
 4,72:1 für Auswahlrahmen, 6,87:1 für den Fokusindikator und 10,03:1 für den
 Primärbutton. Alle Reviewer-Browser wurden anschließend geschlossen.
 
+## Epic-Integration am 6. September 2026
+
+Nach Stefans ausdrücklicher Freigabe wurden die geprüften Tickets #5, #6 und #7
+mit den Merge-Commits `4cf57c6`, `4f5d70d` und `2d21dcc` in den Epic-Branch
+integriert und gepusht. Nach jedem Merge war der Dateibaum identisch mit dem
+zugehörigen abgenommenen Ticketstand. Die abschließende Prüfung im Epic bestand
+80 API-/Contenttests in 9,78 s (zwei bekannte Warnungen), Typecheck, Lint und
+28 Browserprüfungen in 37,0 s gegen den identischen geprüften Containerstand.
+PR #9 bleibt für den menschlichen Review und Merge offen.
+
 ## Grenzen und Stopppunkt
 
 Die gespeicherten Testdaten sind technische Fixtures und keine Bewertung durch
