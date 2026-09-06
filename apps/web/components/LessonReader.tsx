@@ -205,7 +205,7 @@ function LessonIllustration({ src, caption, slot }: LessonIllustrationProps) {
         alt=""
         width={1536}
         height={1024}
-        sizes="(max-width: 700px) calc(100vw - 54px), 680px"
+        sizes="(max-width: 700px) calc(100vw - 54px), 900px"
         loading="lazy"
         unoptimized
       />

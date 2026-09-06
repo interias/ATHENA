@@ -191,9 +191,9 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
 .atmosphere-credit { position: absolute; right: clamp(20px, 4vw, 60px); bottom: 44px; z-index: 1; max-width: 52ch; margin: 0; color: #f3e8de; font-size: 12px; text-align: right; text-shadow: 0 1px 3px #28100c; }
 
 .lesson-reader {
-  width: min(860px, calc(100% - 32px));
+  width: min(1100px, calc(100% - 32px));
   margin: -22px auto 0;
-  padding: clamp(40px, 7vw, 82px) clamp(24px, 8vw, 92px);
+  padding: clamp(40px, 7vw, 82px) 40px;
   position: relative;
   z-index: 2;
   background: #fff;
@@ -208,7 +208,7 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
 .lesson-guide li { display: flex; align-items: center; gap: 9px; min-width: 0; padding-top: 10px; border-top: 2px solid #9f3128; }
 .lesson-guide li span { display: grid; flex: 0 0 26px; width: 26px; height: 26px; place-items: center; border-radius: 50%; color: #fff; background: #75211d; font-size: 13px; font-weight: 850; }
 .lesson-reader > p, .lesson-reader > h2, .lesson-reader > h3 {
-  max-width: 65ch;
+  max-width: 43.875rem;
   margin-right: auto;
   margin-left: auto;
 }
@@ -218,7 +218,7 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
 .lesson-reader > h3 { font-size: 25px; }
 
 .lesson-illustration {
-  width: min(680px, 100%);
+  width: min(900px, 100%);
   margin: 30px auto 38px;
 }
 .lesson-illustration img {
@@ -250,10 +250,9 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
 }
 
 .knowledge-figure, .exercise-preview, .exercise-card {
-  width: min(1060px, calc(100vw - 34px));
-  margin: 46px 50%;
+  width: 100%;
+  margin: 46px auto;
   padding: clamp(24px, 5vw, 48px);
-  transform: translateX(-50%);
   border: 4px double #baa47f;
   background: #fffdf9;
   box-shadow: 0 18px 48px rgba(67, 42, 26, .12);
@@ -425,7 +424,7 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
   .lesson-guide li strong { font-size: 13px; }
   .lesson-illustration { margin: 24px auto 32px; }
   .lesson-illustration figcaption { text-align: left; }
-  .knowledge-figure, .exercise-preview, .exercise-card { width: calc(100vw - 18px); padding: 24px 16px; }
+  .knowledge-figure, .exercise-preview, .exercise-card { padding: 24px 16px; }
   .load-model { grid-template-columns: 1fr; }
   .model-connector { min-height: 70px; }
   .model-connector span { transform: rotate(90deg); }
@@ -433,6 +432,11 @@ footer { padding: 34px 20px 42px; text-align: center; color: #6d5c54; font-size:
   .confidence-control { grid-template-columns: 1fr; gap: 8px; }
   .source-panel-header { display: block; }
   .source-close { margin-top: 14px; }
+}
+
+@media (max-width: 360px) {
+  .optional-feedback .pilot-feedback { padding-right: 14px; padding-left: 14px; }
+  .pilot-rating-options { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

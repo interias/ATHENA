@@ -24,6 +24,30 @@ async function openLesson(page: Page) {
   await expect(page.getByRole("heading", { name: "Gleiche Aufgabe, andere Reaktion", exact: true })).toBeVisible();
 }
 
+async function readerContainmentViolations(page: Page) {
+  return page.evaluate(() => {
+    const reader = document.querySelector<HTMLElement>(".lesson-reader")!;
+    const readerBox = reader.getBoundingClientRect();
+    const style = getComputedStyle(reader);
+    const contentLeft = readerBox.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
+    const contentRight = readerBox.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight);
+    const surfaces = reader.querySelectorAll<HTMLElement>(
+      ".lesson-guide, .lesson-illustration, .knowledge-figure, .exercise-preview, .exercise-card, .reading-progress, .optional-feedback, button, input, select, textarea, summary, .pilot-rating-options label",
+    );
+
+    return Array.from(surfaces).filter((element) => element.getClientRects().length > 0).map((element) => {
+      const box = element.getBoundingClientRect();
+      return {
+        className: element.className,
+        left: box.left,
+        right: box.right,
+        contentLeft,
+        contentRight,
+      };
+    }).filter(({ left, right }) => left < contentLeft - 1 || right > contentRight + 1);
+  });
+}
+
 test("opens the complete canonical pilot reader without external runtime requests", async ({ page }) => {
   const expectedOrigin = new URL(process.env.ATHENA_WEB_URL ?? "http://127.0.0.1:3000").origin;
   const externalRequests: string[] = [];
@@ -414,6 +438,17 @@ test("stays usable at 390 pixels, 200 percent scale and reduced motion", async (
   widths = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
   expect(widths.viewport).toBe(640);
   expect(widths.content).toBeLessThanOrEqual(widths.viewport);
+});
+
+test("keeps lesson surfaces inside the reader content box at supported widths", async ({ page }) => {
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/lessons/ch01-l01");
+    await expect(page.locator(".lesson-reader")).toBeVisible();
+    expect(await readerContainmentViolations(page), `closed reader containment at ${width}px`).toEqual([]);
+    await page.locator(".optional-feedback > summary").click();
+    expect(await readerContainmentViolations(page), `open reader containment at ${width}px`).toEqual([]);
+  }
 });
 
 test("meets measured contrast targets for reader text and primary controls", async ({ page }) => {

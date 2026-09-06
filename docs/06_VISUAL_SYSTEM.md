@@ -4,7 +4,14 @@
 
 Ein ruhiges, gut illustriertes digitales Fachbuch mit Werkstattcharakter. Keine überladene Fitness-App und kein Dashboard, das den eigentlichen Text verdrängt. Heller Standardmodus, dunkler Modus später optional. Systemschriften oder lokal eingebundene Schriftdateien; keine externen Font-Aufrufe.
 
-Zentrale Lesespalte ungefähr 65–75 Zeichen breit, Fließtext als Ausgangspunkt 18 px, Zeilenhöhe ungefähr 1,6. Fachbegriffe, Quellen und optionale Vertiefungen sind erreichbar, ohne die Hauptlektüre zu unterbrechen. Diese Werte werden am Pilot geprüft.
+Für den aktuellen M0-Piloten ist seit dem 6. September 2026 eine zentrale
+Lesespalte von ungefähr 75–80 Zeichen vereinbart, bei 18 px Fließtext und etwa
+1,6-facher Zeilenhöhe. Die weiße Seitenfläche darf bis zu 1100 px breit sein;
+Bilder, Aufgaben und Fachgrafiken bleiben vollständig innerhalb ihrer
+Innenabstände. Größere Komponenten dürfen mehr Platz als der Fließtext nutzen.
+CSS-`ch` ist eine typografische Näherung, keine exakte Zeichenzählung.
+Der historische D0-Vergleichsstand bleibt unverändert. Fachbegriffe, Quellen und
+optionale Vertiefungen sind erreichbar, ohne die Hauptlektüre zu unterbrechen.
 
 ### ATHENA-Rahmen
 
