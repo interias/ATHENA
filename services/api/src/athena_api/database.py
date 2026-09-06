@@ -45,6 +45,14 @@ class SelfAssessmentRecord:
     created_at: str
 
 
+@dataclass(frozen=True, slots=True)
+class LessonProgressRecord:
+    lesson_id: str
+    content_version: str
+    read_at: str | None
+    updated_at: str
+
+
 class Database:
     def __init__(self, path: Path, migrations_path: Path):
         self.path = path
@@ -140,6 +148,71 @@ class Database:
             if connection.execute("PRAGMA foreign_keys").fetchone() != (1,):
                 raise DatabaseError("SQLite-Fremdschlüssel sind nicht aktiviert.")
             connection.execute("SELECT 1 FROM schema_migrations LIMIT 1").fetchall()
+
+    def get_lesson_progress(
+        self, *, lesson_id: str, content_version: str
+    ) -> LessonProgressRecord | None:
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            row = connection.execute(
+                """
+                SELECT lesson_id, content_version, read_at, updated_at
+                FROM lesson_progress
+                WHERE lesson_id = ? AND content_version = ?
+                """,
+                (lesson_id, content_version),
+            ).fetchone()
+        return self._lesson_progress_record(row) if row is not None else None
+
+    def save_lesson_progress(
+        self, *, lesson_id: str, content_version: str, read: bool
+    ) -> LessonProgressRecord:
+        with self.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                existing = connection.execute(
+                    """
+                    SELECT lesson_id, content_version, read_at, updated_at
+                    FROM lesson_progress
+                    WHERE lesson_id = ? AND content_version = ?
+                    """,
+                    (lesson_id, content_version),
+                ).fetchone()
+                if existing is not None and bool(existing["read_at"]) == read:
+                    connection.commit()
+                    return self._lesson_progress_record(existing)
+
+                updated_at = datetime.now(timezone.utc).isoformat(
+                    timespec="microseconds"
+                )
+                read_at = updated_at if read else None
+                connection.execute(
+                    """
+                    INSERT INTO lesson_progress (
+                        lesson_id, content_version, read_at, updated_at
+                    ) VALUES (?, ?, ?, ?)
+                    ON CONFLICT (lesson_id, content_version) DO UPDATE SET
+                        read_at = excluded.read_at,
+                        updated_at = excluded.updated_at
+                    """,
+                    (lesson_id, content_version, read_at, updated_at),
+                )
+                stored = connection.execute(
+                    """
+                    SELECT lesson_id, content_version, read_at, updated_at
+                    FROM lesson_progress
+                    WHERE lesson_id = ? AND content_version = ?
+                    """,
+                    (lesson_id, content_version),
+                ).fetchone()
+                connection.commit()
+                if stored is None:
+                    raise DatabaseError("Gespeicherter Lesestatus konnte nicht gelesen werden.")
+                return self._lesson_progress_record(stored)
+            except Exception:
+                connection.rollback()
+                raise
 
     def save_attempt(
         self,
@@ -378,4 +451,13 @@ class Database:
             checked_criterion_ids_json=row["checked_criterion_ids_json"],
             rating=row["rating"],
             created_at=row["created_at"],
+        )
+
+    @staticmethod
+    def _lesson_progress_record(row: sqlite3.Row) -> LessonProgressRecord:
+        return LessonProgressRecord(
+            lesson_id=row["lesson_id"],
+            content_version=row["content_version"],
+            read_at=row["read_at"],
+            updated_at=row["updated_at"],
         )

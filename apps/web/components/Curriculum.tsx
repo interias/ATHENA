@@ -22,9 +22,25 @@ type CurriculumResponse = {
   chapters: Chapter[];
 };
 
+type LessonProgress = {
+  lesson_id: string;
+  content_version: string;
+  read: boolean;
+  read_at: string | null;
+  updated_at: string | null;
+};
+
+type ProgressResponse = {
+  content_version: string;
+  available_lessons: number;
+  planned_lessons: number;
+  read_lessons: number;
+  lessons: LessonProgress[];
+};
+
 type LoadState =
   | { kind: "loading" }
-  | { kind: "ready"; curriculum: CurriculumResponse }
+  | { kind: "ready"; curriculum: CurriculumResponse; progress: ProgressResponse }
   | { kind: "error"; message: string };
 
 export function Curriculum() {
@@ -34,13 +50,17 @@ export function Curriculum() {
     setState({ kind: "loading" });
 
     try {
-      const response = await fetch("/api/curriculum", { cache: "no-store" });
-      if (!response.ok) {
+      const [curriculumResponse, progressResponse] = await Promise.all([
+        fetch("/api/curriculum", { cache: "no-store" }),
+        fetch("/api/progress", { cache: "no-store" }),
+      ]);
+      if (!curriculumResponse.ok || !progressResponse.ok) {
         throw new Error("Die Kapitel konnten gerade nicht geladen werden.");
       }
 
-      const curriculum = (await response.json()) as CurriculumResponse;
-      setState({ kind: "ready", curriculum });
+      const curriculum = (await curriculumResponse.json()) as CurriculumResponse;
+      const progress = (await progressResponse.json()) as ProgressResponse;
+      setState({ kind: "ready", curriculum, progress });
     } catch {
       setState({
         kind: "error",
@@ -75,6 +95,10 @@ export function Curriculum() {
 
   return (
     <div className="chapters" aria-live="polite">
+      <section className="progress-summary" aria-label="Lesestatus">
+        <strong>{state.progress.read_lessons} von {state.progress.available_lessons} verfügbaren Lektionen gelesen</strong>
+        <p>{state.progress.planned_lessons} weitere Lektionen sind geplant. „Gelesen“ ist eine persönliche Markierung und bedeutet weder geübt noch erinnert.</p>
+      </section>
       {state.curriculum.chapters.map((chapter) => (
         <article className="chapter" key={chapter.id}>
           <div className="chapter-heading">
@@ -85,15 +109,18 @@ export function Curriculum() {
           <ol className="lesson-list">
             {chapter.lessons.map((lesson) => {
               const available = lesson.availability === "available";
+              const read = available && state.progress.lessons.some(
+                (item) => item.lesson_id === lesson.id && item.read,
+              );
               return (
                 <li className={available ? "lesson available" : "lesson planned"} key={lesson.id}>
                   <span className="lesson-order" aria-hidden="true">{String(lesson.order).padStart(2, "0")}</span>
                   <span className="lesson-copy">
                     {available ? <Link href={`/lessons/${lesson.id}`}><strong>{lesson.title}</strong></Link> : <strong>{lesson.title}</strong>}
-                    <small>{available ? "Jetzt lesen" : "In Vorbereitung"}</small>
+                    <small>{read ? "Gelesen · erneut öffnen" : available ? "Jetzt lesen" : "In Vorbereitung"}</small>
                   </span>
-                  <span className="status" data-status={lesson.availability}>
-                    {available ? "Verfügbar" : "Geplant"}
+                  <span className="status" data-status={read ? "read" : lesson.availability}>
+                    {read ? "Gelesen" : available ? "Verfügbar" : "Geplant"}
                   </span>
                 </li>
               );

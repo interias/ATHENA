@@ -284,6 +284,27 @@ class LessonResponse(StrictModel):
     exercises: list[LessonSingleChoiceExercise | LessonFreeTextExercise]
 
 
+class ProgressUpdateRequest(StrictModel):
+    content_version: str = Field(min_length=1, max_length=32)
+    read: bool
+
+
+class LessonProgress(StrictModel):
+    lesson_id: str
+    content_version: str
+    read: bool
+    read_at: datetime | None
+    updated_at: datetime | None
+
+
+class ProgressResponse(StrictModel):
+    content_version: str
+    available_lessons: int = Field(ge=0)
+    planned_lessons: int = Field(ge=0)
+    read_lessons: int = Field(ge=0)
+    lessons: list[LessonProgress]
+
+
 class ReadinessCheck(StrictModel):
     status: Literal["ok", "failed"]
     issues: list[ContentIssue] = Field(default_factory=list)

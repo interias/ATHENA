@@ -110,10 +110,66 @@ type LessonResponse = {
   exercises: Exercise[];
 };
 
+type LessonProgress = {
+  lesson_id: string;
+  content_version: string;
+  read: boolean;
+  read_at: string | null;
+  updated_at: string | null;
+};
+
+type ProgressResponse = {
+  content_version: string;
+  available_lessons: number;
+  planned_lessons: number;
+  read_lessons: number;
+  lessons: LessonProgress[];
+};
+
 type LoadState =
   | { kind: "loading" }
   | { kind: "error"; message: string }
-  | { kind: "ready"; lesson: LessonResponse };
+  | { kind: "ready"; lesson: LessonResponse; progress: LessonProgress };
+
+function ReadingProgress({ initialProgress }: { initialProgress: LessonProgress }) {
+  const [progress, setProgress] = useState(initialProgress);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(false);
+
+  const updateProgress = async () => {
+    setSaving(true);
+    setError(false);
+    try {
+      const response = await fetch(`/api/progress/${progress.lesson_id}`, {
+        method: "PUT",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content_version: progress.content_version,
+          read: !progress.read,
+        }),
+      });
+      if (!response.ok) throw new Error();
+      setProgress((await response.json()) as LessonProgress);
+    } catch {
+      setError(true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="reading-progress" aria-labelledby="reading-progress-title">
+      <span className="figure-number">Dein Lesestatus</span>
+      <h2 id="reading-progress-title">{progress.read ? "Als gelesen markiert" : "Lektion gelesen?"}</h2>
+      <p>Diese Markierung bestätigt nur, dass du die Lektion gelesen hast. Sie sagt nichts darüber aus, ob du sie geübt hast oder später erinnerst.</p>
+      {error && <p className="progress-error" role="alert">Der Speicherstatus konnte nicht bestätigt werden. Angezeigt wird der zuletzt bestätigte Lesestatus.</p>}
+      <button type="button" className={progress.read ? "secondary-action" : "primary-action"} disabled={saving} onClick={() => void updateProgress()}>
+        {saving ? "Wird gespeichert …" : error ? "Erneut versuchen" : progress.read ? "Lesemarkierung zurücknehmen" : "Als gelesen markieren"}
+      </button>
+    </section>
+  );
+}
 
 function RouteDrawing() {
   return (
@@ -709,9 +765,18 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
   const loadLesson = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const response = await fetch(`/api/lessons/${lessonId}`, { cache: "no-store" });
-      if (!response.ok) throw new Error();
-      setState({ kind: "ready", lesson: (await response.json()) as LessonResponse });
+      const [lessonResponse, progressResponse] = await Promise.all([
+        fetch(`/api/lessons/${lessonId}`, { cache: "no-store" }),
+        fetch("/api/progress", { cache: "no-store" }),
+      ]);
+      if (!lessonResponse.ok || !progressResponse.ok) throw new Error();
+      const lesson = (await lessonResponse.json()) as LessonResponse;
+      const progressPayload = (await progressResponse.json()) as ProgressResponse;
+      const progress = progressPayload.lessons.find(
+        (item) => item.lesson_id === lesson.id && item.content_version === lesson.content_version,
+      );
+      if (!progress) throw new Error();
+      setState({ kind: "ready", lesson, progress });
     } catch {
       setState({ kind: "error", message: "Die Lektion konnte gerade nicht geladen werden." });
     }
@@ -731,7 +796,7 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
   if (state.kind === "loading") return <main className="lesson-shell"><div className="state-card" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><p>Lektion wird geladen …</p></div></main>;
   if (state.kind === "error") return <main className="lesson-shell"><div className="state-card error-card" role="alert"><h1>Lektion nicht verfügbar</h1><p>{state.message}</p><button type="button" onClick={() => void loadLesson()}>Erneut versuchen</button></div></main>;
 
-  const { lesson } = state;
+  const { lesson, progress } = state;
   const figures = new Map(lesson.figures.map((figure) => [figure.id, figure]));
   const interactions = new Map(lesson.interactions.map((interaction) => [interaction.id, interaction]));
   const exercises = new Map(lesson.exercises.map((exercise) => [exercise.id, exercise]));
@@ -778,10 +843,11 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
               ? <FreeTextExercise key={index} exercise={exercise} />
               : <ExercisePreview key={index} exercise={exercise} />;
         })}
+        <ReadingProgress initialProgress={progress} />
       </article>
       <footer className="lesson-footer">
         <Link href="/">Zur Kapitelübersicht</Link>
-        <p>Lesen und Erkunden wird in diesem Schritt nicht als Fortschritt gespeichert.</p>
+        <p>Gelesen, geübt und später erinnert bleiben getrennte Aussagen.</p>
       </footer>
       {visibleSources.length > 0 && <SourcePanel sources={visibleSources} onClose={closeSources} />}
     </main>
