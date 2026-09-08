@@ -53,20 +53,22 @@ def test_health_readiness_and_curriculum_use_canonical_content(
         response = client.get("/v1/curriculum")
         assert response.status_code == 200
         payload = response.json()
-        assert payload["content_version"] == "0.2.0"
+        assert payload["content_version"] == "0.3.0"
         chapter = payload["chapters"][0]
         assert chapter["order"] == 1
         assert chapter["title"] == "Wie Training wirkt"
-        assert [lesson["order"] for lesson in chapter["lessons"]] == [1, 2, 3, 4]
+        assert [lesson["order"] for lesson in chapter["lessons"]] == [1, 2, 3, 4, 6]
         assert [lesson["title"] for lesson in chapter["lessons"]] == [
             "Gleiche Aufgabe, andere Reaktion",
-            "Anpassung braucht ein Ziel",
+            "Anpassung braucht eine Zielgröße",
+            "Progression ohne Tagesrekord",
             "Ein schlechter Tag ist kein Rückschritt-Beweis",
             "Beobachten, ohne sich Geschichten zu erzählen",
         ]
         assert [lesson["availability"] for lesson in chapter["lessons"]] == [
             "available",
-            "planned",
+            "available",
+            "available",
             "planned",
             "planned",
         ]
@@ -77,7 +79,7 @@ def test_invalid_content_keeps_process_healthy_and_blocks_readiness(
 ) -> None:
     lesson = content_root / "ch01" / "02_ADAPTATION.md"
     lesson.write_text(
-        lesson.read_text(encoding="utf-8").replace("[S32]", "[S99]", 1),
+        lesson.read_text(encoding="utf-8").replace("[S34, S35]", "[S99]", 1),
         encoding="utf-8",
     )
     with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:

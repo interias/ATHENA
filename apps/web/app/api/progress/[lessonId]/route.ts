@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isPublishedLessonId } from "../../../../lib/publishedLessons";
 
 const API_ORIGIN = process.env.ATHENA_API_ORIGIN ?? "http://api:8000";
-const LESSON_ID = "ch01-l01";
 const ALLOWED_HOSTS = new Set(["127.0.0.1:3000", "localhost:3000"]);
 const MAX_REQUEST_BYTES = 1_024;
 
@@ -12,7 +12,7 @@ export async function PUT(
   context: { params: Promise<{ lessonId: string }> },
 ) {
   const { lessonId } = await context.params;
-  if (lessonId !== LESSON_ID) {
+  if (!isPublishedLessonId(lessonId)) {
     return NextResponse.json({ detail: "Lektion nicht gefunden." }, { status: 404 });
   }
 
@@ -35,7 +35,7 @@ export async function PUT(
     if (new TextEncoder().encode(body).byteLength > MAX_REQUEST_BYTES) {
       return NextResponse.json({ detail: "Anfrage ist zu groß." }, { status: 413 });
     }
-    const response = await fetch(`${API_ORIGIN}/v1/progress/${LESSON_ID}`, {
+    const response = await fetch(`${API_ORIGIN}/v1/progress/${lessonId}`, {
       method: "PUT",
       cache: "no-store",
       headers: { Accept: "application/json", "Content-Type": "application/json" },

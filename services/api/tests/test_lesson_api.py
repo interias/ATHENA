@@ -41,6 +41,7 @@ def test_lesson_endpoint_returns_canonical_public_contract(
     payload = response.json()
     assert list(payload) == [
         "id",
+        "order",
         "title",
         "content_version",
         "status",
@@ -52,6 +53,7 @@ def test_lesson_endpoint_returns_canonical_public_contract(
         "exercises",
     ]
     assert payload["id"] == "ch01-l01"
+    assert payload["order"] == 1
     assert payload["title"] == "Gleiche Aufgabe, andere Reaktion"
     assert payload["content_version"] == "0.2.0"
     assert payload["status"] == "pilot_draft"
@@ -205,7 +207,7 @@ def test_exercises_expose_only_public_m0_fields(
 
 def test_unknown_lesson_is_not_exposed(content_root: Path, tmp_path: Path) -> None:
     with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
-        response = client.get("/v1/lessons/ch01-l02")
+        response = client.get("/v1/lessons/ch01-l03")
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Lektion nicht gefunden."}

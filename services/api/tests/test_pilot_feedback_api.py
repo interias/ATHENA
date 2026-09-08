@@ -172,7 +172,7 @@ def test_pilot_feedback_validates_ratings_text_lesson_and_version(
         del missing_rating["usability"]
         assert client.post("/v1/pilot-feedback", json=missing_rating).status_code == 422
         assert client.post(
-            "/v1/pilot-feedback", json={**payload, "lesson_id": "ch01-l02"}
+            "/v1/pilot-feedback", json={**payload, "lesson_id": "ch01-l03"}
         ).status_code == 404
         assert client.post(
             "/v1/pilot-feedback", json={**payload, "content_version": "0.1.0"}

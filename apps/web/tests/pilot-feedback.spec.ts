@@ -205,6 +205,36 @@ test("reflows at actual 200 percent Chrome page zoom", async ({ browserName }, t
     expect(metrics.visualScale).toBe(1);
     expect(metrics.contentWidth).toBeLessThanOrEqual(metrics.innerWidth);
     expect(metrics.containmentViolations).toEqual([]);
+
+    for (const lessonId of ["ch01-l02", "ch01-l05"]) {
+      await page.goto(`${baseURL}/lessons/${lessonId}`);
+      await expect(page.locator(".lesson-mobile-navigation")).toBeVisible();
+      await expect(page.locator(".lesson-sidebar-left")).toBeHidden();
+      await expect(page.locator(".lesson-details").first()).toBeVisible();
+      const lessonMetrics = await page.evaluate(() => {
+        const reader = document.querySelector<HTMLElement>(".lesson-reader")!;
+        const readerBox = reader.getBoundingClientRect();
+        const style = getComputedStyle(reader);
+        const contentLeft = readerBox.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
+        const contentRight = readerBox.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight);
+        const surfaces = reader.querySelectorAll<HTMLElement>(
+          ".lesson-guide, .lesson-illustration, .lesson-details, .exercise-card, .reading-progress, .optional-feedback, button, input, select, textarea, summary",
+        );
+        const containmentViolations = Array.from(surfaces)
+          .filter((element) => element.getClientRects().length > 0)
+          .map((element) => element.getBoundingClientRect())
+          .filter(({ left, right }) => left < contentLeft - 1 || right > contentRight + 1)
+          .length;
+        return {
+          innerWidth: window.innerWidth,
+          contentWidth: document.documentElement.scrollWidth,
+          containmentViolations,
+        };
+      });
+      expect(lessonMetrics.innerWidth).toBeLessThanOrEqual(650);
+      expect(lessonMetrics.contentWidth).toBeLessThanOrEqual(lessonMetrics.innerWidth);
+      expect(lessonMetrics.containmentViolations).toBe(0);
+    }
   } finally {
     await context.close();
   }

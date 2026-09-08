@@ -1,7 +1,7 @@
 ---
 lesson_id: ch01-l04
 chapter_id: ch01
-order: 4
+order: 6
 title: Beobachten, ohne sich Geschichten zu erzählen
 content_version: 0.2.0
 status: pilot_draft
@@ -14,6 +14,7 @@ objectives:
 prerequisites:
 - ch01-l01
 - ch01-l02
+- ch01-l05
 - ch01-l03
 source_ids:
 - S05

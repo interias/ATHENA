@@ -30,3 +30,35 @@ sichtbarer Gestaltungsbefund, keine Aussage über einen Rechts- oder Lizenzstatu
 
 Bewertung und Nachprüfung durch einen getrennten GPT-5.6-Sol-High-Reviewer:
 [Bildreview](../../../docs/reviews/l1-generated-illustrations.md).
+
+## Zielgrößen und Progression
+
+Die am 8. September 2026 zunächst erzeugten Eulen-Stillleben wurden nach
+Nutzerfeedback durch inhaltsbezogene V2-Motive ersetzt. Die alten Dateien,
+[Briefings](l2-l3-briefs.md), [Prompts](l2-l3-prompts.json) und ihr historisches
+[Review](../../../docs/reviews/l2-l3-generated-illustrations.md) bleiben als
+Herkunft erhalten; die App bindet sie nicht mehr ein.
+
+| Aktuelles Motiv | Produktdatei | Sichtbare Unterscheidung |
+|---|---|---|
+| Krafttest und MRT als Zweiteilung | [l2-target-metric-v2.webp](../../../apps/web/public/images/lessons/l2-target-metric-v2.webp) | Kraftleistung und Muskelgröße benötigen passende, unterschiedliche Beobachtungen. |
+| Aktive Arbeit an einer dreigeteilten Mappe | [l3-progression-v2.webp](../../../apps/web/public/images/lessons/l3-progression-v2.webp) | Planänderung, einzelnes Protokoll und Vergleich mehrerer Protokolle. |
+
+Die neuen [Briefings](l2-l3-v2-briefs.md), die tatsächlich gesendeten
+[Prompts](l2-l3-v2-prompts.json), das [Manifest](l2-l3-manifest.json) und das
+[getrennte Bildreview](../../../docs/reviews/l2-l3-informative-illustrations.md)
+dokumentieren Aussage, Quellenbezug, Herkunft und Grenzen. Beide Bilder wurden
+mit dem integrierten Imagegen-Werkzeug erzeugt; das konkrete Modell wurde vom
+Werkzeug nicht genannt. Keine CLI-Bildgenerierung.
+
+Je 1536 × 1024 Pixel, zusammen 503.830 Bytes. Die PNG-Ausgaben wurden nur als
+WebP Qualität 88 codiert, ohne Beschnitt, Skalierung oder Montage. Die App lädt
+beide lokal und verzögert. Informative Szenen haben beschreibende Alternativtexte
+und HTML-Beschriftungen; Quellen stehen in der Caption. Sie enthalten keine
+Messdaten und rekonstruieren keine Studie. Eine unabhängige menschliche
+Fachfreigabe oder nachgewiesene Lernwirksamkeit wird nicht behauptet.
+
+Die Dateinamen folgen der sichtbaren Lektionsreihenfolge: Die dritte Einheit
+verwendet die Inhalts-ID `ch01-l05`, damit die ältere geplante `ch01-l03` ihre
+Identität behält. Lektions-IDs, Lehrtexte und deren Versionsstände bleiben durch
+diese Bildkorrektur unverändert.

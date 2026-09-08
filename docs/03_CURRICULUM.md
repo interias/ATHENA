@@ -25,17 +25,30 @@ Die folgende Reihenfolge ist ein **Curriculumentwurf**, kein amtlicher Lehrplan.
 
 ## Reihenfolge und Querverbindungen
 
-Standard: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12.
+Bestätigte nächste Veröffentlichungsfolge vom 8. September 2026:
+Kapitel 1 abschließen → Physiologie und Energie (bisherige Themen-ID 4) → Kraft
+und Hypertrophie (5) → Ausdauer (6). Benötigte Anatomie und Biomechanik werden
+passend eingeführt; eigene systematische Kapitel folgen später. Die Nummern in
+der Tabelle bleiben vorerst Themen-IDs. Die weitere Reihenfolge wird später
+festgelegt. Umfang und Umsetzung stehen im [Ausbauplan](plans/content-expansion.md).
 
 Ernährung kann nach Kapitel 4 parallel laufen. Messkritik und Sicherheit beginnen bereits in Kapitel 1 und werden später vertieft. Kapitel 10 ist keine Voraussetzung dafür, schon vorher Quellen zu sehen. Kapitel 11 darf nicht als einzige Stelle für Sicherheit missverstanden werden.
 
-Je Kapitel sind zunächst drei bis sechs Lektionen vorgesehen. Erst nach dem Pilot werden Umfang und Lernrhythmus festgelegt. Kein Versprechen, dass diese Kapitelzahl einer Trainerlizenz entspricht.
+Kapitel 1 wird in acht Einheiten von ungefähr fünf Minuten einschließlich Aufgabe
+aufgeteilt; Vertiefungen sind optional und benötigen zusätzliche Zeit. Der Umfang
+weiterer Kapitel folgt ihren Lernzielen. Kein Versprechen, dass diese Kapitelzahl
+einer Trainerlizenz entspricht.
 
 ## Inhalte pro Kapitel — redaktionelle Arbeitsaufträge
 
 ### 1 — Pilot
 
-Vier Lektionen: äußere Belastung und innere Reaktion; zielbezogene Anpassung; Ermüdung und Tagesleistung; Beobachtung und Schlussfolgerung. Vollständiges Material im Pilotordner.
+Die vier vorhandenen Ausgangstexte behandeln äußere Belastung und innere Reaktion,
+zielbezogene Anpassung, Ermüdung und Tagesleistung sowie Beobachtung und
+Schlussfolgerung. Sie werden gemäß dem [Neuschnitt](plans/ch01-five-minute-lessons.md)
+in acht kurze Einheiten überführt. Umgesetzt sind die ersten drei Einheiten:
+Aufgabe und Reaktion, Zielgrößen sowie Progression. Der
+[L2/L3-Bericht](reviews/l2-l3-runtime.md) dokumentiert die aktuelle Prüfung.
 
 ### 2 — Funktionelle Anatomie
 

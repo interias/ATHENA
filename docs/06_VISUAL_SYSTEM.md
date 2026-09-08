@@ -14,9 +14,11 @@ wird nicht verändert.
 - Kompakter gemeinsamer Seitenkopf, direkter Einstieg in die Kapitelübersicht.
 - Desktop: Lektionsnavigation links, mittlere Lesespalte, Abschnittslinks rechts.
   Unterhalb des Desktop-Breakpoints sind die Navigationen kompakt aufklappbar.
-- Fließtext etwa 16–16,5 px in serifenloser Schrift mit etwa 1,65-facher Zeilenhöhe.
+- Fließtext 16 px in serifenloser Schrift mit 1,6-facher Zeilenhöhe.
   Feste Überschriftengrößen statt mit der Fensterbreite wachsender Schrift:
-  Seitentitel 34 px, Abschnitte 25 px, kleinere Zwischenüberschriften etwa 17,5 px.
+  Seitentitel 32 px, Abschnitte 23 px, kleinere Zwischenüberschriften etwa 17,5 px.
+  Längere Aufgabenfragen verwenden 18 px bei 1,4-facher Zeilenhöhe.
+  Die behutsame Verkleinerung gegenüber PR #11 gehört zum L2/L3-Ausbau.
 - Zentrale Artikelspalte ungefähr 680–720 px einschließlich Innenabständen;
   Textlänge ungefähr 70–80 Zeichen. `ch` bleibt eine typografische Näherung.
 - Flaches dekoratives Kapitelbanner, kompakte vollständige 3:2-Illustrationen
@@ -24,10 +26,12 @@ wird nicht verändert.
 - Dezente Trennlinien und Abstände, kaum Schatten; keine dekorativen Großkarten
   um jeden Abschnitt. Antworten, Quellendialog und Rückmeldungen bleiben erreichbar.
 
-Die Referenz liefert das Layout, keine zusätzlichen Produktfunktionen. Neue
-Kapitel, Suche, Sprachwechsel oder Trainingswerkzeuge gehören nicht zu diesem
-Auftrag. Die technische und visuelle Prüfung steht im
-[Vergleichsbericht](reviews/kompass-layout.md).
+Die Referenz liefert das Layout, keine zusätzlichen Produktfunktionen. Der
+anschließend beauftragte [L2/L3-Ausbau](plans/content-expansion.md) ergänzt kurze
+Lektionen mit optionalen Vertiefungen und eigenen Illustrationen. Suche,
+Sprachwechsel und Trainingswerkzeuge bleiben außerhalb dieses Pakets. Die
+ursprüngliche Layoutprüfung steht im [Vergleichsbericht](reviews/kompass-layout.md),
+der aktuelle Prüfstand im [L2/L3-Bericht](reviews/l2-l3-runtime.md).
 
 ### ATHENA-Rahmen
 
@@ -67,7 +71,14 @@ Erkläre es selbst
 
 Auf dem Smartphone bleibt eine einzige Lesespalte. Der Tutor ist ab M2 ein separat öffnendes Panel, kein dauerhaft halbierter Bildschirm. Funktionen dürfen nicht ausschließlich per Hover oder Drag-and-drop bedienbar sein.
 
-## Bildbudget des Piloten
+## Ursprüngliches Bildbudget und aktueller Einsatz
+
+Die folgende Tabelle dokumentiert die ursprünglichen fachlichen Briefings mit
+ihren damaligen Lektionsnummern. Aktuell verwendet L1 die Zwei-Läufe-Interaktion
+und drei redaktionelle Illustrationen. Die neuen Einheiten 2/3 ergänzen je eine
+[separat bewertete Szene](reviews/l2-l3-informative-illustrations.md).
+`fig-ch01-load` und `fig-ch01-adaptation` bleiben unzugeordnete historische
+Briefings; die weiteren Fachvisualisierungen sind noch geplant.
 
 | ID | Einsatz | Zweck | Umsetzung |
 |---|---|---|---|
@@ -89,6 +100,16 @@ Diagramme, Formeln, Kurven, Beschriftungen und Daten kommen aus SVG/React oder e
 
 ### Generative Illustration
 
+Nach dem L2/L3-Nutzerfeedback vom 8. September 2026 müssen Lektionsbilder
+zusätzlich zur Atmosphäre eine konkrete inhaltliche Unterscheidung verständlich
+repräsentieren. Vor der Generierung festhalten: Was soll sichtbar verstanden
+werden, welche Handlung oder Gegenüberstellung zeigt es, und wie unterscheidet
+sich das Motiv von benachbarten Bildern? Wiederholte Requisiten allein genügen nicht.
+Das Review prüft Inhaltsnähe und visuelle Abwechslung getrennt von Stilqualität.
+Informative Szenen erhalten Alternativtext, fachlich passende HTML-Beschriftungen
+und Quellenbezug; reine Dekoration bleibt ausdrücklich als solche eingeordnet.
+Aktuelle Beispiele und Grenzen: [L2/L3-Bildkorrektur](reviews/l2-l3-informative-illustrations.md).
+
 `gpt-image-2` ist in der geprüften OpenAI-Dokumentation als Bildmodell verfügbar. Es ist für Szenen, Vergleiche und gestalterische Elemente vorgesehen, nicht als fachliche Wahrheitsquelle. Das Modell bleibt konfigurierbar. Präzise Lehrtexte und Labels werden in HTML/SVG ergänzt. [S17]
 
 Im Pilot werden Bilder nicht bei jedem Seitenaufruf generiert. Einmalige Produktion außerhalb der Lernlaufzeit, fachliche/gestalterische Prüfung, lokale Speicherung mit Prompt und Herkunft. M0 verwendet keine Bild-API.
@@ -107,7 +128,9 @@ Eigene Anforderungen: alle Interaktionen per Tastatur; klare Fokusmarkierung; ke
 
 ## Fehlende Assets
 
-Die Spezifikation enthält keine fertigen Bilddateien. Vor der Implementierung deshalb kein defektes `<img>` verlinken. Nicht umgesetzte Fachgrafiken können vorübergehend ihre erklärende Textfassung zeigen und werden als offen markiert. Für M0 sind die beiden L1-Grafiken jedoch Pflichtbestandteil der Abnahme.
+Nur vorhandene und für den jeweiligen Lektionsstand vorgesehene Assets einbinden.
+Geplante Fachgrafiken bleiben außerhalb des veröffentlichten Readers; dort gibt
+es weder defekte Bildverweise noch einen behaupteten Prüfstatus für fehlende Bilder.
 
 ## Kalibrierung
 

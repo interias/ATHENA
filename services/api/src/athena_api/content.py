@@ -21,10 +21,12 @@ from .models import (
     LearningItem,
     Lesson,
     LessonComponentBlock,
+    LessonDetailsBlock,
     LessonFigure,
     LessonFreeTextExercise,
     LessonHeadingBlock,
     LessonInteraction,
+    LessonOrderedListBlock,
     LessonParagraphBlock,
     LessonResponse,
     LessonSingleChoiceExercise,
@@ -44,9 +46,28 @@ INTERACTION_SECTION_RE = re.compile(
     r"^## I\d+.*?(?=^## I\d+|^## Abgrenzung|\Z)", re.MULTILINE | re.DOTALL
 )
 
-M0_LESSON_ID = "ch01-l01"
-M0_QUESTION_IDS = {"q-ch01-01", "q-ch01-02"}
-M0_RENDERERS = {
+@dataclass(frozen=True, slots=True)
+class PublishedLesson:
+    question_ids: tuple[str, ...]
+    figure_ids: tuple[str, ...]
+    interaction_ids: tuple[str, ...]
+
+
+PUBLISHED_LESSONS = {
+    "ch01-l01": PublishedLesson(
+        ("q-ch01-01", "q-ch01-02"),
+        ("fig-ch01-two-runs",),
+        ("int-ch01-load",),
+    ),
+    "ch01-l02": PublishedLesson(("q-ch01-04",), (), ()),
+    "ch01-l05": PublishedLesson(("q-ch01-05",), (), ()),
+}
+PUBLISHED_QUESTION_IDS = frozenset(
+    question_id
+    for lesson in PUBLISHED_LESSONS.values()
+    for question_id in lesson.question_ids
+)
+PUBLISHED_RENDERERS = {
     "fig-ch01-two-runs": "interactive_svg_html",
     "int-ch01-load": "interaction",
 }
@@ -483,8 +504,6 @@ class ContentLoader:
         for lesson in lessons:
             if lesson.chapter_id != chapter.chapter_id:
                 self._issue("invalid_reference", lesson.lesson_id, "Kapitelreferenz ist ungültig.")
-            if lesson.content_version != chapter.content_version:
-                self._issue("version_mismatch", lesson.lesson_id, "Lektions- und Kapitelversion stimmen nicht überein.")
             if lesson.order in orders:
                 self._issue("duplicate_order", lesson.lesson_id, f"Lektionsreihenfolge {lesson.order} ist doppelt.")
             orders.add(lesson.order)
@@ -530,12 +549,6 @@ class ContentLoader:
                 self._issue("missing_objective", item.id, "Lernobjekt benötigt mindestens ein Lernziel.")
             self._references(item.id, "Lernziel", item.objective_ids, objective_ids)
             self._references(item.id, "Quelle", item.source_ids, source_ids)
-            if item.content_version != chapter.content_version:
-                self._issue(
-                    "version_mismatch",
-                    item.id,
-                    "Lernobjekt- und Kapitelversion stimmen nicht überein.",
-                )
             rubric_ids = [criterion.id for criterion in item.rubric]
             if item in review_cards and not rubric_ids:
                 self._issue("missing_rubric", item.id, "Reviewkarte benötigt eine Rubrik.")
@@ -600,7 +613,9 @@ class ContentLoader:
             if not source.url.startswith(("https://", "http://")):
                 self._issue("invalid_source_url", source.id, "Quellen-URL muss HTTP oder HTTPS verwenden.")
 
-        self._validate_m0(lesson_by_id, question_by_id, figure_by_id, interaction_by_id)
+        self._validate_published(
+            lesson_by_id, question_by_id, figure_by_id, interaction_by_id
+        )
 
     def _validate_question(self, question: Question) -> None:
         if question.kind == "single_choice":
@@ -637,22 +652,81 @@ class ContentLoader:
             ):
                 self._issue("invalid_question", question.id, "Matching-Zuordnung ist unvollständig oder ungültig.")
 
-    def _validate_m0(
+    def _validate_published(
         self,
         lessons: dict[str, Lesson],
         questions: dict[str, Question],
         figures: dict[str, Figure],
         interactions: dict[str, Interaction],
     ) -> None:
-        lesson = lessons.get(M0_LESSON_ID)
-        if lesson is None:
-            self._issue("missing_m0_content", M0_LESSON_ID, "M0-Pilotlektion fehlt.")
-            return
-        for question_id in M0_QUESTION_IDS:
-            question = questions.get(question_id)
-            if question is None or question.lesson_id != M0_LESSON_ID:
-                self._issue("missing_m0_content", question_id, "M0-Aufgabe fehlt oder ist falsch zugeordnet.")
-        for renderer_id, render_kind in M0_RENDERERS.items():
+        for lesson_id, publication in PUBLISHED_LESSONS.items():
+            lesson = lessons.get(lesson_id)
+            if lesson is None:
+                self._issue(
+                    "missing_published_content",
+                    lesson_id,
+                    "Veröffentlichte Lektion fehlt.",
+                )
+                continue
+            embedded_exercises = {
+                block.id
+                for block in _lesson_blocks(lesson.body)
+                if isinstance(block, LessonComponentBlock)
+                and block.kind == "exercise"
+            }
+            if embedded_exercises != set(publication.question_ids):
+                self._issue(
+                    "invalid_published_exercises",
+                    lesson_id,
+                    "Eingebettete und veröffentlichte Aufgaben stimmen nicht überein.",
+                )
+            for question_id in publication.question_ids:
+                question = questions.get(question_id)
+                if question is None or question.lesson_id != lesson_id:
+                    self._issue(
+                        "missing_published_content",
+                        question_id,
+                        "Veröffentlichte Aufgabe fehlt oder ist falsch zugeordnet.",
+                    )
+                elif question.kind not in {"single_choice", "free_text"}:
+                    self._issue(
+                        "unsupported_published_question",
+                        question_id,
+                        "Aufgabentyp der veröffentlichten Lektion wird nicht unterstützt.",
+                    )
+            embedded_figures = {
+                block.id
+                for block in _lesson_blocks(lesson.body)
+                if isinstance(block, LessonComponentBlock) and block.kind == "figure"
+            }
+            embedded_interactions = {
+                block.id
+                for block in _lesson_blocks(lesson.body)
+                if isinstance(block, LessonComponentBlock)
+                and block.kind == "interaction"
+            }
+            interaction_figures = {
+                interactions[interaction_id].figure_id
+                for interaction_id in publication.interaction_ids
+                if interaction_id in interactions
+            }
+            if (
+                set(lesson.figure_ids) != set(publication.figure_ids)
+                or set(publication.figure_ids)
+                != embedded_figures | interaction_figures
+            ):
+                self._issue(
+                    "invalid_published_figures",
+                    lesson_id,
+                    "Deklarierte, eingebettete und veröffentlichte Grafiken stimmen nicht überein.",
+                )
+            if embedded_interactions != set(publication.interaction_ids):
+                self._issue(
+                    "invalid_published_interactions",
+                    lesson_id,
+                    "Eingebettete und veröffentlichte Interaktionen stimmen nicht überein.",
+                )
+        for renderer_id, render_kind in PUBLISHED_RENDERERS.items():
             if render_kind == "interaction":
                 item = interactions.get(renderer_id)
                 valid = item is not None and item.milestone == "M0"
@@ -660,7 +734,7 @@ class ContentLoader:
                 item = figures.get(renderer_id)
                 valid = item is not None and item.required_in == "M0" and item.render_kind == render_kind
             if not valid:
-                self._issue("missing_m0_renderer", renderer_id, "M0-Renderer-Anforderung ist nicht erfüllt.")
+                self._issue("missing_published_renderer", renderer_id, "Renderer-Anforderung der veröffentlichten Lektion ist nicht erfüllt.")
 
         unexpected_figures = {
             figure.id for figure in figures.values() if figure.required_in == "M0"
@@ -669,7 +743,7 @@ class ContentLoader:
             item.id for item in interactions.values() if item.milestone == "M0"
         } - {"int-ch01-load"}
         for renderer_id in sorted(unexpected_figures | unexpected_interactions):
-            self._issue("unsupported_m0_renderer", renderer_id, "Kein M0-Renderer registriert.")
+            self._issue("unsupported_published_renderer", renderer_id, "Kein Renderer für die veröffentlichte Lektion registriert.")
 
     def _validate_container_metadata(
         self,
@@ -685,9 +759,6 @@ class ContentLoader:
                 self._issue("unsupported_schema", location, "schema_version muss 1.0 sein.")
             if data.get("chapter_id") != chapter.chapter_id:
                 self._issue("invalid_reference", location, "chapter_id passt nicht zum Kapitel.")
-        if question_data.get("content_version") != chapter.content_version:
-            self._issue("version_mismatch", "05_QUESTIONS.md", "Aufgabenbank- und Kapitelversion stimmen nicht überein.")
-
     def _validate_chapter_links(self, chapter: Chapter, lessons: list[Lesson]) -> None:
         path = self.chapter_dir / "00_CHAPTER.md"
         text = self._read(path) or ""
@@ -796,15 +867,16 @@ class ContentLoader:
             self.issues.append(issue)
 
 
-def lesson_response(manifest: ContentManifest) -> LessonResponse:
-    lesson = next(item for item in manifest.lessons if item.lesson_id == M0_LESSON_ID)
+def lesson_response(manifest: ContentManifest, lesson_id: str) -> LessonResponse:
+    publication = PUBLISHED_LESSONS[lesson_id]
+    lesson = next(item for item in manifest.lessons if item.lesson_id == lesson_id)
     figure_by_id = {item.id: item for item in manifest.figures}
     interaction_by_id = {item.id: item for item in manifest.interactions}
     question_by_id = {item.id: item for item in manifest.questions}
     source_by_id = {item.id: item for item in manifest.sources}
 
     figures = []
-    for figure_id in lesson.figure_ids:
+    for figure_id in publication.figure_ids:
         figure = figure_by_id[figure_id]
         figures.append(
             LessonFigure(
@@ -819,24 +891,26 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
             )
         )
 
-    interaction = interaction_by_id["int-ch01-load"]
-    public_interaction = LessonInteraction(
-        id=interaction.id,
-        figure_id=interaction.figure_id,
-        question=interaction.question or "",
-        options=interaction.options,
-        runs=interaction.runs,
-        reveal_action_label=interaction.reveal_action_label or "",
-        reset_action_label=interaction.reset_action_label or "",
-        reflection_question=interaction.reflection_question or "",
-        reflection_text=interaction.reflection_text or "",
-        source_ids=interaction.source_ids,
-    )
+    public_interactions = []
+    for interaction_id in publication.interaction_ids:
+        interaction = interaction_by_id[interaction_id]
+        public_interactions.append(
+            LessonInteraction(
+                id=interaction.id,
+                figure_id=interaction.figure_id,
+                question=interaction.question or "",
+                options=interaction.options,
+                runs=interaction.runs,
+                reveal_action_label=interaction.reveal_action_label or "",
+                reset_action_label=interaction.reset_action_label or "",
+                reflection_question=interaction.reflection_question or "",
+                reflection_text=interaction.reflection_text or "",
+                source_ids=interaction.source_ids,
+            )
+        )
 
     exercises: list[LessonSingleChoiceExercise | LessonFreeTextExercise] = []
-    for question_id in lesson.question_ids:
-        if question_id not in M0_QUESTION_IDS:
-            continue
+    for question_id in publication.question_ids:
         question = question_by_id[question_id]
         common = {
             "id": question.id,
@@ -844,9 +918,7 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
             "objective_ids": question.objective_ids,
             "source_ids": question.source_ids,
             "content_version": question.content_version,
-            "development_status": (
-                "available" if question.id in M0_QUESTION_IDS else "in_development"
-            ),
+            "development_status": "available",
         }
         if question.kind == "single_choice":
             exercises.append(
@@ -859,6 +931,7 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
 
     return LessonResponse(
         id=lesson.lesson_id,
+        order=lesson.order,
         title=lesson.title,
         content_version=lesson.content_version,
         status=lesson.status,
@@ -866,41 +939,118 @@ def lesson_response(manifest: ContentManifest) -> LessonResponse:
         blocks=_lesson_blocks(lesson.body),
         sources=[source_by_id[source_id] for source_id in lesson.source_ids],
         figures=figures,
-        interactions=[public_interaction],
+        interactions=public_interactions,
         exercises=exercises,
     )
 
 
 def _lesson_blocks(
     body: str,
-) -> list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock]:
-    blocks: list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock] = []
+) -> list[
+    LessonHeadingBlock
+    | LessonParagraphBlock
+    | LessonOrderedListBlock
+    | LessonComponentBlock
+    | LessonDetailsBlock
+]:
+    raw_blocks: list[
+        LessonHeadingBlock
+        | LessonParagraphBlock
+        | LessonOrderedListBlock
+        | LessonComponentBlock
+    ] = []
     paragraph_lines: list[str] = []
+    ordered_items: list[str] = []
 
     def flush_paragraph() -> None:
         if paragraph_lines:
-            blocks.append(
+            raw_blocks.append(
                 LessonParagraphBlock(kind="paragraph", text="\n".join(paragraph_lines))
             )
             paragraph_lines.clear()
 
+    def flush_ordered_list() -> None:
+        if ordered_items:
+            raw_blocks.append(
+                LessonOrderedListBlock(kind="ordered_list", items=ordered_items.copy())
+            )
+            ordered_items.clear()
+
     for line in body.strip().splitlines():
         if not line.strip():
             flush_paragraph()
+            flush_ordered_list()
             continue
         heading = re.fullmatch(r"(#{1,6})\s+(.+)", line)
         component = COMPONENT_RE.fullmatch(line)
+        ordered_item = re.fullmatch(r"\d+\.\s+(.+)", line)
         if heading is not None:
             flush_paragraph()
+            flush_ordered_list()
             hashes, text = heading.groups()
-            blocks.append(
+            raw_blocks.append(
                 LessonHeadingBlock(kind="heading", level=len(hashes), text=text)
             )
         elif component is not None:
             flush_paragraph()
+            flush_ordered_list()
             kind, identifier = component.groups()
-            blocks.append(LessonComponentBlock(kind=kind, id=identifier))
+            raw_blocks.append(LessonComponentBlock(kind=kind, id=identifier))
+        elif ordered_item is not None:
+            flush_paragraph()
+            ordered_items.append(ordered_item.group(1))
         else:
+            flush_ordered_list()
             paragraph_lines.append(line)
     flush_paragraph()
+    flush_ordered_list()
+    blocks: list[
+        LessonHeadingBlock
+        | LessonParagraphBlock
+        | LessonOrderedListBlock
+        | LessonComponentBlock
+        | LessonDetailsBlock
+    ] = []
+    index = 0
+    detail_prefixes = ("Vertiefung: ", "Kurzabruf: ")
+    while index < len(raw_blocks):
+        block = raw_blocks[index]
+        detail_prefix = next(
+            (
+                prefix
+                for prefix in detail_prefixes
+                if isinstance(block, LessonHeadingBlock)
+                and block.level == 2
+                and block.text.startswith(prefix)
+            ),
+            None,
+        )
+        if detail_prefix is None:
+            blocks.append(block)
+            index += 1
+            continue
+
+        detail_blocks: list[
+            LessonHeadingBlock | LessonParagraphBlock | LessonOrderedListBlock
+        ] = []
+        index += 1
+        while index < len(raw_blocks):
+            detail_block = raw_blocks[index]
+            if (
+                isinstance(detail_block, LessonHeadingBlock)
+                and detail_block.level <= 2
+            ):
+                break
+            if isinstance(detail_block, LessonComponentBlock):
+                break
+            detail_blocks.append(detail_block)
+            index += 1
+        blocks.append(
+            LessonDetailsBlock(
+                kind="details",
+                label=detail_prefix.rstrip(": "),
+                title=block.text.removeprefix(detail_prefix).strip(),
+                blocks=detail_blocks,
+            )
+        )
     return blocks

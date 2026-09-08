@@ -1,6 +1,6 @@
 # Quellenregister
 
-**Geprüft am 5. September 2026.** Die Einträge trennen Publikationsdatum, tatsächlichen Zugriffsumfang und Verwendungsgrenze. Ein verlinkter Volltext wurde nicht automatisch vollständig gelesen. Suchindex-Auszüge sind entsprechend schwächer gekennzeichnet.
+**Grundbestand geprüft am 5. September 2026; S34–S37 ergänzt am 8. September 2026.** Die Einträge trennen Publikationsdatum, tatsächlichen Zugriffsumfang und Verwendungsgrenze. Ein verlinkter Volltext wurde nicht automatisch vollständig gelesen. Suchindex-Auszüge sind entsprechend schwächer gekennzeichnet.
 
 Dieses Register ist kein heruntergeladener Literaturkorpus. Der Tutor darf später nur die eigenen freigegebenen Lehrtexte und Aussagenkarten nutzen; externe Volltexte, Abstracts und Bilder werden nicht automatisch übernommen. URLs dienen dem nachvollziehbaren Nachschlagen. Unbekannte bibliografische Angaben bleiben `null`, statt erfunden zu werden.
 
@@ -541,6 +541,75 @@ source_type: Methodischer Review
 checked_on: '2026-09-05'
 access_scope: PubMed-Abstractauszug geprüft; Volltext nicht geprüft.
 use_and_limits: Begriff Messzuverlässigkeit; keine speziellen statistischen Verfahren daraus übernommen.
+ingestion_policy: metadata_and_original_notes_only
+```
+
+## S34 — Baker, Wilson und Carlyon
+
+```yaml
+id: S34
+authors_or_issuer: Baker, Wilson und Carlyon
+title: 'Generality versus specificity: a comparison of dynamic and isometric measures of strength and speed-strength'
+publication_year: 1994
+url: https://pubmed.ncbi.nlm.nih.gov/8055895/
+doi: 10.1007/BF00571456
+source_type: Experimentelle Primärstudie
+checked_on: '2026-09-08'
+access_scope: PubMed-Metadaten und Abstract geprüft; kein Volltextreview.
+use_and_limits: Testspezifität dynamischer und isometrischer Kraftwerte; 22 krafttrainingserfahrene Männer,
+  keine Rangordnung aller Krafttests.
+ingestion_policy: metadata_and_original_notes_only
+```
+
+## S35 — Balshaw et al.
+
+```yaml
+id: S35
+authors_or_issuer: Balshaw et al.
+title: Changes in agonist neural drive, hypertrophy and pre-training strength all contribute to the individual
+  strength gains after resistance training
+publication_year: 2017
+url: https://pubmed.ncbi.nlm.nih.gov/28239775/
+doi: 10.1007/s00421-017-3560-x
+source_type: Experimentelle Primärstudie
+checked_on: '2026-09-08'
+access_scope: PubMed-Metadaten und Abstract geprüft; kein Volltextreview.
+use_and_limits: Muskelvolumen und nervale Ansteuerung als getrennt erhobene Beiträge zu Kraftzuwächsen;
+  28 gesunde junge Männer und zwölf Wochen isometrisches Kniestreckertraining, keine universelle Kausalerklärung.
+ingestion_policy: metadata_and_original_notes_only
+```
+
+## S36 — Plotkin et al.
+
+```yaml
+id: S36
+authors_or_issuer: Plotkin et al.
+title: Progressive overload without progressing load? The effects of load or repetition progression on muscular adaptations
+publication_year: 2022
+url: https://pubmed.ncbi.nlm.nih.gov/36199287/
+doi: 10.7717/peerj.14142
+source_type: Randomisierte Primärstudie
+checked_on: '2026-09-08'
+access_scope: PubMed-Metadaten und Abstract geprüft; kein Volltextreview.
+use_and_limits: Last- und Wiederholungsprogression als untersuchte Formen; 43 Trainingserfahrene, acht Wochen
+  Unterkörpertraining, keine universelle Progressionsmethode oder persönliche Dosis.
+ingestion_policy: metadata_and_original_notes_only
+```
+
+## S37 — Faigenbaum et al.
+
+```yaml
+id: S37
+authors_or_issuer: Faigenbaum et al.
+title: Reliability of the one-repetition-maximum power clean test in adolescent athletes
+publication_year: 2012
+url: https://pubmed.ncbi.nlm.nih.gov/22233786/
+doi: 10.1519/JSC.0b013e318220db2c
+source_type: Test-Retest-Primärstudie
+checked_on: '2026-09-08'
+access_scope: PubMed-Metadaten und Abstract geprüft; kein Volltextreview.
+use_and_limits: Auch ein reproduzierbarer standardisierter Krafttest hat messbare Streuung; 36 männliche
+  jugendliche Athleten und Power-Clean-Test, keine Übertragung konkreter Fehlergrenzen auf andere Tests.
 ingestion_policy: metadata_and_original_notes_only
 ```
 

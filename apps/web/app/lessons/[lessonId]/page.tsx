@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { LessonReader } from "../../../components/LessonReader";
+import { isPublishedLessonId } from "../../../lib/publishedLessons";
 
 export default async function LessonPage({
   params,
@@ -7,6 +8,6 @@ export default async function LessonPage({
   params: Promise<{ lessonId: string }>;
 }) {
   const { lessonId } = await params;
-  if (lessonId !== "ch01-l01") notFound();
+  if (!isPublishedLessonId(lessonId)) notFound();
   return <LessonReader lessonId={lessonId} />;
 }

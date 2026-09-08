@@ -4,7 +4,7 @@
 
 ## Produktionsregeln
 
-Der überarbeitete M0-Pilot verwendet ausschließlich die grafische Darstellung von `int-ch01-load`. `fig-ch01-load` bleibt als unzugeordnetes historisches Briefing erhalten. M1 ergänzt die übrigen vier Fachvisualisierungen. Die optionale Szene erfordert einen gesonderten Produktionsauftrag; nicht automatisch einen kostenpflichtigen Bilderdienst aufrufen.
+Der überarbeitete M0-Pilot verwendet ausschließlich die grafische Darstellung von `int-ch01-load`. `fig-ch01-load` und `fig-ch01-adaptation` bleiben als unzugeordnete historische Briefings erhalten. Das erste Ausbaupaket bindet in L2 und L3 jeweils eine getrennt dokumentierte Szenenillustration ein, aber keine neue Fachgrafik. Weitere geplante Fachvisualisierungen benötigen einen eigenen Auftrag; nicht automatisch einen kostenpflichtigen Bilderdienst aufrufen.
 
 Fachgrafiken als eigenständig erstellte SVG/HTML-Komponenten umsetzen. Beschriftungen sind echter Text. Ein Link zu einer Publikation gibt keine Erlaubnis, deren Abbildung zu kopieren. Die hier beschriebenen eigenen Grafiken visualisieren selbst formulierte Konzepte; Rechte und Herkunft dennoch dokumentieren.
 
@@ -88,12 +88,11 @@ figures:
   - Keine numerische Anstrengungsskala als validiertes Messinstrument ausgeben.
   expert_review: null
 - id: fig-ch01-adaptation
-  lesson_ids:
-  - ch01-l02
+  lesson_ids: []
   render_kind: svg
   interaction_id: null
   status: planned
-  required_in: M1
+  required_in: null
   source_ids:
   - S04
   - S32

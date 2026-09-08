@@ -13,7 +13,20 @@ async function openUnreadLesson(page: Page) {
 }
 
 
+async function ensureAllLessonsUnread(page: Page) {
+  for (const lessonId of ["ch01-l01", "ch01-l02", "ch01-l05"]) {
+    await page.goto(`/lessons/${lessonId}`);
+    const progressButton = page.locator(".reading-progress button");
+    await expect(progressButton).toBeVisible();
+    if (await progressButton.getAttribute("class") === "secondary-action") {
+      await progressButton.click();
+    }
+  }
+}
+
+
 test("keeps the reading mark through reload and navigation and allows a targeted undo", async ({ page }) => {
+  await ensureAllLessonsUnread(page);
   await openUnreadLesson(page);
   const mark = page.getByRole("button", { name: "Als gelesen markieren" });
   await mark.focus();
@@ -23,7 +36,7 @@ test("keeps the reading mark through reload and navigation and allows a targeted
   await page.reload();
   await expect(page.getByRole("heading", { name: "Als gelesen markiert" })).toBeVisible();
   await page.getByRole("link", { name: "Kapitelübersicht" }).first().click();
-  await expect(page.getByText("1 von 1 verfügbaren Lektionen gelesen")).toBeVisible();
+  await expect(page.getByText("1 von 3 verfügbaren Lektionen gelesen")).toBeVisible();
   await expect(page.getByText("Gelesen", { exact: true })).toBeVisible();
 
   await page.getByRole("link", { name: "Gleiche Aufgabe, andere Reaktion" }).click();
@@ -32,7 +45,7 @@ test("keeps the reading mark through reload and navigation and allows a targeted
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Lektion gelesen?" })).toBeVisible();
   await page.getByRole("link", { name: "Kapitelübersicht" }).first().click();
-  await expect(page.getByText("0 von 1 verfügbaren Lektionen gelesen")).toBeVisible();
+  await expect(page.getByText("0 von 3 verfügbaren Lektionen gelesen")).toBeVisible();
 });
 
 
