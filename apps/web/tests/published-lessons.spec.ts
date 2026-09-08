@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const publishedLessons = [
-  { id: "ch01-l02", image: "/images/lessons/l2-target-metric-v1.webp" },
-  { id: "ch01-l05", image: "/images/lessons/l3-progression-v1.webp" },
+  { id: "ch01-l02", image: "/images/lessons/l2-target-metric-v2.webp" },
+  { id: "ch01-l05", image: "/images/lessons/l3-progression-v2.webp" },
 ] as const;
 
 test("opens both new lessons while planned lesson identities stay inaccessible", async ({ page }) => {
@@ -22,6 +22,8 @@ test("opens both new lessons while planned lesson identities stay inaccessible",
     await expect(page.locator(".lesson-content-list").first().locator(":scope > li")).toHaveCount(3);
     const image = page.locator(`.lesson-illustration img[src*="${lesson.image}"]`);
     await expect(image).toBeVisible();
+    await expect(image).not.toHaveAttribute("alt", "");
+    await expect(page.locator(".illustration-concepts")).toBeVisible();
     await expect.poll(() => image.evaluate((element: HTMLImageElement) => (
       element.complete ? element.naturalWidth : 0
     ))).toBeGreaterThan(0);

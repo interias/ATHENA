@@ -14,7 +14,7 @@ Die Oberfläche folgt nun dem kompakteren Aufbau von Stefans Fitness-Kompass;
 [Referenz und Prüfstand](docs/reviews/kompass-layout.md) dokumentieren die Umsetzung.
 Der [L2/L3-Umsetzungsbericht](docs/reviews/l2-l3-runtime.md) hält Technik,
 Prüfungen und Grenzen fest; [Textreview](docs/reviews/l2-l3-editorial.md) und
-[Bildbewertungen](docs/reviews/l2-l3-generated-illustrations.md) dokumentieren
+[Bildbewertungen](docs/reviews/l2-l3-informative-illustrations.md) dokumentieren
 das getrennte Agentenreview. Weitere Pakete folgen dem
 [bestätigten Ausbauplan](docs/plans/content-expansion.md); übrige M1–M3-Funktionen
 bleiben Backlog und benötigen einen neuen Auftrag.

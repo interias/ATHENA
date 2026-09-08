@@ -1,5 +1,9 @@
 # Szenenbriefings für L2 und L3
 
+**Historischer Erstentwurf, abgelöst:** Das Nutzerfeedback beanstandet fehlende
+Inhaltsnähe und die wiederholte Bildkomposition. Aktuell gelten die
+[inhaltsbezogenen V2-Briefings](l2-l3-v2-briefs.md).
+
 Stand: 8. September 2026. Getrenntes Agentenreview der Erzeugungsanweisungen
 abgeschlossen; keine offenen Befunde. Beide
 Motive sind dekorative, fiktive Illustrationen. Sie erklären keine Fachbehauptung,

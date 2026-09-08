@@ -16,7 +16,9 @@
     "review_status": "agent_review_passed",
     "expert_reviewed_by": null,
     "reviewer": "GPT-5.6 Sol High / content_writer/source_research",
-    "review_report": "docs/reviews/l2-l3-generated-illustrations.md"
+    "review_report": "docs/reviews/l2-l3-generated-illustrations.md",
+    "usage_status": "superseded_after_user_feedback",
+    "superseded_reason": "Repeated composition and insufficient representation of lesson content"
   },
   {
     "id": "l3-progression-v1",
@@ -35,6 +37,48 @@
     "review_status": "agent_review_passed",
     "expert_reviewed_by": null,
     "reviewer": "GPT-5.6 Sol High / content_writer/source_research",
-    "review_report": "docs/reviews/l2-l3-generated-illustrations.md"
+    "review_report": "docs/reviews/l2-l3-generated-illustrations.md",
+    "usage_status": "superseded_after_user_feedback",
+    "superseded_reason": "Repeated composition and insufficient representation of lesson content"
+  },
+  {
+    "id": "l2-target-metric-v2",
+    "product_path": "apps/web/public/images/lessons/l2-target-metric-v2.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 184432,
+    "sha256": "07a62a028468a00b6f149e07c61787ab360c0c835a465be78ed35c76e9fe523f",
+    "original_filename": "exec-d5793e3c-3332-4e59-9b67-098269481007.png",
+    "original_sha256": "1ba8fb289400999d6c05870480c65c3e269964ac155d7108131ba300b8d208ac",
+    "generator": "built-in image_gen",
+    "model": null,
+    "generated_on": "2026-09-08",
+    "category": "fictional_informative_illustration",
+    "postprocessing": "WebP quality 88 encoding only; no resize, crop or compositing",
+    "review_status": "agent_review_passed",
+    "expert_reviewed_by": null,
+    "reviewer": "GPT-5.6 Sol High / image_revision_review",
+    "review_report": "docs/reviews/l2-l3-informative-illustrations.md",
+    "prompt_file": "assets/ch01/illustrations/l2-l3-v2-prompts.json"
+  },
+  {
+    "id": "l3-progression-v2",
+    "product_path": "apps/web/public/images/lessons/l3-progression-v2.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 319398,
+    "sha256": "1cb9d8010fe9202905c077c47d12a9d645a52dc53370392ae9c2172e0c75a0a3",
+    "original_filename": "exec-d9d60480-20ff-4ab3-b0cf-2465e272bdb6.png",
+    "original_sha256": "6ed298ba5492a92b4e8a9146362fd9ceb7049694d94fedceaf304746e000daca",
+    "generator": "built-in image_gen",
+    "model": null,
+    "generated_on": "2026-09-08",
+    "category": "fictional_informative_illustration",
+    "postprocessing": "WebP quality 88 encoding only; no resize, crop or compositing",
+    "review_status": "agent_review_passed",
+    "expert_reviewed_by": null,
+    "reviewer": "GPT-5.6 Sol High / image_revision_review",
+    "review_report": "docs/reviews/l2-l3-informative-illustrations.md",
+    "prompt_file": "assets/ch01/illustrations/l2-l3-v2-prompts.json"
   }
 ]

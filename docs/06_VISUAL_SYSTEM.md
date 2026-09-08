@@ -76,7 +76,7 @@ Auf dem Smartphone bleibt eine einzige Lesespalte. Der Tutor ist ab M2 ein separ
 Die folgende Tabelle dokumentiert die ursprünglichen fachlichen Briefings mit
 ihren damaligen Lektionsnummern. Aktuell verwendet L1 die Zwei-Läufe-Interaktion
 und drei redaktionelle Illustrationen. Die neuen Einheiten 2/3 ergänzen je eine
-[separat bewertete Szene](reviews/l2-l3-generated-illustrations.md).
+[separat bewertete Szene](reviews/l2-l3-informative-illustrations.md).
 `fig-ch01-load` und `fig-ch01-adaptation` bleiben unzugeordnete historische
 Briefings; die weiteren Fachvisualisierungen sind noch geplant.
 
@@ -99,6 +99,16 @@ Sechs fachliche Visuals insgesamt, zwei davon interaktiv. Die Szenenillustration
 Diagramme, Formeln, Kurven, Beschriftungen und Daten kommen aus SVG/React oder einer überprüfbaren Datendarstellung. Werte bleiben editierbar. Keine Diagramme mit erfundenen Achsen oder Einheiten. Keine automatisch aussehenden Belastungs-Prozentwerte ohne Modell und Validierung.
 
 ### Generative Illustration
+
+Nach dem L2/L3-Nutzerfeedback vom 8. September 2026 müssen Lektionsbilder
+zusätzlich zur Atmosphäre eine konkrete inhaltliche Unterscheidung verständlich
+repräsentieren. Vor der Generierung festhalten: Was soll sichtbar verstanden
+werden, welche Handlung oder Gegenüberstellung zeigt es, und wie unterscheidet
+sich das Motiv von benachbarten Bildern? Wiederholte Requisiten allein genügen nicht.
+Das Review prüft Inhaltsnähe und visuelle Abwechslung getrennt von Stilqualität.
+Informative Szenen erhalten Alternativtext, fachlich passende HTML-Beschriftungen
+und Quellenbezug; reine Dekoration bleibt ausdrücklich als solche eingeordnet.
+Aktuelle Beispiele und Grenzen: [L2/L3-Bildkorrektur](reviews/l2-l3-informative-illustrations.md).
 
 `gpt-image-2` ist in der geprüften OpenAI-Dokumentation als Bildmodell verfügbar. Es ist für Szenen, Vergleiche und gestalterische Elemente vorgesehen, nicht als fachliche Wahrheitsquelle. Das Modell bleibt konfigurierbar. Präzise Lehrtexte und Labels werden in HTML/SVG ergänzt. [S17]
 

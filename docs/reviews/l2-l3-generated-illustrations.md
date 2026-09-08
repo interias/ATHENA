@@ -1,5 +1,12 @@
 # Agentenreview: Illustrationen für L2 und L3
 
+**Historisches Review der V1-Dateien.** Die spätere Nutzerprüfung beanstandete
+zu ähnliche Motive und unzureichende Inhaltsrepräsentation. Insbesondere die
+damaligen 5/5-Wertungen der Lektionspassung waren zu großzügig: Das Review
+bewertete die dekorativen Briefings, nicht ausreichend den erklärenden Bildnutzen.
+Die V1-Motive werden ersetzt; maßgeblich ist das
+[Review der inhaltsbezogenen V2-Illustrationen](l2-l3-informative-illustrations.md).
+
 Stand: 8. September 2026. Getrennte Prüfung der Szenenbriefings und der daraus
 erzeugten Dateien. Dieses Agentenreview bewertet sichtbare Strukturen,
 Verständlichkeit und Gestaltung. Es ist keine unabhängige menschliche

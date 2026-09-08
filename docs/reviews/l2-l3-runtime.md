@@ -96,3 +96,32 @@ mit `CDP response channel closed`. Die tatsächlichen Browserprüfungen verwende
 deshalb das vorhandene Playwright mit installiertem Chrome.
 
 Merge und Deployment sind eigene Schritte nach Übergabe des geprüften PRs.
+
+## Bildkorrektur nach Nutzerfeedback am 8. September 2026
+
+Die dekorativen V1-Motive wurden durch zwei informative V2-Illustrationen
+ersetzt: Krafttest/MRT für L2 und eine aktive dreigeteilte Arbeitsmappe für L3.
+Beschreibende Alternativtexte, HTML-Begriffserklärungen und quellenbezogene
+Captions ergänzen die Pixel. Desktop maximal 600 Pixel Bildbreite innerhalb der
+Lesespalte; mobil volle verfügbare Breite und gestapelte Begriffserklärungen.
+Der [getrennte Bildreview](l2-l3-informative-illustrations.md) dokumentiert
+Korrekturschleife und verbleibende gestalterische Grenzen. Die frühere
+dekorative Bewertung ist ausdrücklich als überholt gekennzeichnet.
+
+Für diese Korrektur tatsächlich erneut ausgeführt:
+
+- Typecheck, ESLint und Produktionsbuild: bestanden.
+- Vorhandener Browsertest `opens both new lessons while planned lesson identities
+  stay inaccessible`: bestanden; lädt V2-Bilder und prüft nichtleere
+  Alternativtexte sowie sichtbare Begriffserklärungen.
+- Vorhandener Browsertest `reflows at actual 200 percent Chrome page zoom`:
+  bestanden, einschließlich beider neuer Lektionen.
+- Vier neue Browseraufnahmen bei 1440/390 Pixeln: jeweils kein horizontaler
+  Überlauf; Bildbreite 600/358 Pixel. Root und getrennter Reviewer haben die
+  eingebundenen Bilder geprüft. Lokale Nachweise: `.scratch/l2-l3-v2/`.
+- WebP-Abmessungen, Format, Dateigröße und SHA-256 gegen das Manifest geprüft.
+
+Die übrigen zuvor dokumentierten 85 API- und 36 Browsertests wurden für die
+Bildkorrektur nicht vollständig wiederholt. Kanonische Lerntexte, API, Datenbank,
+Inhaltsversionen und Docker-Deployment blieben unverändert. Der bestehende
+PR und die isolierte lokale Vorschau enthalten die Bildkorrektur.

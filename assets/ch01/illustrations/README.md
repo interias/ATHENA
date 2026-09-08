@@ -33,25 +33,32 @@ Bewertung und Nachprüfung durch einen getrennten GPT-5.6-Sol-High-Reviewer:
 
 ## Zielgrößen und Progression
 
-Für die beiden neuen Lektionen wurden am 8. September 2026 zwei weitere Szenen
-mit dem integrierten Imagegen-Werkzeug erzeugt. Grundlage sind die getrennt
-geprüften [Bildbriefings](l2-l3-briefs.md); die tatsächlich gesendeten
-[Prompts](l2-l3-prompts.json) und das [Dateimanifest](l2-l3-manifest.json)
-halten die Herkunft fest. Das Werkzeug nennt keinen konkreten Modellnamen.
+Die am 8. September 2026 zunächst erzeugten Eulen-Stillleben wurden nach
+Nutzerfeedback durch inhaltsbezogene V2-Motive ersetzt. Die alten Dateien,
+[Briefings](l2-l3-briefs.md), [Prompts](l2-l3-prompts.json) und ihr historisches
+[Review](../../../docs/reviews/l2-l3-generated-illustrations.md) bleiben als
+Herkunft erhalten; die App bindet sie nicht mehr ein.
 
-| Motiv | Produktdatei | Rolle |
+| Aktuelles Motiv | Produktdatei | Sichtbare Unterscheidung |
 |---|---|---|
-| Skeptische Eule im Messatelier | [l2-target-metric-v1.webp](../../../apps/web/public/images/lessons/l2-target-metric-v1.webp) | Dekorativer Einstieg in die Frage nach einer passenden Zielgröße. |
-| Unbenutzter Rekordapparat | [l3-progression-v1.webp](../../../apps/web/public/images/lessons/l3-progression-v1.webp) | Trockene Pointe zur Erwartung eines Rekords bei jedem Besuch. |
+| Krafttest und MRT als Zweiteilung | [l2-target-metric-v2.webp](../../../apps/web/public/images/lessons/l2-target-metric-v2.webp) | Kraftleistung und Muskelgröße benötigen passende, unterschiedliche Beobachtungen. |
+| Aktive Arbeit an einer dreigeteilten Mappe | [l3-progression-v2.webp](../../../apps/web/public/images/lessons/l3-progression-v2.webp) | Planänderung, einzelnes Protokoll und Vergleich mehrerer Protokolle. |
 
-Die Dateien haben je 1536 × 1024 Pixel und zusammen 573.502 Bytes. Die
-PNG-Ausgaben wurden ausschließlich in WebP mit Qualität 88 umcodiert;
-Bildausschnitt, Abmessungen und Motive wurden nicht nachbearbeitet. Die
-Abbildung im Reader bleibt vollständig und lädt lokal. Die Szenen enthalten
-keine Messdaten oder Aufgabenlösungen. Bildbewertungen und sichtbare
-Abweichungen vom Briefing stehen im getrennten
-[Agentenreview](../../../docs/reviews/l2-l3-generated-illustrations.md).
+Die neuen [Briefings](l2-l3-v2-briefs.md), die tatsächlich gesendeten
+[Prompts](l2-l3-v2-prompts.json), das [Manifest](l2-l3-manifest.json) und das
+[getrennte Bildreview](../../../docs/reviews/l2-l3-informative-illustrations.md)
+dokumentieren Aussage, Quellenbezug, Herkunft und Grenzen. Beide Bilder wurden
+mit dem integrierten Imagegen-Werkzeug erzeugt; das konkrete Modell wurde vom
+Werkzeug nicht genannt. Keine CLI-Bildgenerierung.
+
+Je 1536 × 1024 Pixel, zusammen 503.830 Bytes. Die PNG-Ausgaben wurden nur als
+WebP Qualität 88 codiert, ohne Beschnitt, Skalierung oder Montage. Die App lädt
+beide lokal und verzögert. Informative Szenen haben beschreibende Alternativtexte
+und HTML-Beschriftungen; Quellen stehen in der Caption. Sie enthalten keine
+Messdaten und rekonstruieren keine Studie. Eine unabhängige menschliche
+Fachfreigabe oder nachgewiesene Lernwirksamkeit wird nicht behauptet.
 
 Die Dateinamen folgen der sichtbaren Lektionsreihenfolge: Die dritte Einheit
-verwendet die neue Inhalts-ID `ch01-l05`, damit die ältere geplante
-`ch01-l03` ihre Identität behält.
+verwendet die Inhalts-ID `ch01-l05`, damit die ältere geplante `ch01-l03` ihre
+Identität behält. Lektions-IDs, Lehrtexte und deren Versionsstände bleiben durch
+diese Bildkorrektur unverändert.

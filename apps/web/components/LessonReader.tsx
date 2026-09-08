@@ -55,6 +55,8 @@ type LessonIllustrationProps = {
   src: string;
   caption: string;
   slot: string;
+  alt?: string;
+  concepts?: readonly { title: string; description: string }[];
 };
 
 type Exercise = {
@@ -236,19 +238,28 @@ function OptionalPilotFeedback({
   );
 }
 
-function LessonIllustration({ src, caption, slot }: LessonIllustrationProps) {
+function LessonIllustration({ src, caption, slot, alt = "", concepts }: LessonIllustrationProps) {
   return (
-    <figure className="lesson-illustration" data-illustration-slot={slot}>
+    <figure className={`lesson-illustration${concepts ? " lesson-illustration-informative" : ""}`} data-illustration-slot={slot}>
       <Image
         src={src}
-        alt=""
+        alt={alt}
         width={1536}
         height={1024}
-        sizes="(max-width: 700px) calc(100vw - 32px), 420px"
+        sizes={concepts ? "(max-width: 700px) calc(100vw - 32px), 600px" : "(max-width: 700px) calc(100vw - 32px), 420px"}
         loading="lazy"
         unoptimized
       />
-      <figcaption>{caption}</figcaption>
+      <figcaption>
+        {concepts && (
+          <dl className="illustration-concepts">
+            {concepts.map(({ title, description }) => (
+              <div key={title}><dt>{title}</dt><dd>{description}</dd></div>
+            ))}
+          </dl>
+        )}
+        {caption}
+      </figcaption>
     </figure>
   );
 }
@@ -1105,6 +1116,8 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
                     src={illustration.src}
                     caption={illustration.caption}
                     slot={illustration.slot}
+                    alt={illustration.alt}
+                    concepts={illustration.concepts}
                   />
                 ))}
                 {renderBlock(block, index)}
@@ -1114,6 +1127,8 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
                     src={illustration.src}
                     caption={illustration.caption}
                     slot={illustration.slot}
+                    alt={illustration.alt}
+                    concepts={illustration.concepts}
                   />
                 ))}
               </Fragment>
