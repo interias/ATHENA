@@ -1,0 +1,40 @@
+[
+  {
+    "id": "l2-target-metric-v1",
+    "product_path": "apps/web/public/images/lessons/l2-target-metric-v1.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 289078,
+    "sha256": "11b72d2fd37ca5e57850f0a6c015d98a4bb9d475de5316b16874ed68fc78299e",
+    "original_filename": "exec-9681e912-09bf-420f-bfdb-a8170a27fc16.png",
+    "original_sha256": "742bdaa6a3889580eaf1283166cca051fc814f105e282513931d7d020d17b131",
+    "generator": "built-in image_gen",
+    "model": null,
+    "generated_on": "2026-09-08",
+    "category": "fictional_editorial_illustration",
+    "postprocessing": "WebP quality 88 encoding only; no resize, crop or compositing",
+    "review_status": "agent_review_passed",
+    "expert_reviewed_by": null,
+    "reviewer": "GPT-5.6 Sol High / content_writer/source_research",
+    "review_report": "docs/reviews/l2-l3-generated-illustrations.md"
+  },
+  {
+    "id": "l3-progression-v1",
+    "product_path": "apps/web/public/images/lessons/l3-progression-v1.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 284424,
+    "sha256": "d3a2255e21ed3e990b6c25fafa68fcbbfb8eae241fbc9afc058adf86764e3b8c",
+    "original_filename": "exec-a235a291-52e8-4ce7-b2a1-c343ed703139.png",
+    "original_sha256": "b5431521deaac4ddc9b354cc8ce54dff8b279a3af0f6ce1c85cf578f34ad4deb",
+    "generator": "built-in image_gen",
+    "model": null,
+    "generated_on": "2026-09-08",
+    "category": "fictional_editorial_illustration",
+    "postprocessing": "WebP quality 88 encoding only; no resize, crop or compositing",
+    "review_status": "agent_review_passed",
+    "expert_reviewed_by": null,
+    "reviewer": "GPT-5.6 Sol High / content_writer/source_research",
+    "review_report": "docs/reviews/l2-l3-generated-illustrations.md"
+  }
+]

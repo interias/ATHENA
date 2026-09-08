@@ -30,3 +30,28 @@ sichtbarer Gestaltungsbefund, keine Aussage über einen Rechts- oder Lizenzstatu
 
 Bewertung und Nachprüfung durch einen getrennten GPT-5.6-Sol-High-Reviewer:
 [Bildreview](../../../docs/reviews/l1-generated-illustrations.md).
+
+## Zielgrößen und Progression
+
+Für die beiden neuen Lektionen wurden am 8. September 2026 zwei weitere Szenen
+mit dem integrierten Imagegen-Werkzeug erzeugt. Grundlage sind die getrennt
+geprüften [Bildbriefings](l2-l3-briefs.md); die tatsächlich gesendeten
+[Prompts](l2-l3-prompts.json) und das [Dateimanifest](l2-l3-manifest.json)
+halten die Herkunft fest. Das Werkzeug nennt keinen konkreten Modellnamen.
+
+| Motiv | Produktdatei | Rolle |
+|---|---|---|
+| Skeptische Eule im Messatelier | [l2-target-metric-v1.webp](../../../apps/web/public/images/lessons/l2-target-metric-v1.webp) | Dekorativer Einstieg in die Frage nach einer passenden Zielgröße. |
+| Unbenutzter Rekordapparat | [l3-progression-v1.webp](../../../apps/web/public/images/lessons/l3-progression-v1.webp) | Trockene Pointe zur Erwartung eines Rekords bei jedem Besuch. |
+
+Die Dateien haben je 1536 × 1024 Pixel und zusammen 573.502 Bytes. Die
+PNG-Ausgaben wurden ausschließlich in WebP mit Qualität 88 umcodiert;
+Bildausschnitt, Abmessungen und Motive wurden nicht nachbearbeitet. Die
+Abbildung im Reader bleibt vollständig und lädt lokal. Die Szenen enthalten
+keine Messdaten oder Aufgabenlösungen. Bildbewertungen und sichtbare
+Abweichungen vom Briefing stehen im getrennten
+[Agentenreview](../../../docs/reviews/l2-l3-generated-illustrations.md).
+
+Die Dateinamen folgen der sichtbaren Lektionsreihenfolge: Die dritte Einheit
+verwendet die neue Inhalts-ID `ch01-l05`, damit die ältere geplante
+`ch01-l03` ihre Identität behält.
