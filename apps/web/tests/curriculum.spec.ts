@@ -19,7 +19,7 @@ test("shows the available pilot lesson and planned lessons", async ({ page }) =>
   expect(headerHeight).toBeGreaterThanOrEqual(56);
   expect(headerHeight).toBeLessThanOrEqual(64);
   const titleSize = await page.getByRole("heading", { name: "Training verstehen. Klarer beobachten." }).evaluate((element) => getComputedStyle(element).fontSize);
-  expect(titleSize).toBe("34px");
+  expect(titleSize).toBe("32px");
   const bannerRatio = await page.locator(".home-banner").evaluate((element) => {
     const box = element.getBoundingClientRect();
     return box.width / box.height;
@@ -28,8 +28,8 @@ test("shows the available pilot lesson and planned lessons", async ({ page }) =>
   expect(bannerRatio).toBeLessThan(4.1);
   await expect(page.locator(".hero")).toHaveCount(0);
   await expect(page.getByText("Gleiche Aufgabe, andere Reaktion")).toBeVisible();
-  await expect(page.getByText("Verfügbar", { exact: true })).toHaveCount(1);
-  await expect(page.getByText("Geplant", { exact: true })).toHaveCount(3);
+  await expect(page.locator(".lesson.available")).toHaveCount(3);
+  await expect(page.getByText("Geplant", { exact: true })).toHaveCount(2);
   await expect(page.locator(".lesson.planned a, .lesson.planned button")).toHaveCount(0);
   expect(responses.length).toBeGreaterThanOrEqual(1);
   expect([...new Set(responses.map((url) => new URL(url).pathname))]).toEqual(["/api/curriculum"]);

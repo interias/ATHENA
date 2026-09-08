@@ -19,14 +19,14 @@ def test_canonical_complete_structure_is_valid(content_root: Path) -> None:
     ).load()
     assert result.report.status == "ok"
     assert result.manifest is not None
-    assert len(result.manifest.lessons) == 4
+    assert len(result.manifest.lessons) == 5
     assert len(result.manifest.questions) == 12
     assert len(result.manifest.review_cards) == 8
     assert len(result.manifest.transfer_cases) == 2
     assert len(result.manifest.figures) == 6
     assert len(result.manifest.optional_scenes) == 1
     assert len(result.manifest.interactions) == 2
-    assert len(result.manifest.sources) == 33
+    assert len(result.manifest.sources) == 37
 
 
 def test_question_must_use_an_objective_from_its_planned_lesson(
@@ -57,11 +57,11 @@ def test_lesson_must_not_declare_a_question_from_another_lesson(
 def test_lesson_must_not_declare_a_figure_from_another_lesson(
     content_root: Path,
 ) -> None:
-    path = content_root / "ch01" / "02_ADAPTATION.md"
+    path = content_root / "ch01" / "03_FATIGUE.md"
     path.write_text(
         path.read_text(encoding="utf-8").replace(
-            "- fig-ch01-adaptation",
-            "- fig-ch01-adaptation\n- fig-ch01-performance",
+            "- fig-ch01-performance",
+            "- fig-ch01-performance\n- fig-ch01-observation",
             1,
         ),
         encoding="utf-8",
@@ -86,7 +86,7 @@ def test_unknown_component_block_is_rejected(content_root: Path) -> None:
     path = content_root / "ch01" / "02_ADAPTATION.md"
     path.write_text(
         path.read_text(encoding="utf-8").replace(
-            "[[figure:fig-ch01-adaptation]]", "[[video:fig-ch01-adaptation]]"
+            "[[exercise:q-ch01-04]]", "[[video:q-ch01-04]]"
         ),
         encoding="utf-8",
     )
@@ -155,7 +155,7 @@ def test_missing_m0_renderer_requirement_is_rejected(content_root: Path) -> None
         ),
         encoding="utf-8",
     )
-    assert "missing_m0_renderer" in issue_codes(content_root)
+    assert "missing_published_renderer" in issue_codes(content_root)
 
 
 def test_unknown_renderer_in_planned_lesson_is_rejected(content_root: Path) -> None:

@@ -31,9 +31,9 @@ def test_progress_marks_and_unmarks_current_lesson_idempotently(
         initial = client.get("/v1/progress")
         assert initial.status_code == 200
         assert initial.json() == {
-            "content_version": "0.2.0",
-            "available_lessons": 1,
-            "planned_lessons": 3,
+            "content_version": "0.3.0",
+            "available_lessons": 3,
+            "planned_lessons": 2,
             "read_lessons": 0,
             "lessons": [
                 {
@@ -42,7 +42,21 @@ def test_progress_marks_and_unmarks_current_lesson_idempotently(
                     "read": False,
                     "read_at": None,
                     "updated_at": None,
-                }
+                },
+                {
+                    "lesson_id": "ch01-l02",
+                    "content_version": "0.3.0",
+                    "read": False,
+                    "read_at": None,
+                    "updated_at": None,
+                },
+                {
+                    "lesson_id": "ch01-l05",
+                    "content_version": "0.3.0",
+                    "read": False,
+                    "read_at": None,
+                    "updated_at": None,
+                },
             ],
         }
 
@@ -57,7 +71,8 @@ def test_progress_marks_and_unmarks_current_lesson_idempotently(
         assert client.put("/v1/progress/ch01-l01", json=payload).json() == marked_body
         current = client.get("/v1/progress").json()
         assert current["read_lessons"] == 1
-        assert current["lessons"] == [marked_body]
+        assert current["lessons"][0] == marked_body
+        assert all(not lesson["read"] for lesson in current["lessons"][1:])
 
         unmarked = client.put(
             "/v1/progress/ch01-l01",
@@ -80,7 +95,7 @@ def test_progress_rejects_unavailable_ids_versions_and_invalid_payloads(
 ) -> None:
     with TestClient(make_app(content_root, tmp_path / "athena.db")) as client:
         payload = {"content_version": "0.2.0", "read": True}
-        assert client.put("/v1/progress/ch01-l02", json=payload).status_code == 404
+        assert client.put("/v1/progress/ch01-l03", json=payload).status_code == 404
         assert client.put("/v1/progress/unknown", json=payload).status_code == 404
         assert client.put(
             "/v1/progress/ch01-l01",

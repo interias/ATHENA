@@ -72,7 +72,7 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect(page.locator(".lesson-sidebar-right")).toBeVisible();
   await expect(page.locator(".lesson-mobile-navigation")).toBeHidden();
   await expect(page.locator('.lesson-sidebar-left .lesson-navigation a[aria-current="page"]')).toHaveText(/Gleiche Aufgabe, andere Reaktion/);
-  await expect(page.locator(".lesson-navigation .planned-lesson")).toHaveCount(6);
+  await expect(page.locator(".lesson-navigation .planned-lesson")).toHaveCount(4);
   await expect(page.locator(".planned-lesson a")).toHaveCount(0);
   const tocLinks = page.locator(".lesson-sidebar-right .lesson-toc a");
   await expect(tocLinks).toHaveCount(4);

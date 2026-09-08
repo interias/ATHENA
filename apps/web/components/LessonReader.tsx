@@ -5,6 +5,11 @@ import Image from "next/image";
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { PilotFeedback } from "./PilotFeedback";
 import { SiteHeader } from "./SiteHeader";
+import {
+  LESSON_ILLUSTRATIONS,
+  type LessonIllustration as LessonIllustrationData,
+  type PublishedLessonId,
+} from "../lib/publishedLessons";
 
 type Source = {
   id: string;
@@ -49,7 +54,7 @@ type InteractionData = {
 type LessonIllustrationProps = {
   src: string;
   caption: string;
-  slot: "oracle" | "training-studio" | "no-certificate";
+  slot: string;
 };
 
 type Exercise = {
@@ -103,10 +108,18 @@ type SelfAssessmentResponse = {
 type LessonBlock =
   | { kind: "heading"; level: number; text: string }
   | { kind: "paragraph"; text: string }
+  | { kind: "ordered_list"; items: string[] }
+  | { kind: "details"; label: "Vertiefung" | "Kurzabruf"; title: string; blocks: DetailBlock[] }
   | { kind: "figure" | "interaction" | "exercise"; id: string };
+
+type DetailBlock =
+  | { kind: "heading"; level: number; text: string }
+  | { kind: "paragraph"; text: string }
+  | { kind: "ordered_list"; items: string[] };
 
 type LessonResponse = {
   id: string;
+  order: number;
   title: string;
   content_version: string;
   status: "pilot_draft";
@@ -138,6 +151,7 @@ type CurriculumLesson = {
   id: string;
   order: number;
   title: string;
+  content_version: string;
   availability: "available" | "planned";
 };
 
@@ -349,6 +363,54 @@ function InlineText({
     }
     return <Fragment key={index}>{token}</Fragment>;
   });
+}
+
+function OrderedList({
+  items,
+  onOpenSources,
+}: {
+  items: string[];
+  onOpenSources: (ids: string[], opener: HTMLButtonElement) => void;
+}) {
+  return (
+    <ol className="lesson-content-list">
+      {items.map((item, index) => (
+        <li key={index}><InlineText text={item} onOpenSources={onOpenSources} /></li>
+      ))}
+    </ol>
+  );
+}
+
+function LessonDetails({
+  block,
+  onOpenSources,
+}: {
+  block: Extract<LessonBlock, { kind: "details" }>;
+  onOpenSources: (ids: string[], opener: HTMLButtonElement) => void;
+}) {
+  return (
+    <details className={`lesson-details ${block.label === "Kurzabruf" ? "lesson-recall" : "lesson-deepening"}`}>
+      <summary>
+        <span className="figure-number">
+          {block.label === "Vertiefung" ? "Vertiefung · optional · zusätzliche Zeit" : "Kurzabruf"}
+        </span>
+        <strong>{block.title}</strong>
+      </summary>
+      <div className="lesson-details-body">
+        {block.blocks.map((detailBlock, index) => {
+          if (detailBlock.kind === "heading") {
+            return detailBlock.level === 3
+              ? <h3 key={index}>{detailBlock.text}</h3>
+              : <h4 key={index}>{detailBlock.text}</h4>;
+          }
+          if (detailBlock.kind === "ordered_list") {
+            return <OrderedList key={index} items={detailBlock.items} onOpenSources={onOpenSources} />;
+          }
+          return <p key={index}><InlineText text={detailBlock.text} onOpenSources={onOpenSources} /></p>;
+        })}
+      </div>
+    </details>
+  );
 }
 
 function StaticLoadFigure({
@@ -637,6 +699,10 @@ function FreeTextExercise({ exercise }: { exercise: Exercise }) {
   const [selfSubmitting, setSelfSubmitting] = useState(false);
   const characterCount = Array.from(answer).length;
 
+  useEffect(() => {
+    if (selfResult) selfResultRef.current?.focus();
+  }, [selfResult]);
+
   function reviseAttempt(update: () => void) {
     if (error) {
       attemptId.current = null;
@@ -697,7 +763,6 @@ function FreeTextExercise({ exercise }: { exercise: Exercise }) {
       });
       if (!response.ok) throw new Error();
       setSelfResult((await response.json()) as SelfAssessmentResponse);
-      requestAnimationFrame(() => selfResultRef.current?.focus());
     } catch {
       setSelfError("Der Speicherstatus der Selbstbewertung ist unklar. Sende dieselbe Auswahl erneut oder beginne einen neuen Versuch.");
     } finally {
@@ -940,6 +1005,23 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
   const firstParagraphIndex = lesson.blocks.findIndex((block) => block.kind === "paragraph");
   const headings = buildHeadingEntries(lesson.blocks);
   const headingIds = new Map(headings.map((heading) => [heading.index, heading.id]));
+  const illustrations = LESSON_ILLUSTRATIONS[lesson.id as PublishedLessonId] ?? [];
+
+  function illustrationsAt(
+    block: LessonBlock,
+    index: number,
+    placement: "before" | "after",
+  ): readonly LessonIllustrationData[] {
+    return illustrations.filter((illustration) => {
+      if (illustration.placement.kind === "after-first-paragraph") {
+        return placement === "after" && index === firstParagraphIndex;
+      }
+      return placement === "before"
+        && "id" in block
+        && block.kind === illustration.placement.blockKind
+        && block.id === illustration.placement.blockId;
+    });
+  }
 
   function renderBlock(block: LessonBlock, index: number) {
     if (block.kind === "heading") {
@@ -948,6 +1030,8 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
       return block.level === 2 ? <h2 id={id}>{block.text}</h2> : <h3 id={id}>{block.text}</h3>;
     }
     if (block.kind === "paragraph") return <p><InlineText text={block.text} onOpenSources={openSources} /></p>;
+    if (block.kind === "ordered_list") return <OrderedList items={block.items} onOpenSources={openSources} />;
+    if (block.kind === "details") return <LessonDetails block={block} onOpenSources={openSources} />;
     if (block.kind === "figure") {
       const figure = figures.get(block.id);
       return figure ? <StaticLoadFigure figure={figure} onOpenSources={openSources} /> : null;
@@ -959,9 +1043,9 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
     }
     const exercise = exercises.get(block.id);
     if (!exercise) return null;
-    return exercise.id === "q-ch01-01" && exercise.kind === "single_choice"
+    return exercise.kind === "single_choice"
       ? <SingleChoiceExercise exercise={exercise} />
-      : exercise.id === "q-ch01-02" && exercise.kind === "free_text"
+      : exercise.kind === "free_text"
         ? <FreeTextExercise exercise={exercise} />
         : <ExercisePreview exercise={exercise} />;
   }
@@ -976,7 +1060,7 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
 
         <article className="lesson-reader">
           <nav className="reader-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/">Kapitelübersicht</Link><span aria-hidden="true">›</span><span aria-current="page">Lektion 01</span>
+            <Link href="/">Kapitelübersicht</Link><span aria-hidden="true">›</span><span aria-current="page">Lektion {String(lesson.order).padStart(2, "0")}</span>
           </nav>
           <header className="lesson-heading">
             <p className="eyebrow">Kapitel 01 · Wie Training wirkt</p>
@@ -1015,28 +1099,23 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
           {lesson.blocks.map((block, index) => {
             return (
               <Fragment key={`${block.kind}-${index}`}>
-                {block.kind === "interaction" && block.id === "int-ch01-load" && (
+                {illustrationsAt(block, index, "before").map((illustration) => (
                   <LessonIllustration
-                    src="/images/lessons/l1-training-studio-v1.webp"
-                    caption="Fiktive Illustration · Trainingsalltag im römischen Lernstudio."
-                    slot="training-studio"
+                    key={illustration.slot}
+                    src={illustration.src}
+                    caption={illustration.caption}
+                    slot={illustration.slot}
                   />
-                )}
-                {block.kind === "exercise" && block.id === "q-ch01-01" && (
-                  <LessonIllustration
-                    src="/images/lessons/l1-no-certificate-v2.webp"
-                    caption="Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse."
-                    slot="no-certificate"
-                  />
-                )}
+                ))}
                 {renderBlock(block, index)}
-                {index === firstParagraphIndex && (
+                {illustrationsAt(block, index, "after").map((illustration) => (
                   <LessonIllustration
-                    src="/images/lessons/l1-oracle-v1.webp"
-                    caption="Fiktive Illustration · Das Trainingstagebuch spielt Orakel."
-                    slot="oracle"
+                    key={illustration.slot}
+                    src={illustration.src}
+                    caption={illustration.caption}
+                    slot={illustration.slot}
                   />
-                )}
+                ))}
               </Fragment>
             );
           })}

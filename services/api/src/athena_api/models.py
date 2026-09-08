@@ -221,9 +221,23 @@ class LessonParagraphBlock(StrictModel):
     text: str
 
 
+class LessonOrderedListBlock(StrictModel):
+    kind: Literal["ordered_list"]
+    items: list[str] = Field(min_length=1)
+
+
 class LessonComponentBlock(StrictModel):
     kind: Literal["figure", "interaction", "exercise"]
     id: str
+
+
+class LessonDetailsBlock(StrictModel):
+    kind: Literal["details"]
+    label: Literal["Vertiefung", "Kurzabruf"]
+    title: str = Field(min_length=1)
+    blocks: list[
+        LessonHeadingBlock | LessonParagraphBlock | LessonOrderedListBlock
+    ] = Field(min_length=1)
 
 
 class LessonFigure(StrictModel):
@@ -273,11 +287,18 @@ class LessonFreeTextExercise(StrictModel):
 
 class LessonResponse(StrictModel):
     id: str
+    order: int = Field(gt=0)
     title: str
     content_version: str
     status: Literal["pilot_draft", "editorial_approved", "retired"]
     expert_reviewed_by: str | None
-    blocks: list[LessonHeadingBlock | LessonParagraphBlock | LessonComponentBlock]
+    blocks: list[
+        LessonHeadingBlock
+        | LessonParagraphBlock
+        | LessonOrderedListBlock
+        | LessonComponentBlock
+        | LessonDetailsBlock
+    ]
     sources: list[Source]
     figures: list[LessonFigure]
     interactions: list[LessonInteraction]

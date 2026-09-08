@@ -7,6 +7,7 @@ type Lesson = {
   id: string;
   order: number;
   title: string;
+  content_version: string;
   availability: "available" | "planned";
 };
 
@@ -104,7 +105,7 @@ export function Curriculum() {
           <div className="chapter-heading">
             <span className="chapter-number">Kapitel {chapter.order}</span>
             <h3>{chapter.title}</h3>
-            <span className="version">Fassung {state.curriculum.content_version}</span>
+            <span className="version">{chapter.lessons.filter((lesson) => lesson.availability === "available").length} verfügbar</span>
           </div>
           <ol className="lesson-list">
             {chapter.lessons.map((lesson) => {
@@ -117,7 +118,7 @@ export function Curriculum() {
                   <span className="lesson-order" aria-hidden="true">{String(lesson.order).padStart(2, "0")}</span>
                   <span className="lesson-copy">
                     {available ? <Link href={`/lessons/${lesson.id}`}><strong>{lesson.title}</strong></Link> : <strong>{lesson.title}</strong>}
-                    <small>{read ? "Gelesen · erneut öffnen" : available ? "Jetzt lesen" : "In Vorbereitung"}</small>
+                    <small>{read ? `Gelesen · Fassung ${lesson.content_version}` : available ? `Jetzt lesen · Fassung ${lesson.content_version}` : "In Vorbereitung"}</small>
                   </span>
                   <span className="status" data-status={read ? "read" : lesson.availability}>
                     {read ? "Gelesen" : available ? "Verfügbar" : "Geplant"}

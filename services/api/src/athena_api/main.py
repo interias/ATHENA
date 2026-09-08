@@ -10,7 +10,12 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from .config import Settings
-from .content import ContentLoader, M0_LESSON_ID, lesson_response
+from .content import (
+    ContentLoader,
+    PUBLISHED_LESSONS,
+    PUBLISHED_QUESTION_IDS,
+    lesson_response,
+)
 from .database import (
     AttemptConflictError,
     AttemptRecord,
@@ -43,7 +48,6 @@ from .models import (
     SingleChoiceAnswer,
 )
 
-M0_ATTEMPT_QUESTION_IDS = {"q-ch01-01", "q-ch01-02"}
 CANONICAL_SINGLE_CHOICE = "canonical_single_choice"
 SELF_ASSESSMENT = "self_assessment"
 
@@ -126,7 +130,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                             content_version=lesson.content_version,
                             availability=(
                                 "available"
-                                if lesson.lesson_id == M0_LESSON_ID
+                                if lesson.lesson_id in PUBLISHED_LESSONS
                                 else "planned"
                             ),
                         )
@@ -147,13 +151,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lesson(
         lesson_id: str, request: Request
     ) -> LessonResponse | JSONResponse:
-        if lesson_id != M0_LESSON_ID:
+        if lesson_id not in PUBLISHED_LESSONS:
             raise HTTPException(status_code=404, detail="Lektion nicht gefunden.")
         response = _readiness(request)
         if response.status == "not_ready":
             return JSONResponse(status_code=503, content=response.model_dump())
         manifest: ContentManifest = request.app.state.content_manifest
-        return lesson_response(manifest)
+        return lesson_response(manifest, lesson_id)
 
     @application.get(
         "/v1/progress",
@@ -167,7 +171,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         manifest: ContentManifest = request.app.state.content_manifest
         database: Database = request.app.state.database
         available = [
-            lesson for lesson in manifest.lessons if lesson.lesson_id == M0_LESSON_ID
+            lesson
+            for lesson in manifest.lessons
+            if lesson.lesson_id in PUBLISHED_LESSONS
         ]
         lessons = [
             _lesson_progress_response(
@@ -200,7 +206,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def update_progress(
         lesson_id: str, payload: ProgressUpdateRequest, request: Request
     ) -> LessonProgress | JSONResponse:
-        if lesson_id != M0_LESSON_ID:
+        if lesson_id not in PUBLISHED_LESSONS:
             raise HTTPException(status_code=404, detail="Lektion nicht gefunden oder nicht verfügbar.")
         response = _readiness(request)
         if response.status == "not_ready":
@@ -235,7 +241,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def create_attempt(
         payload: AttemptRequest, request: Request
     ) -> AttemptResponse | JSONResponse:
-        if payload.item_id not in M0_ATTEMPT_QUESTION_IDS:
+        if payload.item_id not in PUBLISHED_QUESTION_IDS:
             raise HTTPException(status_code=404, detail="Aufgabe nicht gefunden.")
         response = _readiness(request)
         if response.status == "not_ready":
@@ -329,7 +335,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         attempt = database.get_attempt(str(attempt_id))
         if attempt is None:
             raise HTTPException(status_code=404, detail="Versuch nicht gefunden.")
-        if attempt.item_id != "q-ch01-02" or attempt.grading_source != SELF_ASSESSMENT:
+        if (
+            attempt.item_id not in PUBLISHED_QUESTION_IDS
+            or attempt.grading_source != SELF_ASSESSMENT
+        ):
             raise HTTPException(
                 status_code=409,
                 detail="Selbstbewertung ist nur für den zugehörigen Freitextversuch möglich.",
@@ -379,7 +388,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def create_pilot_feedback(
         payload: PilotFeedbackRequest, request: Request
     ) -> PilotFeedbackResponse | JSONResponse:
-        if payload.lesson_id != M0_LESSON_ID:
+        if payload.lesson_id not in PUBLISHED_LESSONS:
             raise HTTPException(
                 status_code=404, detail="Lektion nicht gefunden oder nicht verfügbar."
             )

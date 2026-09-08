@@ -25,7 +25,7 @@ export default function Home() {
         <div className="section-intro">
           <p className="eyebrow">Dein Lernpfad</p>
           <h2 id="curriculum-title">Kapitelübersicht</h2>
-          <p>Die erste Lektion ist verfügbar. Weitere Lektionen sind geplant.</p>
+          <p>Die veröffentlichten Lektionen kannst du frei öffnen. Weitere Einheiten folgen.</p>
         </div>
         <Curriculum />
       </section>
