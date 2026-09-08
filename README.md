@@ -7,6 +7,8 @@ Lesestatus und Pilotfeedback. L1 ist nach der ersten persönlichen Rückmeldung 
 Fünf-Minuten-Pilot überarbeitet; das Zeitbudget ist noch in der Nutzung zu prüfen.
 Der [Kapitelplan](docs/plans/ch01-five-minute-lessons.md) beschreibt den weiteren
 Neuschnitt, der [Fachdiff](docs/reviews/l1-five-minute-editorial.md) die Änderungen.
+Die Oberfläche folgt nun dem kompakteren Aufbau von Stefans Fitness-Kompass;
+[Referenz und Prüfstand](docs/reviews/kompass-layout.md) dokumentieren die Umsetzung.
 M1–M3 bleiben Backlog und benötigen einen
 neuen Auftrag.
 

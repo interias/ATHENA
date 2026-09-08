@@ -168,20 +168,43 @@ test("reflows at actual 200 percent Chrome page zoom", async ({ browserName }, t
     await settings.locator("#zoomLevel").selectOption("2");
     const page = await context.newPage();
     await page.goto(`${baseURL}/lessons/ch01-l01`);
+    await expect(page.locator(".lesson-mobile-navigation")).toBeVisible();
+    await expect(page.locator(".lesson-sidebar-left")).toBeHidden();
+    await expect(page.locator(".lesson-sidebar-right")).toBeHidden();
     await page.locator(".optional-feedback > summary").click();
     await expect(page.locator(".pilot-feedback")).toBeVisible();
-    const metrics = await page.evaluate(() => ({
-      innerWidth: window.innerWidth,
-      outerWidth: window.outerWidth,
-      devicePixelRatio: window.devicePixelRatio,
-      visualScale: window.visualViewport?.scale,
-      contentWidth: document.documentElement.scrollWidth,
-    }));
+    const metrics = await page.evaluate(() => {
+      const reader = document.querySelector<HTMLElement>(".lesson-reader")!;
+      const readerBox = reader.getBoundingClientRect();
+      const style = getComputedStyle(reader);
+      const contentLeft = readerBox.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
+      const contentRight = readerBox.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight);
+      const surfaces = reader.querySelectorAll<HTMLElement>(
+        ".lesson-guide, .lesson-illustration, .knowledge-figure, .exercise-preview, .exercise-card, .reading-progress, .optional-feedback, button, input, select, textarea, summary, .pilot-rating-options label",
+      );
+      const containmentViolations = Array.from(surfaces)
+        .filter((element) => element.getClientRects().length > 0)
+        .map((element) => {
+          const box = element.getBoundingClientRect();
+          return { className: element.className, left: box.left, right: box.right };
+        })
+        .filter(({ left, right }) => left < contentLeft - 1 || right > contentRight + 1);
+
+      return {
+        innerWidth: window.innerWidth,
+        outerWidth: window.outerWidth,
+        devicePixelRatio: window.devicePixelRatio,
+        visualScale: window.visualViewport?.scale,
+        contentWidth: document.documentElement.scrollWidth,
+        containmentViolations,
+      };
+    });
     expect(metrics.outerWidth).toBeGreaterThanOrEqual(1_200);
     expect(metrics.innerWidth).toBeLessThanOrEqual(650);
     expect(metrics.devicePixelRatio).toBe(2);
     expect(metrics.visualScale).toBe(1);
     expect(metrics.contentWidth).toBeLessThanOrEqual(metrics.innerWidth);
+    expect(metrics.containmentViolations).toEqual([]);
   } finally {
     await context.close();
   }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { PilotFeedback } from "./PilotFeedback";
+import { SiteHeader } from "./SiteHeader";
 
 type Source = {
   id: string;
@@ -133,10 +134,34 @@ type ProgressResponse = {
   lessons: LessonProgress[];
 };
 
+type CurriculumLesson = {
+  id: string;
+  order: number;
+  title: string;
+  availability: "available" | "planned";
+};
+
+type CurriculumResponse = {
+  content_version: string;
+  chapters: {
+    id: string;
+    order: number;
+    title: string;
+    lessons: CurriculumLesson[];
+  }[];
+};
+
+type HeadingEntry = {
+  id: string;
+  index: number;
+  level: number;
+  text: string;
+};
+
 type LoadState =
   | { kind: "loading" }
   | { kind: "error"; message: string }
-  | { kind: "ready"; lesson: LessonResponse; progress: LessonProgress };
+  | { kind: "ready"; lesson: LessonResponse; progress: LessonProgress; curriculum: CurriculumResponse | null };
 
 function ReadingProgress({ initialProgress }: { initialProgress: LessonProgress }) {
   const [progress, setProgress] = useState(initialProgress);
@@ -205,12 +230,71 @@ function LessonIllustration({ src, caption, slot }: LessonIllustrationProps) {
         alt=""
         width={1536}
         height={1024}
-        sizes="(max-width: 700px) calc(100vw - 54px), 680px"
+        sizes="(max-width: 700px) calc(100vw - 32px), 420px"
         loading="lazy"
         unoptimized
       />
       <figcaption>{caption}</figcaption>
     </figure>
+  );
+}
+
+function buildHeadingEntries(blocks: LessonBlock[]): HeadingEntry[] {
+  const counts = new Map<string, number>();
+  return blocks.flatMap((block, index) => {
+    if (block.kind !== "heading" || block.level === 1) return [];
+    const base = block.text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ß/g, "ss")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || `abschnitt-${index}`;
+    const count = counts.get(base) ?? 0;
+    counts.set(base, count + 1);
+    return [{ id: count === 0 ? base : `${base}-${count + 1}`, index, level: block.level, text: block.text }];
+  });
+}
+
+function LessonNavigation({ curriculum, lessonId }: { curriculum: CurriculumResponse | null; lessonId: string }) {
+  if (!curriculum) return <p className="navigation-unavailable">Lektionsnavigation derzeit nicht verfügbar.</p>;
+  return (
+    <nav className="lesson-navigation" aria-label="Lektionen">
+      {curriculum.chapters.map((chapter) => (
+        <section key={chapter.id}>
+          <p className="navigation-label">Kapitel {chapter.order}</p>
+          <p className="navigation-chapter-title">{chapter.title}</p>
+          <ol>
+            {chapter.lessons.map((item) => {
+              const current = item.id === lessonId;
+              const label = <><span>{String(item.order).padStart(2, "0")}</span><strong>{item.title}</strong></>;
+              return (
+                <li key={item.id} className={current ? "active" : undefined}>
+                  {item.availability === "available"
+                    ? <Link href={`/lessons/${item.id}`} aria-current={current ? "page" : undefined}>{label}</Link>
+                    : <span className="planned-lesson" aria-disabled="true">{label}<small>Geplant</small></span>}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
+    </nav>
+  );
+}
+
+function LessonTableOfContents({ headings }: { headings: HeadingEntry[] }) {
+  return (
+    <nav className="lesson-toc" aria-label="Auf dieser Seite">
+      <p className="navigation-label">Auf dieser Seite</p>
+      <ol>
+        {headings.map((heading) => (
+          <li key={heading.id} className={heading.level === 3 ? "nested" : undefined}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 
@@ -808,18 +892,27 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
   const loadLesson = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const [lessonResponse, progressResponse] = await Promise.all([
+      const [lessonResponse, progressResponse, curriculumResponse] = await Promise.all([
         fetch(`/api/lessons/${lessonId}`, { cache: "no-store" }),
         fetch("/api/progress", { cache: "no-store" }),
+        fetch("/api/curriculum", { cache: "no-store" }).catch(() => null),
       ]);
       if (!lessonResponse.ok || !progressResponse.ok) throw new Error();
       const lesson = (await lessonResponse.json()) as LessonResponse;
       const progressPayload = (await progressResponse.json()) as ProgressResponse;
+      let curriculum: CurriculumResponse | null = null;
+      if (curriculumResponse?.ok) {
+        try {
+          curriculum = await curriculumResponse.json() as CurriculumResponse;
+        } catch {
+          curriculum = null;
+        }
+      }
       const progress = progressPayload.lessons.find(
         (item) => item.lesson_id === lesson.id && item.content_version === lesson.content_version,
       );
       if (!progress) throw new Error();
-      setState({ kind: "ready", lesson, progress });
+      setState({ kind: "ready", lesson, progress, curriculum });
     } catch {
       setState({ kind: "error", message: "Die Lektion konnte gerade nicht geladen werden." });
     }
@@ -836,20 +929,23 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
     requestAnimationFrame(() => sourceOpener.current?.focus());
   }, []);
 
-  if (state.kind === "loading") return <main className="lesson-shell"><div className="state-card" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><p>Lektion wird geladen …</p></div></main>;
-  if (state.kind === "error") return <main className="lesson-shell"><div className="state-card error-card" role="alert"><h1>Lektion nicht verfügbar</h1><p>{state.message}</p><button type="button" onClick={() => void loadLesson()}>Erneut versuchen</button></div></main>;
+  if (state.kind === "loading") return <main className="lesson-shell"><SiteHeader current="lesson" /><div className="state-card" aria-live="polite"><span className="loading-mark" aria-hidden="true" /><p>Lektion wird geladen …</p></div></main>;
+  if (state.kind === "error") return <main className="lesson-shell"><SiteHeader current="lesson" /><div className="state-card error-card" role="alert"><h1>Lektion nicht verfügbar</h1><p>{state.message}</p><button type="button" onClick={() => void loadLesson()}>Erneut versuchen</button></div></main>;
 
-  const { lesson, progress } = state;
+  const { lesson, progress, curriculum } = state;
   const figures = new Map(lesson.figures.map((figure) => [figure.id, figure]));
   const interactions = new Map(lesson.interactions.map((interaction) => [interaction.id, interaction]));
   const exercises = new Map(lesson.exercises.map((exercise) => [exercise.id, exercise]));
   const visibleSources = sourceIds.map((id) => lesson.sources.find((source) => source.id === id)).filter((source): source is Source => Boolean(source));
   const firstParagraphIndex = lesson.blocks.findIndex((block) => block.kind === "paragraph");
+  const headings = buildHeadingEntries(lesson.blocks);
+  const headingIds = new Map(headings.map((heading) => [heading.index, heading.id]));
 
-  function renderBlock(block: LessonBlock) {
+  function renderBlock(block: LessonBlock, index: number) {
     if (block.kind === "heading") {
       if (block.level === 1) return null;
-      return block.level === 2 ? <h2>{block.text}</h2> : <h3>{block.text}</h3>;
+      const id = headingIds.get(index);
+      return block.level === 2 ? <h2 id={id}>{block.text}</h2> : <h3 id={id}>{block.text}</h3>;
     }
     if (block.kind === "paragraph") return <p><InlineText text={block.text} onOpenSources={openSources} /></p>;
     if (block.kind === "figure") {
@@ -872,65 +968,86 @@ export function LessonReader({ lessonId }: { lessonId: string }) {
 
   return (
     <main className="lesson-shell">
-      <nav className="reader-nav" aria-label="Lektionsnavigation">
-        <Link href="/">← Kapitelübersicht</Link>
-        <span>ATHENA · Persönliches Lernstudio</span>
-      </nav>
-      <header className="lesson-hero">
-        <Image src="/images/scene-pompeii.png" alt="" fill priority sizes="100vw" unoptimized />
-        <div className="hero-shade" aria-hidden="true" />
-        <div className="lesson-hero-copy">
-          <p className="eyebrow">Kapitel 01 · Wie Training wirkt</p>
-          <h1>{lesson.title}</h1>
-          <p className="lesson-status">Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung</p>
-          <p>Inhalt {lesson.content_version} · {lesson.status}</p>
-        </div>
-        <p className="atmosphere-credit">Domus · Pompejanisches Rot · lokale freie Interpretation · generierter, ungeprüfter Atmosphärenentwurf</p>
-      </header>
-      <article className="lesson-reader">
-        <section className="lesson-guide" aria-labelledby="lesson-guide-title">
-          <div>
-            <p className="figure-number">Zeitaufwand</p>
-            <h2 id="lesson-guide-title">Etwa 5 Minuten mit Aufgaben</h2>
-            <p>Orientierungswert, kein Timer.</p>
+      <SiteHeader current="lesson" />
+      <div className="lesson-layout">
+        <aside className="lesson-sidebar lesson-sidebar-left">
+          <div className="sidebar-sticky"><LessonNavigation curriculum={curriculum} lessonId={lesson.id} /></div>
+        </aside>
+
+        <article className="lesson-reader">
+          <nav className="reader-breadcrumb" aria-label="Breadcrumb">
+            <Link href="/">Kapitelübersicht</Link><span aria-hidden="true">›</span><span aria-current="page">Lektion 01</span>
+          </nav>
+          <header className="lesson-heading">
+            <p className="eyebrow">Kapitel 01 · Wie Training wirkt</p>
+            <h1>{lesson.title}</h1>
+            <p className="lesson-status">Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung</p>
+            <p className="lesson-version">Inhalt {lesson.content_version} · {lesson.status}</p>
+          </header>
+          <div className="lesson-banner">
+            <Image src="/images/scene-pompeii.png" alt="" fill priority sizes="(max-width: 1199px) calc(100vw - 32px), 720px" unoptimized />
           </div>
-          <ol>
-            <li><span>1</span><strong>Lesen</strong></li>
-            <li><span>2</span><strong>Anwenden</strong></li>
-            <li><span>3</span><strong>Abschließen</strong></li>
-          </ol>
-        </section>
-        {lesson.blocks.map((block, index) => {
-          return (
-            <Fragment key={`${block.kind}-${index}`}>
-              {block.kind === "interaction" && block.id === "int-ch01-load" && (
-                <LessonIllustration
-                  src="/images/lessons/l1-training-studio-v1.webp"
-                  caption="Fiktive Illustration · Trainingsalltag im römischen Lernstudio."
-                  slot="training-studio"
-                />
-              )}
-              {block.kind === "exercise" && block.id === "q-ch01-01" && (
-                <LessonIllustration
-                  src="/images/lessons/l1-no-certificate-v2.webp"
-                  caption="Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse."
-                  slot="no-certificate"
-                />
-              )}
-              {renderBlock(block)}
-              {index === firstParagraphIndex && (
-                <LessonIllustration
-                  src="/images/lessons/l1-oracle-v1.webp"
-                  caption="Fiktive Illustration · Das Trainingstagebuch spielt Orakel."
-                  slot="oracle"
-                />
-              )}
-            </Fragment>
-          );
-        })}
-        <ReadingProgress initialProgress={progress} />
-        <OptionalPilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
-      </article>
+          <p className="atmosphere-credit">Domus · Pompejanisches Rot · lokale freie Interpretation · generierter, ungeprüfter Atmosphärenentwurf</p>
+
+          <div className="lesson-mobile-navigation">
+            <details>
+              <summary>Lektionen</summary>
+              <LessonNavigation curriculum={curriculum} lessonId={lesson.id} />
+            </details>
+            <details>
+              <summary>Auf dieser Seite</summary>
+              <LessonTableOfContents headings={headings} />
+            </details>
+          </div>
+
+          <section className="lesson-guide" aria-labelledby="lesson-guide-title">
+            <div>
+              <p className="figure-number">Zeitaufwand</p>
+              <h2 id="lesson-guide-title">Etwa 5 Minuten mit Aufgaben</h2>
+              <p>Orientierungswert, kein Timer.</p>
+            </div>
+            <ol>
+              <li><span>1</span><strong>Lesen</strong></li>
+              <li><span>2</span><strong>Anwenden</strong></li>
+              <li><span>3</span><strong>Abschließen</strong></li>
+            </ol>
+          </section>
+          {lesson.blocks.map((block, index) => {
+            return (
+              <Fragment key={`${block.kind}-${index}`}>
+                {block.kind === "interaction" && block.id === "int-ch01-load" && (
+                  <LessonIllustration
+                    src="/images/lessons/l1-training-studio-v1.webp"
+                    caption="Fiktive Illustration · Trainingsalltag im römischen Lernstudio."
+                    slot="training-studio"
+                  />
+                )}
+                {block.kind === "exercise" && block.id === "q-ch01-01" && (
+                  <LessonIllustration
+                    src="/images/lessons/l1-no-certificate-v2.webp"
+                    caption="Fiktive Illustration · Erschöpfung verteilt keine Fortschrittszeugnisse."
+                    slot="no-certificate"
+                  />
+                )}
+                {renderBlock(block, index)}
+                {index === firstParagraphIndex && (
+                  <LessonIllustration
+                    src="/images/lessons/l1-oracle-v1.webp"
+                    caption="Fiktive Illustration · Das Trainingstagebuch spielt Orakel."
+                    slot="oracle"
+                  />
+                )}
+              </Fragment>
+            );
+          })}
+          <ReadingProgress initialProgress={progress} />
+          <OptionalPilotFeedback lessonId={lesson.id} contentVersion={lesson.content_version} />
+        </article>
+
+        <aside className="lesson-sidebar lesson-sidebar-right">
+          <div className="sidebar-sticky"><LessonTableOfContents headings={headings} /></div>
+        </aside>
+      </div>
       <footer className="lesson-footer">
         <Link href="/">Zur Kapitelübersicht</Link>
         <p>Gelesen, geübt und später erinnert bleiben getrennte Aussagen.</p>

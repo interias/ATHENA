@@ -4,13 +4,38 @@
 
 Ein ruhiges, gut illustriertes digitales Fachbuch mit Werkstattcharakter. Keine überladene Fitness-App und kein Dashboard, das den eigentlichen Text verdrängt. Heller Standardmodus, dunkler Modus später optional. Systemschriften oder lokal eingebundene Schriftdateien; keine externen Font-Aufrufe.
 
-Zentrale Lesespalte ungefähr 65–75 Zeichen breit, Fließtext als Ausgangspunkt 18 px, Zeilenhöhe ungefähr 1,6. Fachbegriffe, Quellen und optionale Vertiefungen sind erreichbar, ohne die Hauptlektüre zu unterbrechen. Diese Werte werden am Pilot geprüft.
+Seit dem Nutzerauftrag vom 8. September 2026 folgt das Produkt in Struktur,
+Typografie und Dichte dem vorhandenen Projekt `stefans-fitness-kompass`.
+Diese Entscheidung ersetzt die Zwischenlösung mit einer 1100-px-Buchseite und
+18-px-Fließtext. ATHENAs pompejanisches Rot, Bronze, helle Flächen und die bereits
+generierten Illustrationen bleiben erhalten. Der historische D0-Vergleichsstand
+wird nicht verändert.
+
+- Kompakter gemeinsamer Seitenkopf, direkter Einstieg in die Kapitelübersicht.
+- Desktop: Lektionsnavigation links, mittlere Lesespalte, Abschnittslinks rechts.
+  Unterhalb des Desktop-Breakpoints sind die Navigationen kompakt aufklappbar.
+- Fließtext etwa 16–16,5 px in serifenloser Schrift mit etwa 1,65-facher Zeilenhöhe.
+  Feste Überschriftengrößen statt mit der Fensterbreite wachsender Schrift:
+  Seitentitel 34 px, Abschnitte 25 px, kleinere Zwischenüberschriften etwa 17,5 px.
+- Zentrale Artikelspalte ungefähr 680–720 px einschließlich Innenabständen;
+  Textlänge ungefähr 70–80 Zeichen. `ch` bleibt eine typografische Näherung.
+- Flaches dekoratives Kapitelbanner, kompakte vollständige 3:2-Illustrationen
+  im Text. Aufgaben, Grafiken und Hinweise bleiben innerhalb der Lesespalte.
+- Dezente Trennlinien und Abstände, kaum Schatten; keine dekorativen Großkarten
+  um jeden Abschnitt. Antworten, Quellendialog und Rückmeldungen bleiben erreichbar.
+
+Die Referenz liefert das Layout, keine zusätzlichen Produktfunktionen. Neue
+Kapitel, Suche, Sprachwechsel oder Trainingswerkzeuge gehören nicht zu diesem
+Auftrag. Die technische und visuelle Prüfung steht im
+[Vergleichsbericht](reviews/kompass-layout.md).
 
 ### ATHENA-Rahmen
 
 Das Projekt trägt den Arbeitsnamen **ATHENA**: **Athletic Training, Health, Exercise & Nutrition Academy**. Die Marke darf griechisch-römische und mythologische Anklänge verwenden, soll aber im Kern eine **glaubwürdige Lernumgebung** bleiben. Säulen, Eulen, Sternkarten, Lorbeer, Marmor, Bronze, Friese oder Amphorenmotive sind als Formensprache erlaubt, jedoch nur, wenn sie die Benutzbarkeit nicht verdrängen.
 
-Die konkrete Stil-Exploration ist separat dokumentiert in [docs/12_ATHENA_STYLE_DIRECTIONS.md](12_ATHENA_STYLE_DIRECTIONS.md). Für M0/M1 wird **noch kein endgültiger Stil festgeschrieben**. Stattdessen testen wir zuerst ausgewählte Richtungen am ersten Kapitel.
+Die frühere Stil-Exploration bleibt in [docs/12_ATHENA_STYLE_DIRECTIONS.md](12_ATHENA_STYLE_DIRECTIONS.md)
+dokumentiert. Für den aktuellen M0-Piloten gilt die oben beschriebene Verbindung
+von Kompass-Struktur und ATHENA-Farb- und Bildwelt.
 
 ## Seitenaufbau
 
