@@ -1,7 +1,7 @@
 ---
 lesson_id: ch01-l03
 chapter_id: ch01
-order: 3
+order: 4
 title: Ein schlechter Tag ist kein Rückschritt-Beweis
 content_version: 0.2.0
 status: pilot_draft
@@ -14,6 +14,7 @@ objectives:
 prerequisites:
 - ch01-l01
 - ch01-l02
+- ch01-l05
 source_ids:
 - S06
 - S07

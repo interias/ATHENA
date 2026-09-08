@@ -2,8 +2,8 @@
 lesson_id: ch01-l02
 chapter_id: ch01
 order: 2
-title: Anpassung braucht ein Ziel
-content_version: 0.2.0
+title: Anpassung braucht eine Zielgröße
+content_version: 0.3.0
 status: pilot_draft
 editorial_approved_by: null
 expert_reviewed_by: null
@@ -16,60 +16,45 @@ prerequisites:
 source_ids:
 - S04
 - S32
-figure_ids:
-- fig-ch01-adaptation
+- S33
+- S34
+- S35
+figure_ids: []
 question_ids:
 - q-ch01-04
-- q-ch01-05
 - q-ch01-06
 ---
 
-# Anpassung braucht ein Ziel
+# Anpassung braucht eine Zielgröße
 
 ## Besser — worin?
 
-**Fiktives Beispiel.** Zwei Personen erzählen dir, ihr Training sei besser geworden. Eine kann eine schwerere Hantel bewegen. Die andere schafft ihre übliche Laufstrecke mit weniger Anstrengung. Beide benutzen dasselbe Wort, meinen aber unterschiedliche Veränderungen.
+**Fiktives Beispiel.** Eine Person verbessert ihr Ergebnis in einem festgelegten Krafttest. Ihr Urteil steht sofort fest: „Dann sind meine Muskeln genau entsprechend gewachsen.“ Das klingt ordentlich messbar. Leider hat die Zahl nur den Beruf gewechselt, ohne sich zu bewerben.
 
-Bevor du einen Plan bewertest, brauchst du deshalb eine Zielgröße. Geht es um Muskelgröße, eine bestimmte Kraftleistung, eine Laufleistung oder darum, eine Bewegung sicherer zu beherrschen? „Mehr Fitness“ kann ein Ausgangspunkt sein. Als Messauftrag ist es noch ziemlich ungenau.
+Eine **Zielgröße** ist die Veränderung, über die du etwas wissen möchtest. Ein Test liefert dazu eine Beobachtung, wenn seine Aufgabe zur Frage passt. Fragst du nach der Leistung in einem bestimmten Krafttest, ist dessen Ergebnis naheliegend. Fragst du nach Muskelwachstum, brauchst du eine passende Beobachtung der Muskelgröße. Kraftleistung und Muskelgröße können zusammenhängen; sie sind trotzdem nicht dieselbe Zielgröße. [S34, S35]
 
-Nach dieser Lektion kannst du Ziel, Trainingsaufgabe und Beobachtung miteinander verbinden. Außerdem kannst du erklären, warum Progression nicht bedeutet, in jeder Einheit zwangsläufig mehr Gewicht aufzulegen.
+## Testwert und Wachstum
 
-## Nicht dieselbe Anpassung
+Ein besserer Kraftwert zeigt zunächst: Die Person löste die festgelegte Testaufgabe besser. Kraftzuwächse können sowohl mit morphologischen Veränderungen — Veränderungen der Muskelstruktur und -größe — als auch mit Veränderungen der nervalen Ansteuerung zusammenhängen. Der Krafttest teilt diese Beiträge nicht automatisch auf und misst Muskelwachstum nicht direkt. [S32, S35]
 
-Kraftzuwachs ist nicht identisch mit Muskelzuwachs. Veränderungen an der Muskulatur und Veränderungen der nervalen Steuerung können zur Kraftentwicklung beitragen. Deshalb lässt sich aus einem besseren Kraftwert nicht eins zu eins ablesen, wie viel Muskelmasse hinzugekommen ist. [S32]
+Auch „Kraft“ ist ohne Testbeschreibung noch unscharf. Dynamische und isometrische Krafttests können unterschiedliche Aspekte erfassen. Deshalb gehört zur Zielgröße immer die Frage: **Woran würde ich genau diese Veränderung erkennen?** [S34]
 
-Für das Denken über Training ist diese Trennung wichtiger als eine lange Liste biologischer Details. Du lernst später genauer, welche Mechanismen beteiligt sind. Hier genügt zunächst: **Eine beobachtete Leistung kann mehrere Ursachen haben.**
+## Drei passende Teile
 
-[[figure:fig-ch01-adaptation]]
+Verbinde beim Beurteilen drei Teile:
 
-Das Bild verbindet drei Fragen: Was soll sich verändern? Welche Aufgabe passt dazu? Welche Beobachtung würde zum Ziel passen? Die Pfeile sind eine Planungshilfe, keine Garantie, dass jeder Mensch auf dieselbe Aufgabe gleich reagiert.
+1. **Ziel:** Welche Veränderung interessiert mich?
+2. **Aufgabe:** Was wird im Training oder Test tatsächlich verlangt?
+3. **Beobachtung:** Welcher Wert oder welche Beschreibung passt zur Zielgröße?
 
-## Zielbezogen statt maximal
-
-Der ACSM-Position-Stand von 2026 unterscheidet unter anderem Kraft, Muskelhypertrophie und Power als Zielgrößen und behandelt Trainingsvariablen entsprechend differenziert. Er empfiehlt progressives Krafttraining, liefert aber keinen einzelnen optimalen Plan für jede Person. [S04]
-
-Unsere praktische Ableitung lautet: Ein Plan muss nicht in jedem Merkmal maximal sein. Er muss zu der Frage passen, die du mit ihm beantworten möchtest. Ein schwererer Satz und ein längerer Lauf sind nicht automatisch „besser“, solange du das Ziel offenlässt.
-
-Stell dir vor, jemand ergänzt bei jeder Gelegenheit weitere Übungen. Vielleicht entsteht damit ein passender zusätzlicher Reiz. Vielleicht wird nur die Sitzung länger. Ohne Ziel und Beobachtung ist beides noch nicht unterscheidbar.
-
-## Progression richtig lesen
-
-In diesem Kurs verwenden wir **Progression** als geplante Weiterentwicklung der Trainingsanforderung über die Zeit. Wie sie konkret aussieht, wird im Kraft- und Ausdauerkapitel genauer behandelt. Hier ist sie zunächst eine Planungsfrage, kein Befehl zu täglichen Rekorden.
-
-Ein Vergleich macht das deutlich. In Woche A bewegst du im fiktiven Beispiel 50 Kilogramm zehnmal. In Woche B bewegst du 52,5 Kilogramm sechsmal. Das Gewicht ist gestiegen; die Wiederholungszahl ist gesunken. Aus „mehr Gewicht“ allein folgt logisch noch nicht, dass jede relevante Leistung besser geworden ist.
-
-Für einen fairen Vergleich würdest du fragen, was gleich geblieben ist: Übung, Ausführung und Testaufgabe zum Beispiel. Ebenso wichtig ist, ob du überhaupt einen Leistungstest vergleichen wolltest oder zwei bewusst unterschiedliche Trainingsaufgaben.
-
-## Dein eigener Ziel-Satz
-
-Formuliere ohne neue Trainingsvorgabe einen Satz: „Ich möchte in ___ besser werden. Beobachten würde ich dafür ___. Dabei müsste ich ___ möglichst vergleichbar halten.“
-
-Ein guter Satz enthält eine konkrete Fähigkeit und eine passende Beobachtung. Ein unvollständiger Satz ist kein Problem; er zeigt, was du als Nächstes klären musst. Nicht jedes Ziel braucht sofort eine Kennzahl. Manche benötigen zuerst eine bessere Beschreibung.
+Das ist eine Denkstruktur, keine Wirkungsgarantie. Der ACSM-Position-Stand behandelt Kraft und Hypertrophie deshalb als unterscheidbare Zielgrößen; er liefert keinen einzelnen optimalen Plan für jede Person. [S04]
 
 [[exercise:q-ch01-04]]
 
-[[exercise:q-ch01-06]]
-
 ## Merksatz
 
-**Training wird nicht dadurch sinnvoll, dass jede Zahl steigt. Entscheidend ist, ob Aufgabe und Beobachtung zu deinem Ziel passen.**
+**Ein Messwert beantwortet nur die Frage, zu der er passt: Ein Krafttest misst Kraftleistung, nicht direkt Muskelwachstum.**
+
+## Vertiefung: Passend heißt nicht perfekt
+
+Eine passendere Zielgröße macht eine Beobachtung nicht automatisch fehlerfrei. Auch bei einer klar beschriebenen Testaufgabe bleibt entscheidend, wie zuverlässig sie wiederholt werden kann und ob die Bedingungen ausreichend vergleichbar sind. [S33, S34] Das ist kein Grund, Messungen aufzugeben. Es ist ein Grund, Methode und Aussagegrenze mitzusprechen. Die Lektion verlangt dafür keinen zusätzlichen Test und keine Bewertung deiner persönlichen Entwicklung.

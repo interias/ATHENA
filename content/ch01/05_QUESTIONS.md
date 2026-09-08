@@ -2,12 +2,15 @@
 
 **Redaktionelle Vorlage mit Lösungen.** Im Lernstudio erst nach dem Antwortversuch zeigen. Alle konkreten Fälle sind fiktiv. Freitext wird anhand der Pflichtkriterien selbst bewertet; alternative korrekte Formulierungen sind zulässig. Leere `source_ids` markieren hier selbst konstruierte logische Aufgaben, nicht versteckte externe Belege.
 
-M0: nur q-ch01-01 und q-ch01-02. M1: alle zwölf Kernaufgaben, acht Reviewkarten und zwei Transferfälle. Die zusätzlichen Kernaufgaben q03/q05/q08/q11 ergänzen die direkt eingebetteten Aufgaben in einem Kapitel-Übungsbereich.
+Aktuell veröffentlicht sind q-ch01-01, q-ch01-02, q-ch01-04 und q-ch01-05.
+Die übrigen Kernaufgaben, acht Reviewkarten und zwei Transferfälle bleiben geplant.
+q03/q06/q08/q11 ergänzen später die direkt eingebetteten Aufgaben in einem
+Kapitel-Übungsbereich.
 
 ```yaml
 schema_version: '1.0'
 chapter_id: ch01
-content_version: 0.2.0
+content_version: 0.3.0
 questions:
 - id: q-ch01-01
   lesson_id: ch01-l01
@@ -100,54 +103,64 @@ questions:
 - id: q-ch01-04
   lesson_id: ch01-l02
   objective_ids:
-  - ch01-o03
-  kind: single_choice
-  content_version: 0.2.0
-  prompt: Welche Formulierung passt am besten zu unserem Progressionsbegriff?
-  options:
-  - id: a
-    text: In jeder Einheit muss mindestens eine Zahl steigen.
-  - id: b
-    text: Die Anforderung wird über die Zeit passend zum Ziel weiterentwickelt.
-  - id: c
-    text: Jede Übung muss regelmäßig ausgetauscht werden.
-  correct_option: b
-  feedback_by_option:
-    a: Eine Einzelvorgabe für jede Sitzung folgt daraus nicht.
-    b: 'Richtig: Ziel und Verlauf zählen; konkrete Methoden werden später behandelt.'
-    c: Ein Übungswechsel kann eine Entscheidung sein, ist aber nicht die Definition von Progression.
-  source_ids:
-  - S04
-  misconception: Progression bedeutet einen erzwungenen Rekord in jeder Einheit.
-- id: q-ch01-05
-  lesson_id: ch01-l02
-  objective_ids:
   - ch01-o02
   - ch01-o03
   kind: single_choice
-  content_version: 0.2.0
-  prompt: Eine Person verbessert ihren Krafttest. Was folgt daraus am sichersten?
+  content_version: 0.3.0
+  prompt: 'Fiktiver Fall: Eine Person erzielt in einem festgelegten Krafttest einen höheren Wert und sagt:
+    „Damit ist mein Muskelwachstum genau gemessen.“ Welche Beurteilung passt am besten?'
   options:
   - id: a
-    text: Die Muskelmasse ist genau proportional gestiegen.
+    text: Der Kraftwert zeigt direkt und genau, wie stark die Muskeln gewachsen sind.
   - id: b
-    text: Nur das Nervensystem hat sich verändert.
+    text: Das Krafttestergebnis ist besser; ob und wie stark Muskeln gewachsen sind, misst dieser Test nicht direkt.
   - id: c
-    text: Das Testergebnis ist besser; die Beiträge verschiedener Anpassungen sind damit noch nicht aufgeteilt.
-  correct_option: c
+    text: Der Kraftzuwachs beweist, dass ausschließlich die nervale Ansteuerung verändert wurde.
+  correct_option: b
   feedback_by_option:
-    a: Kraftleistung ist kein proportionaler Muskelmassenmesser.
-    b: Auch diese eindeutige Ursachenzuschreibung geht zu weit.
-    c: 'Richtig: Beobachtung und Erklärung der Beiträge bleiben getrennt.'
+    a: Kraftleistung und Muskelgröße können zusammenhängen, sind aber verschiedene Zielgrößen.
+    b: 'Richtig: Der Test beantwortet eine Kraftfrage; Muskelwachstum braucht eine dazu passende Beobachtung.'
+    c: Auch diese eindeutige Aufteilung der Anpassungsbeiträge liefert der Krafttest nicht.
   source_ids:
   - S32
-  misconception: Ein besserer Kraftwert erlaubt eine eindeutige biologische Erklärung.
+  - S35
+  misconception: Ein besserer Kraftwert wird als direkte und eindeutige Messung einer biologischen Anpassung gelesen.
+- id: q-ch01-05
+  lesson_id: ch01-l05
+  objective_ids:
+  - ch01-o03
+  kind: free_text
+  content_version: 0.3.0
+  prompt: 'Fiktiver Fall: Eine Trainingsanforderung wird über mehrere Wochen weiterentwickelt. Ein einzelner
+    Testtag liegt unter dem vorherigen Wert. Beurteile in zwei bis drei Sätzen die Aussage: „Ohne Bestleistung
+    an jedem Testtag gab es keine Progression.“'
+  rubric:
+  - id: c1
+    criterion: Progression als zielbezogene Weiterentwicklung über Zeit statt als Pflichtrekord jeder Einheit einordnen.
+    required: true
+  - id: c2
+    criterion: Den einzelnen Testwert von einem Verlauf trennen.
+    required: true
+  - id: c3
+    criterion: Zielgröße, Vergleichbarkeit oder Messunsicherheit als offene Prüfbedingung nennen.
+    required: true
+  model_answer: Die Aussage ist zu stark, weil Progression die zielbezogene Weiterentwicklung über Zeit meint
+    und keinen Rekord an jedem Testtag verlangt. Der einzelne niedrigere Wert beschreibt diesen Tag; für den
+    Verlauf müsste ich die passende Zielgröße unter ausreichend vergleichbaren Bedingungen betrachten und
+    Messunsicherheit mitdenken.
+  feedback: Prüfe, ob du den einzelnen Testtag, die geplante Weiterentwicklung und die Aussage über den Verlauf
+    getrennt hast. Eine persönliche Trainingsänderung ist nicht gefragt.
+  source_ids:
+  - S33
+  - S36
+  - S37
+  misconception: Ein einzelner Tageswert wird mit dem gesamten Progressionsverlauf gleichgesetzt.
 - id: q-ch01-06
   lesson_id: ch01-l02
   objective_ids:
   - ch01-o03
   kind: free_text
-  content_version: 0.2.0
+  content_version: 0.3.0
   prompt: Formuliere ein fiktives Trainingsziel, eine dazu passende Beobachtung und eine Bedingung für einen
     brauchbaren Vergleich.
   rubric:

@@ -18,6 +18,9 @@ Die Tabelle ordnet die zentralen Aussagen den tatsächlich verwendeten Quellen z
 | C12 | Private Fitness-B-Lizenz und DOSB-Lizenzstufe sind nicht einfach gleichzusetzen. | S01, S02 | Einordnung unterschiedlicher Ausbildungsbeschreibungen, keine Rechtsprüfung | Lizenzplanung |
 | C13 | Die Kompatibilität von Kraft/Ausdauer hängt unter anderem von betrachteter Zielgröße und Datengrundlage ab. | S09, S31 | unterschiedliche Synthesen nicht zu einer Pauschalregel verkürzen | Curriculum |
 | C14 | Lokal betriebene Oberfläche verhindert nicht, dass Cloud-Tutorkontext den Rechner verlässt. | S20 | technische Folgerung und dokumentierte Speichergrenzen | Architektur/Tutor |
+| C15 | Ein Krafttestergebnis und Muskelwachstum sind verschiedene, möglicherweise zusammenhängende Zielgrößen; der Krafttest quantifiziert Muskelwachstum nicht direkt. | S32, S34, S35 | Synthese und Primärstudien; keine vollständige Aufteilung der Anpassungsbeiträge oder persönliche Wachstumsmessung | L2, Q04, L3-Kurzabruf |
+| C16 | Progression wird im Kurs als zielbezogene Weiterentwicklung über Zeit verstanden; sie ist nicht auf eine Laststeigerung in jeder Einheit begrenzt. | S04, S36 | Kursdefinition mit experimenteller Stütze für Last- und Wiederholungsprogression; keine universelle Methode | L3, Q05 |
+| C17 | Ein einzelner Testwert kann Messstreuung enthalten und begründet allein keinen sicheren Verlauf. | S33, S37 | methodische Synthese und begrenzte Test-Retest-Studie; keine allgemeine Kilogramm- oder Prozentgrenze | L3, Q05 |
 
 ## Nicht aus diesen Quellen ableiten
 

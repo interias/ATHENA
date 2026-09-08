@@ -1,7 +1,7 @@
 ---
 chapter_id: ch01
 title: Wie Training wirkt
-content_version: 0.2.0
+content_version: 0.3.0
 status: pilot_draft
 ---
 # Kapitel 1 — Wie Training wirkt
@@ -25,11 +25,13 @@ Dieses Kapitel ist ein recherchegestützter Pilotentwurf für persönliches Lern
 
 [L1 — Gleiche Aufgabe, andere Reaktion](01_LOAD.md)
 
-[L2 — Anpassung braucht ein Ziel](02_ADAPTATION.md)
+[L2 — Anpassung braucht eine Zielgröße](02_ADAPTATION.md)
 
-[L3 — Ein schlechter Tag ist kein Rückschritt-Beweis](03_FATIGUE.md)
+[L3 — Progression ohne Tagesrekord](05_PROGRESSION.md)
 
-[L4 — Beobachten, ohne sich Geschichten zu erzählen](04_OBSERVATION.md)
+[L4 — Ein schlechter Tag ist kein Rückschritt-Beweis](03_FATIGUE.md)
+
+[L6 — Beobachten, ohne sich Geschichten zu erzählen](04_OBSERVATION.md)
 
 ## Arbeitsmaterial
 
@@ -39,11 +41,13 @@ Im fertigen Lernstudio werden Lösungen erst nach dem Antwortversuch eingeblende
 
 ## Umfang
 
-L1 ist als Pilot für etwa fünf Minuten einschließlich Aufgaben überarbeitet.
-Die übrigen drei Textentwürfe bleiben gesperrt. Der
+L1 bis L3 sind als kurze Einheiten von ungefähr fünf Minuten einschließlich ihrer
+jeweiligen Hauptaufgabe angelegt. Optionale Vertiefungen benötigen zusätzliche
+Zeit. Die übrigen Textentwürfe bleiben gesperrt; der
 [Plan für acht kurze Einheiten](../../docs/plans/ch01-five-minute-lessons.md)
-beschreibt den vorgesehenen Neuschnitt des Kapitels; seine Umsetzung benötigt
-einen weiteren Auftrag. Die Zeitangabe ist zunächst ein Gestaltungsbudget.
+beschreibt den weiteren Neuschnitt. Die fehlenden Positionsnummern 5, 7 und 8
+markieren noch nicht angelegte Einheiten, nicht übersprungene verfügbare Lektionen.
+Die Zeitangabe ist zunächst ein Gestaltungsbudget.
 
 ## Abschlussfrage
 
