@@ -168,6 +168,9 @@ test("reflows at actual 200 percent Chrome page zoom", async ({ browserName }, t
     await settings.locator("#zoomLevel").selectOption("2");
     const page = await context.newPage();
     await page.goto(`${baseURL}/lessons/ch01-l01`);
+    await expect(page.locator(".lesson-mobile-navigation")).toBeVisible();
+    await expect(page.locator(".lesson-sidebar-left")).toBeHidden();
+    await expect(page.locator(".lesson-sidebar-right")).toBeHidden();
     await page.locator(".optional-feedback > summary").click();
     await expect(page.locator(".pilot-feedback")).toBeVisible();
     const metrics = await page.evaluate(() => {

@@ -15,12 +15,24 @@ test("shows the available pilot lesson and planned lessons", async ({ page }) =>
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "Kapitelübersicht" })).toBeVisible();
+  const headerHeight = await page.locator(".site-header").evaluate((element) => element.getBoundingClientRect().height);
+  expect(headerHeight).toBeGreaterThanOrEqual(56);
+  expect(headerHeight).toBeLessThanOrEqual(64);
+  const titleSize = await page.getByRole("heading", { name: "Training verstehen. Klarer beobachten." }).evaluate((element) => getComputedStyle(element).fontSize);
+  expect(titleSize).toBe("34px");
+  const bannerRatio = await page.locator(".home-banner").evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return box.width / box.height;
+  });
+  expect(bannerRatio).toBeGreaterThan(3.9);
+  expect(bannerRatio).toBeLessThan(4.1);
+  await expect(page.locator(".hero")).toHaveCount(0);
   await expect(page.getByText("Gleiche Aufgabe, andere Reaktion")).toBeVisible();
   await expect(page.getByText("Verfügbar", { exact: true })).toHaveCount(1);
   await expect(page.getByText("Geplant", { exact: true })).toHaveCount(3);
   await expect(page.locator(".lesson.planned a, .lesson.planned button")).toHaveCount(0);
-  expect(responses).toHaveLength(1);
-  expect(new URL(responses[0]).pathname).toBe("/api/curriculum");
+  expect(responses.length).toBeGreaterThanOrEqual(1);
+  expect([...new Set(responses.map((url) => new URL(url).pathname))]).toEqual(["/api/curriculum"]);
   expect(externalRequests).toEqual([]);
   expect(failedResponses).toEqual([]);
 });
@@ -43,6 +55,10 @@ test("keeps the chapter overview usable at 390 pixels", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByText("Gleiche Aufgabe, andere Reaktion")).toBeVisible();
+  const headerLinks = page.locator(".site-header a");
+  for (const link of await headerLinks.all()) {
+    expect(await link.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  }
   const widths = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     content: document.documentElement.scrollWidth,

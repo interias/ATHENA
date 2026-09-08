@@ -65,8 +65,26 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect(reader.getByRole("heading", { name: "Etwa 5 Minuten mit Aufgaben" })).toBeVisible();
   await expect(reader.getByText("Orientierungswert, kein Timer.")).toBeVisible();
   await expect(reader.locator(".lesson-guide li")).toHaveText(["1Lesen", "2Anwenden", "3Abschließen"]);
-  const heroHeight = await page.locator(".lesson-hero").evaluate((element) => element.getBoundingClientRect().height);
-  expect(heroHeight).toBeLessThanOrEqual(480);
+  const headerHeight = await page.locator(".site-header").evaluate((element) => element.getBoundingClientRect().height);
+  expect(headerHeight).toBeGreaterThanOrEqual(56);
+  expect(headerHeight).toBeLessThanOrEqual(64);
+  await expect(page.locator(".lesson-sidebar-left")).toBeVisible();
+  await expect(page.locator(".lesson-sidebar-right")).toBeVisible();
+  await expect(page.locator(".lesson-mobile-navigation")).toBeHidden();
+  await expect(page.locator('.lesson-sidebar-left .lesson-navigation a[aria-current="page"]')).toHaveText(/Gleiche Aufgabe, andere Reaktion/);
+  await expect(page.locator(".lesson-navigation .planned-lesson")).toHaveCount(6);
+  await expect(page.locator(".planned-lesson a")).toHaveCount(0);
+  const tocLinks = page.locator(".lesson-sidebar-right .lesson-toc a");
+  await expect(tocLinks).toHaveCount(4);
+  expect(await tocLinks.evaluateAll((links) => links.map((link) => link.getAttribute("href")))).toEqual([
+    "#was-wurde-eigentlich-gemessen",
+    "#erst-urteilen-dann-aufdecken",
+    "#heute-ist-nicht-langfristig",
+    "#merksatz",
+  ]);
+  const headingIds = await reader.locator(":scope > h2, :scope > h3").evaluateAll((elements) => elements.map((element) => element.id));
+  expect(new Set(headingIds).size).toBe(headingIds.length);
+  for (const id of headingIds) await expect(page.locator(`#${id}`)).toHaveCount(1);
   const optionalFeedback = page.locator(".optional-feedback");
   await expect(optionalFeedback).not.toHaveAttribute("open", "");
   await expect(page.locator(".pilot-feedback")).not.toBeVisible();
@@ -102,9 +120,16 @@ test("opens the complete canonical pilot reader without external runtime request
   await expect(page.getByText("Aufgabe · in Entwicklung")).toHaveCount(0);
   await expect(page.getByText("Recherchegestützter Pilotentwurf · keine unabhängige Fachprüfung")).toBeVisible();
   await expect(page.getByText("pilot_draft", { exact: false })).toBeVisible();
-  const heroImage = page.locator(".lesson-hero img");
-  await expect(heroImage).toBeVisible();
-  await expect.poll(() => heroImage.evaluate((image: HTMLImageElement) => image.complete ? image.naturalWidth : 0)).toBeGreaterThan(0);
+  const banner = page.locator(".lesson-banner");
+  const bannerRatio = await banner.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return box.width / box.height;
+  });
+  expect(bannerRatio).toBeGreaterThan(3.9);
+  expect(bannerRatio).toBeLessThan(4.1);
+  const bannerImage = banner.locator("img");
+  await expect(bannerImage).toBeVisible();
+  await expect.poll(() => bannerImage.evaluate((image: HTMLImageElement) => image.complete ? image.naturalWidth : 0)).toBeGreaterThan(0);
   await expect(page.getByText("Angenehm erlebt", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Deutlich anstrengender erlebt", { exact: true })).toHaveCount(0);
   const prematureReveal = await reader.evaluate((element) => {
@@ -120,6 +145,49 @@ test("opens the complete canonical pilot reader without external runtime request
   expect(prematureReveal).not.toContain("Deutlich anstrengender erlebt.");
   expect(externalRequests).toEqual([]);
   expect(failedResponses).toEqual([]);
+});
+
+test("keeps the lesson readable when optional curriculum navigation fails", async ({ page }) => {
+  await page.route("**/api/curriculum", (route) => route.abort("failed"));
+  await page.goto("/lessons/ch01-l01");
+
+  await expect(page.getByRole("heading", { name: "Gleiche Aufgabe, andere Reaktion", exact: true })).toBeVisible();
+  await expect(page.locator(".error-card")).toHaveCount(0);
+  await expect(page.locator(".navigation-unavailable")).toHaveCount(2);
+  await expect(page.locator(".lesson-sidebar-left .navigation-unavailable")).toBeVisible();
+});
+
+test("opens both mobile navigation groups by keyboard and keeps anchors below the header", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/lessons/ch01-l01");
+
+  const mobileNavigation = page.locator(".lesson-mobile-navigation");
+  await expect(mobileNavigation).toBeVisible();
+  const details = mobileNavigation.locator(":scope > details");
+  const lessonSummary = details.nth(0).locator(":scope > summary");
+  await lessonSummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(details.nth(0)).toHaveAttribute("open", "");
+  await expect(details.nth(0).locator('a[aria-current="page"]')).toBeVisible();
+  await expect(details.nth(0).locator(".planned-lesson a")).toHaveCount(0);
+
+  const tocSummary = details.nth(1).locator(":scope > summary");
+  await tocSummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(details.nth(1)).toHaveAttribute("open", "");
+  const tocLink = details.nth(1).getByRole("link", { name: "Heute ist nicht langfristig" });
+  await expect(tocLink).toBeVisible();
+  await tocLink.click();
+  await expect(page).toHaveURL(/#heute-ist-nicht-langfristig$/);
+
+  const target = page.locator("#heute-ist-nicht-langfristig");
+  await expect.poll(async () => {
+    const [headerBox, targetBox] = await Promise.all([
+      page.locator(".site-header").boundingBox(),
+      target.boundingBox(),
+    ]);
+    return headerBox && targetBox ? targetBox.y - (headerBox.y + headerBox.height) : -1;
+  }).toBeGreaterThanOrEqual(0);
 });
 
 test("keeps exercise solutions out of the initial page and client bundle", async ({ page }) => {
@@ -441,10 +509,24 @@ test("stays usable at 390 pixels, 200 percent scale and reduced motion", async (
 });
 
 test("keeps lesson surfaces inside the reader content box at supported widths", async ({ page }) => {
-  for (const width of [1440, 1024, 768, 390, 320]) {
+  for (const width of [1440, 1262, 1200, 1199, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/lessons/ch01-l01");
     await expect(page.locator(".lesson-reader")).toBeVisible();
+    const pageWidths = await page.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(pageWidths.scroll, `page containment at ${width}px`).toBeLessThanOrEqual(pageWidths.client);
+    if (width >= 1200) {
+      await expect(page.locator(".lesson-sidebar-left")).toBeVisible();
+      await expect(page.locator(".lesson-sidebar-right")).toBeVisible();
+      await expect(page.locator(".lesson-mobile-navigation")).toBeHidden();
+    } else {
+      await expect(page.locator(".lesson-sidebar-left")).toBeHidden();
+      await expect(page.locator(".lesson-sidebar-right")).toBeHidden();
+      await expect(page.locator(".lesson-mobile-navigation")).toBeVisible();
+    }
     expect(await readerContainmentViolations(page), `closed reader containment at ${width}px`).toEqual([]);
     await page.locator(".optional-feedback > summary").click();
     expect(await readerContainmentViolations(page), `open reader containment at ${width}px`).toEqual([]);
@@ -471,16 +553,25 @@ test("meets measured contrast targets for reader text and primary controls", asy
       const dark = Math.min(luminance(fg), luminance(bg));
       return (light + .05) / (dark + .05);
     }
-    const paragraph = getComputedStyle(document.querySelector<HTMLElement>(".lesson-reader > p")!);
-    const button = getComputedStyle(document.querySelector<HTMLElement>(".primary-action")!);
-    const eyebrow = getComputedStyle(document.querySelector<HTMLElement>(".lesson-hero .eyebrow")!);
+    function effectiveBackground(element: HTMLElement) {
+      let current: HTMLElement | null = element;
+      while (current) {
+        const color = getComputedStyle(current).backgroundColor;
+        if (color !== "transparent" && color !== "rgba(0, 0, 0, 0)") return color;
+        current = current.parentElement;
+      }
+      return "rgb(255, 255, 255)";
+    }
+    const paragraphElement = document.querySelector<HTMLElement>(".lesson-reader > p")!;
+    const buttonElement = document.querySelector<HTMLElement>(".primary-action")!;
+    const eyebrowElement = document.querySelector<HTMLElement>(".lesson-heading .eyebrow")!;
     return {
-      paragraph: ratio(paragraph.color, paragraph.backgroundColor === "rgba(0, 0, 0, 0)" ? "rgb(255, 255, 255)" : paragraph.backgroundColor),
-      button: ratio(button.color, button.backgroundColor),
-      heroEyebrow: ratio(eyebrow.color, eyebrow.backgroundColor),
+      paragraph: ratio(getComputedStyle(paragraphElement).color, effectiveBackground(paragraphElement)),
+      button: ratio(getComputedStyle(buttonElement).color, effectiveBackground(buttonElement)),
+      headingEyebrow: ratio(getComputedStyle(eyebrowElement).color, effectiveBackground(eyebrowElement)),
     };
   });
   expect(ratios.paragraph).toBeGreaterThanOrEqual(4.5);
   expect(ratios.button).toBeGreaterThanOrEqual(4.5);
-  expect(ratios.heroEyebrow).toBeGreaterThanOrEqual(4.5);
+  expect(ratios.headingEyebrow).toBeGreaterThanOrEqual(4.5);
 });

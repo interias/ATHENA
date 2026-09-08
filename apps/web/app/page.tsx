@@ -1,41 +1,27 @@
+import Image from "next/image";
 import { Curriculum } from "../components/Curriculum";
+import { SiteHeader } from "../components/SiteHeader";
 
 export default function Home() {
   return (
     <main>
-      <header className="site-header">
-        <a className="wordmark" href="#inhalt" aria-label="ATHENA Startseite">
-          <span className="wordmark-mark" aria-hidden="true">A</span>
-          <span>
-            <strong>ATHENA</strong>
-            <small>Persönliches Lernstudio</small>
-          </span>
-        </a>
-        <span className="local-badge">Lokal · ohne Anmeldung</span>
-      </header>
+      <SiteHeader current="home" />
 
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-copy">
+      <section className="home-intro" aria-labelledby="hero-title">
+        <div className="home-intro-copy">
           <p className="eyebrow">Willkommen in deiner Bibliothek</p>
           <h1 id="hero-title">Training verstehen. Klarer beobachten.</h1>
           <p>
             Ein persönlicher Lernort für Sportwissenschaft – mit nachvollziehbaren
             Quellen, ehrlichen Grenzen und Raum für die eigene Erklärung.
           </p>
-          <a className="hero-link" href="#inhalt">Zum Kapitel</a>
         </div>
-        <div className="domus-stage" aria-hidden="true">
-          <span className="sun" />
-          <span className="arch arch-left" />
-          <span className="arch arch-center" />
-          <span className="arch arch-right" />
-          <span className="floor-line floor-line-one" />
-          <span className="floor-line floor-line-two" />
-          <span className="laurel">✦</span>
+        <div className="home-banner">
+          <Image src="/images/scene-pompeii.png" alt="" fill priority sizes="(max-width: 1120px) calc(100vw - 32px), 1080px" unoptimized />
         </div>
       </section>
 
-      <section className="reader" id="inhalt" aria-labelledby="curriculum-title">
+      <section className="home-library" id="inhalt" aria-labelledby="curriculum-title">
         <div className="section-intro">
           <p className="eyebrow">Dein Lernpfad</p>
           <h2 id="curriculum-title">Kapitelübersicht</h2>

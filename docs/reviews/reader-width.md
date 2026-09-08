@@ -1,5 +1,9 @@
 # Seitenbreite und enthaltene Komponenten
 
+Historischer Prüfstand vom 6. September 2026. Die Layoutmaße wurden durch den
+[kompakten Kompass-Aufbau](kompass-layout.md) ersetzt; die Prüfung auf überstehende
+Komponenten bleibt erhalten.
+
 Ausgangspunkt: `15a8a1b`. Nutzerbefund vom 6. September 2026: Aufgaben und
 Fachgrafiken ragen links und rechts über die weiße Leseseite hinaus.
 
