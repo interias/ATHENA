@@ -1,6 +1,14 @@
 # 10 — Stufenweiser Bauplan
 
-## Status: M0-Tickets vorbereitet, M1–M3 im Backlog
+## Aktueller Ausbau und historische Meilensteine
+
+M0 ist umgesetzt und das kompakte Pilotlayout wurde mit PR #11 freigegeben.
+Seit dem 8. September 2026 gilt der [bestätigte Ausbauplan](plans/content-expansion.md):
+zuerst Lektionen 2/3, danach Kapitel 1 in insgesamt acht kurzen Einheiten
+abschließen. Kurze Abruffragen und Kapiteltransfer gehören dazu; Scheduler und
+Tutor sind keine Voraussetzung für weitere Inhalte. Die nachfolgenden M0–M3-
+Abschnitte dokumentieren die historische Planung. Ihre Paketgrößen und feste
+Abfolge werden durch den aktuellen Ausbauplan ersetzt.
 
 Das vorhandene Labor folgt der [D0-Spezifikation](specs/d0-design-lab.md).
 Für die eigentliche App wurden [M0-Tickets #1–#7](https://github.com/interias/ATHENA/issues/1)
