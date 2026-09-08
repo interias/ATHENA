@@ -1,16 +1,23 @@
 # ATHENA
 
 Persönliches Lernstudio für Sportwissenschaft, Krafttraining, Ausdauer und Ernährung.
-Nutzbar sind das **Design Lab (D0)** und die lokale **M0-Produktstrecke** mit der
-vollständigen Pilotlektion „Gleiche Aufgabe, andere Reaktion“, Aufgaben,
-Lesestatus und Pilotfeedback. L1 ist nach der ersten persönlichen Rückmeldung als
-Fünf-Minuten-Pilot überarbeitet; das Zeitbudget ist noch in der Nutzung zu prüfen.
+Nutzbar sind das **Design Lab (D0)** und die lokale **Produktstrecke** mit drei
+Lektionen: „Gleiche Aufgabe, andere Reaktion“, „Anpassung braucht eine Zielgröße“
+und „Progression ohne Tagesrekord“. Aufgaben, Lesestatus und persönliches Feedback
+bleiben getrennt. Die neuen Einheiten ergänzen optionale Vertiefungen, eine kurze
+Abruffrage und je eine geprüfte generierte Illustration. Etwa fünf Minuten pro
+Kernlektion einschließlich Hauptaufgabe sind das Ziel; die tatsächliche Dauer
+ist noch in der Nutzung zu prüfen.
 Der [Kapitelplan](docs/plans/ch01-five-minute-lessons.md) beschreibt den weiteren
 Neuschnitt, der [Fachdiff](docs/reviews/l1-five-minute-editorial.md) die Änderungen.
 Die Oberfläche folgt nun dem kompakteren Aufbau von Stefans Fitness-Kompass;
 [Referenz und Prüfstand](docs/reviews/kompass-layout.md) dokumentieren die Umsetzung.
-M1–M3 bleiben Backlog und benötigen einen
-neuen Auftrag.
+Der [L2/L3-Umsetzungsbericht](docs/reviews/l2-l3-runtime.md) hält Technik,
+Prüfungen und Grenzen fest; [Textreview](docs/reviews/l2-l3-editorial.md) und
+[Bildbewertungen](docs/reviews/l2-l3-generated-illustrations.md) dokumentieren
+das getrennte Agentenreview. Weitere Pakete folgen dem
+[bestätigten Ausbauplan](docs/plans/content-expansion.md); übrige M1–M3-Funktionen
+bleiben Backlog und benötigen einen neuen Auftrag.
 
 ## Start
 

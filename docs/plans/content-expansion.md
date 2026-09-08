@@ -4,6 +4,11 @@ Stand: 8. September 2026. Ergebnis der Grilling-Runden Q1–Q10; Stefan hat alle
 Empfehlungen bestätigt. Dieses Dokument legt den nächsten Ausbau fest.
 Es dokumentiert die Planung, keine bereits umgesetzten oder freigeschalteten Inhalte.
 
+Die Umsetzung des ersten Pakets ist mit „ok, leg los mit der umsetzung“ am
+8. September 2026 beauftragt. Den tatsächlichen Prüf- und Lieferstand dokumentiert
+der [Umsetzungsbericht für L2/L3](../reviews/l2-l3-runtime.md). Die folgenden
+Pakete bleiben an die beschriebene Nutzung und anschließende Fortsetzung gebunden.
+
 ## Bestätigte Entscheidungen
 
 | Entscheidung | Vereinbarung |

@@ -50,6 +50,24 @@ compose.yaml
 
 Kein paralleles Kopieren der Texte in React-Dateien. Backend liest kanonische Dateien; Frontend bekommt validierte Daten. Generierte Manifestdateien sind abgeleitet und werden nicht manuell gepflegt.
 
+### Veröffentlichung und Inhaltsversionen
+
+Mit dem beauftragten L2/L3-Paket wird die bisherige feste Pilotfreigabe durch
+eine explizite Veröffentlichungsliste ersetzt. Ein vorhandener Text oder ein
+redaktioneller Prüfstatus allein schaltet keine Lektion frei. Geplante Inhalte
+bleiben in der Navigation erkennbar und über die öffentlichen Lektions- und
+Aufgabenwege gesperrt.
+
+Lektions-ID und Anzeigereihenfolge sind unabhängig: Neue Einheiten können sich
+zwischen vorhandene Einheiten einfügen, ohne deren Identität zu übernehmen.
+Die Inhaltsversion einer Lektion bindet ihre Aufgaben und die dazu gespeicherten
+Lernstände. Kapitel- und Aufgabenbankversionen erzwingen keinen Versionswechsel
+unveränderter Lektionen. Bestehende Antwort- und Rückmeldungssnapshots bleiben
+erhalten; eine Aufgabe weist weiterhin keine langfristige Erinnerung nach.
+
+Der konkrete Umsetzungs- und Prüfstand steht im
+[Bericht zum L2/L3-Paket](reviews/l2-l3-runtime.md).
+
 ## Daten und Persistenz
 
 SQLite im benannten Volume `learning_data`; nur die API schreibt. Content und fertige Assets schreibgeschützt einhängen. Ein API-Worker für den Pilot. Kurze Transaktionen, Foreign Keys aktivieren, passende Busy-Timeouts; WAL-Modus bei Bedarf testen. Last- und Mehrnutzerbetrieb sind ausdrücklich nicht freigegeben.

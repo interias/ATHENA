@@ -1,8 +1,9 @@
 # Kapitel 1 in kurzen Lerneinheiten
 
-Stand: 6. September 2026. Dieser Plan ordnet das vorhandene Kapitelmaterial neu.
-Aktuell umgesetzt ist ausschließlich die erste Einheit. Die übrigen Einheiten
-bleiben gesperrt und benötigen vor einer Freischaltung einen neuen Auftrag.
+Stand: 8. September 2026. Dieser Plan ordnet das vorhandene Kapitelmaterial neu.
+Die ersten drei Einheiten sind umgesetzt; den aktuellen Prüfstand hält der
+[L2/L3-Bericht](../reviews/l2-l3-runtime.md) fest. Die übrigen Einheiten bleiben
+gesperrt und folgen in den vereinbarten weiteren Paketen.
 
 Die Grilling-Entscheidungen vom 8. September und das erste Umsetzungspaket stehen
 im [bestätigten Ausbauplan](content-expansion.md). Die folgende Einteilung bleibt
@@ -27,8 +28,8 @@ aber keine Personen oder Trainingsformen abwerten.
 | Einheit | Kernfrage und vorhandene Grundlage | Lernziele | Geplanter Lerncheck | Status |
 |---|---|---|---|---|
 | 1. Gleiche Aufgabe, andere Reaktion | Was bilden protokollierte Merkmale ab, was nicht? L1, S05/S06 und Zwei-Läufe-Interaktion | o01, o02 | Schlussfolgerungswahl und neuer Krafttrainingsfall | umgesetzt als Fünf-Minuten-Pilot |
-| 2. Anpassung braucht eine Zielgröße | Welche Veränderung soll erklärt oder beobachtet werden? Erster Teil L2, S04/S32 und Ziel–Aufgabe–Beobachtung | o02, o03 | Krafttestergebnis von Muskelzuwachs trennen | gesperrt |
-| 3. Progression ohne Tagesrekord | Wie kann eine Anforderung über Zeit weiterentwickelt werden, ohne dass jede Zahl täglich steigt? Zweiter Teil L2 und S04 | o03 | Progressionsaussage beurteilen und Ziel-Satz formulieren | gesperrt |
+| 2. Anpassung braucht eine Zielgröße | Welche Veränderung soll erklärt oder beobachtet werden? Erster Teil der alten L2, S04/S32/S34/S35 und Ziel–Aufgabe–Beobachtung | o02, o03 | Krafttestergebnis von Muskelzuwachs trennen | umgesetzt, ID `ch01-l02` |
+| 3. Progression ohne Tagesrekord | Wie kann eine Anforderung über Zeit weiterentwickelt werden, ohne dass jede Zahl täglich steigt? Zweiter Teil der alten L2, S04/S33/S36/S37 | o03 | Progressionsaussage kurz begründen; L2-Abruf | umgesetzt, ID `ch01-l05` |
 | 4. Tagesleistung ist keine Trendlinie | Was wurde an diesem Tag beobachtet, was folgt daraus noch nicht? Erster Teil L3, S06/S08 und Acht-statt-zehn-Interaktion | o04, o05 | Beobachtung plus zwei Klärungsfragen | gesperrt |
 | 5. Muskelkater ist kein Wachstumszertifikat | Welche Reichweite hat dieser einzelne Indikator? Zweiter Teil L3, S07 und vorhandenes Bildbriefing | o05 | direkten Schluss und Umkehrschluss erkennen | gesperrt |
 | 6. Beobachtung, Hypothese, Behauptung | Wann wird aus einer Beobachtung eine mögliche Erklärung oder ein zu starker Schluss? Erster Teil L4 und vorhandenes Drei-Ebenen-Beispiel | o06 | Aussagen den drei Ebenen zuordnen | gesperrt |

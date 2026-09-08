@@ -46,7 +46,9 @@ einer Trainerlizenz entspricht.
 Die vier vorhandenen Ausgangstexte behandeln äußere Belastung und innere Reaktion,
 zielbezogene Anpassung, Ermüdung und Tagesleistung sowie Beobachtung und
 Schlussfolgerung. Sie werden gemäß dem [Neuschnitt](plans/ch01-five-minute-lessons.md)
-in acht kurze Einheiten überführt. Umgesetzt ist bisher die erste Einheit.
+in acht kurze Einheiten überführt. Umgesetzt sind die ersten drei Einheiten:
+Aufgabe und Reaktion, Zielgrößen sowie Progression. Der
+[L2/L3-Bericht](reviews/l2-l3-runtime.md) dokumentiert die aktuelle Prüfung.
 
 ### 2 — Funktionelle Anatomie
 
