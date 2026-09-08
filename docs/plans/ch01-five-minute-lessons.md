@@ -4,6 +4,11 @@ Stand: 6. September 2026. Dieser Plan ordnet das vorhandene Kapitelmaterial neu.
 Aktuell umgesetzt ist ausschließlich die erste Einheit. Die übrigen Einheiten
 bleiben gesperrt und benötigen vor einer Freischaltung einen neuen Auftrag.
 
+Die Grilling-Entscheidungen vom 8. September und das erste Umsetzungspaket stehen
+im [bestätigten Ausbauplan](content-expansion.md). Die folgende Einteilung bleibt
+die Grundlage; optionale Vertiefungen und ein bis zwei Illustrationen je neuer
+Einheit ergänzen sie.
+
 ## Takt und Anspruch
 
 Eine Einheit zielt auf ungefähr fünf Minuten einschließlich Lerncheck. Das ist ein
